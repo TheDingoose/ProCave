@@ -8,6 +8,8 @@
 #include "Graphics/Renderer.h"
 #include "Base/ECS.h"
 
+#include "User/Input.h"
+
 
 #define MAX_LOADSTRING 100
 
@@ -46,10 +48,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
     //#INITIALIZATION
+   
     SetupSystems(ECS);
     Game.Init();
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
     Graphics->InitializeRenderer();
+
+    gainput::InputManager* GaInput = Input::get()->GetManager();
+    GaInput->SetDisplaySize(Graphics->Width, Graphics->Height);
+
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROCAVE));
 
     MSG msg;
@@ -60,13 +67,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     //#TICK
     while (ECS.progress()) {
-
+        GaInput->Update();
         // Main message loop:
         PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+
+            GaInput->HandleMessage(msg);
 		}
         
 

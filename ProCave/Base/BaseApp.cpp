@@ -1,6 +1,6 @@
 #include "BaseApp.h"
 #include "Graphics/Renderer.h"
-
+#include "User/Input.h"
 BaseApp::BaseApp()
 {
 }
@@ -24,11 +24,31 @@ void BaseApp::Load()
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
-	Cam->Position = XMVectorSetZ(Cam->Position, XMVectorGetZ(Cam->Position) - 0.01f);
-	Cam->Position = XMVectorSetX(Cam->Position, XMVectorGetX(Cam->Position) - 0.01f);
-	Cam->Position = XMVectorSetY(Cam->Position, XMVectorGetY(Cam->Position) + 0.01f);
-	Cam->Update();
+	XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
 
+	if (Input::get()->GetKeyDown(Forward)) {
+		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKeyDown(Backward)) {
+		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) - 0.01f);
+	}
+	if (Input::get()->GetKeyDown(Right)) {
+		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKeyDown(Left)) {
+		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) - 0.01f);
+	}
+	if (Input::get()->GetKeyDown(Up)) {
+		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKeyDown(Down)) {
+		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) - 0.01f);
+	}
+
+
+
+	Cam->Position = Cam->Position + Manouvre;
+	Cam->Update();
 }
 
 //Free all currently claimed resources
