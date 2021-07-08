@@ -1,6 +1,7 @@
 #include "BaseApp.h"
 #include "Graphics/Renderer.h"
 #include "User/Input.h"
+
 BaseApp::BaseApp()
 {
 }
@@ -18,6 +19,7 @@ void BaseApp::Init()
 //Loading resources and assets, shaderloading goes here too
 void BaseApp::Load()
 {
+
 }
 
 //Game update info goes here, more advanced functionality,
@@ -26,26 +28,24 @@ void BaseApp::Tick()
 {
 	XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
 
-	if (Input::get()->GetKeyDown(Forward)) {
+	if (Input::get()->GetKey(Forward)) {
 		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) + 0.01f);
 	}
-	if (Input::get()->GetKeyDown(Backward)) {
+	if (Input::get()->GetKey(Backward)) {
 		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) - 0.01f);
 	}
-	if (Input::get()->GetKeyDown(Right)) {
+	if (Input::get()->GetKey(Right)) {
 		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) + 0.01f);
 	}
-	if (Input::get()->GetKeyDown(Left)) {
+	if (Input::get()->GetKey(Left)) {
 		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) - 0.01f);
 	}
-	if (Input::get()->GetKeyDown(Up)) {
+	if (Input::get()->GetKey(Up)) {
 		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) + 0.01f);
 	}
-	if (Input::get()->GetKeyDown(Down)) {
+	if (Input::get()->GetKey(Down)) {
 		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) - 0.01f);
 	}
-
-
 
 	Cam->Position = Cam->Position + Manouvre;
 	Cam->Update();

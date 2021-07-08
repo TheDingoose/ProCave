@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 
-#include "Flecs/flecs.h"
+#include "flecs/flecs.h"
 
 using namespace DirectX;
 

@@ -25,7 +25,7 @@ public:
 		return &GainputManager;
 	}
 
-	bool GetKeyDown(Key key) {
+	bool GetKey(Key key) {
 		return Map->GetBool(key);
 	}
 

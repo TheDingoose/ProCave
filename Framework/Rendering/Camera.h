@@ -40,4 +40,9 @@ using namespace DirectX;
 
 			VP = View * Projection;
 		}
+
+		~Camera() {
+			ScreenHeight = nullptr;
+			ScreenWidth = nullptr;
+		}
 	};

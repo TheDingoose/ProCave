@@ -66,7 +66,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/ThirdParty;$(SolutionDir)\ThirdParty\Gainput\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/ThirdParty;$(SolutionDir)\ThirdParty\Gainput\include;$(SolutionDir)\ThirdParty\Spdlog\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -74,7 +74,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,7 +88,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/ThirdParty;$(SolutionDir)\ThirdParty\Gainput\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/ThirdParty;$(SolutionDir)\ThirdParty\Gainput\include;$(SolutionDir)\ThirdParty\Spdlog\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -98,7 +98,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

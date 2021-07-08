@@ -1,6 +1,6 @@
 // ProCave.cpp : Defines the entry point for the application.
 
-#include "Flecs/flecs.h"
+#include "flecs/flecs.h"
 
 #include "SH.h"
 #include "ProCave.h"
@@ -9,7 +9,7 @@
 #include "Base/ECS.h"
 
 #include "User/Input.h"
-
+#include "Base/Setup.h"
 
 #define MAX_LOADSTRING 100
 
@@ -50,6 +50,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     //#INITIALIZATION
    
     SetupSystems(ECS);
+    SetupSpdlog();
     Game.Init();
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
     Graphics->InitializeRenderer();
