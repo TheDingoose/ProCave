@@ -1,5 +1,6 @@
 #include "BaseApp.h"
 #include "Graphics/Renderer.h"
+#include "User/Input.h"
 
 BaseApp::BaseApp()
 {
@@ -18,17 +19,36 @@ void BaseApp::Init()
 //Loading resources and assets, shaderloading goes here too
 void BaseApp::Load()
 {
+
 }
 
 //Game update info goes here, more advanced functionality,
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
-	Cam->Position = XMVectorSetZ(Cam->Position, XMVectorGetZ(Cam->Position) - 0.01f);
-	Cam->Position = XMVectorSetX(Cam->Position, XMVectorGetX(Cam->Position) - 0.01f);
-	Cam->Position = XMVectorSetY(Cam->Position, XMVectorGetY(Cam->Position) + 0.01f);
-	Cam->Update();
+	XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
 
+	if (Input::get()->GetKey(Forward)) {
+		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKey(Backward)) {
+		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) - 0.01f);
+	}
+	if (Input::get()->GetKey(Right)) {
+		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKey(Left)) {
+		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) - 0.01f);
+	}
+	if (Input::get()->GetKey(Up)) {
+		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) + 0.01f);
+	}
+	if (Input::get()->GetKey(Down)) {
+		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) - 0.01f);
+	}
+
+	Cam->Position = Cam->Position + Manouvre;
+	Cam->Update();
 }
 
 //Free all currently claimed resources

@@ -86,7 +86,7 @@ public:
 			vertLayout->Release();
 	}
 
-	//#TEMPORARY
+	//Move this!
 	void Draw() {
 		//Clear the screen before drawing anything new
 		float bgColor[4] = { (0.5f, 0.0f, 0.0f, 0.0f) };

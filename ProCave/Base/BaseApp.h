@@ -1,5 +1,5 @@
 #pragma once
-#include "Camera.h"
+#include "Rendering/Camera.h"
 class Renderer;
 
 class BaseApp
