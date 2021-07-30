@@ -78,6 +78,7 @@ public:
 	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
 	bool InitializeRenderer();
 	bool InitializeModel(Model aModel);
+	void Resize();
 
 	void ReleaseObjects() {
 			//Release the COM Objects we created

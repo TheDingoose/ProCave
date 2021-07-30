@@ -173,15 +173,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
    //        }
    //    }
    // break;
-		//  case WM_PAINT:
-		//      {
-		//	  //PAINTSTRUCT ps;
-		//	  //HDC hdc = BeginPaint(hWnd, &ps);
-		//	  //// TODO: Add any drawing code that uses hdc here...
-		//	  //EndPaint(hWnd, &ps);
-		//      }
-       //break;
-        
+    case WM_PAINT:
+		{
+		    //PAINTSTRUCT ps;
+		    //HDC hdc = BeginPaint(hWnd, &ps);
+		    //// TODO: Add any drawing code that uses hdc here...
+		    //EndPaint(hWnd, &ps);
+	    }
+		break;
+    case WM_SIZE:
+       // if (!sizemove) {
+            Renderer::get()->Width = LOWORD(lParam);
+            Renderer::get()->Height = HIWORD(lParam);
+            Renderer::get()->Resize();
+      //  }
+        break;
     case WM_DESTROY:
         ECS.quit();
         PostQuitMessage(0);

@@ -58,7 +58,22 @@ void BaseApp::Load()
 
 	Model Coob(indices, v);
 
-	Renderer::get()->InitializeModel(Coob);
+	std::vector<Vertex> sv =
+	{
+		Vertex(-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex(-0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f),
+		Vertex(0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f),
+		Vertex(0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f),
+	};
+
+	std::vector<DWORD> sindices = {
+	0, 1, 2,
+	0, 2, 3,
+	};
+
+	Model Square(sindices, sv);
+
+	Renderer::get()->InitializeModel(Square);
 	Renderer::get()->InitializeModel(Coob);
 
 	Renderer::get()->Models[0].Transform.Translation = XMVectorSet(0.f, 0.f, 5.f, 0.f);

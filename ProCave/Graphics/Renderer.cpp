@@ -209,3 +209,44 @@ bool Renderer::InitializeModel(Model aModel)
 	return true;
 }
 
+void Renderer::Resize()
+{
+	if (SwapChain)
+	{
+		d3d11DevCon->OMSetRenderTargets(0, 0, 0);
+
+		// Release all outstanding references to the swap chain's buffers.
+		renderTargetView->Release();
+
+		HRESULT hr;
+		// Preserve the existing buffer count and format.
+		// Automatically choose the width and height to match the client rect for HWNDs.
+		hr = SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+
+		CheckError(hr, "Error in resizing the buffer");
+
+		// Get buffer and create a render-target-view.
+		ID3D11Texture2D* pBuffer;
+		hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+			(void**)&pBuffer);
+		CheckError(hr, "Error in getting the buffer");
+
+		hr = d3d11Device->CreateRenderTargetView(pBuffer, NULL,
+			&renderTargetView);
+		CheckError(hr, "Error in creating the new render target view");
+		pBuffer->Release();
+
+		d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, NULL);
+
+		// Set up the viewport.
+		D3D11_VIEWPORT vp;
+		vp.Width = Width;
+		vp.Height = Height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		d3d11DevCon->RSSetViewports(1, &vp);
+	}
+}
+
