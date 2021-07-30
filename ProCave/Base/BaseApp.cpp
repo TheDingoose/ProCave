@@ -76,42 +76,43 @@ void BaseApp::Load()
 	Renderer::get()->InitializeModel(Square);
 	Renderer::get()->InitializeModel(Coob);
 
-	Renderer::get()->Models[0].Transform.Translation = XMVectorSet(0.f, 0.f, 5.f, 0.f);
-	Renderer::get()->Models[1].Transform.Translation = XMVectorSet(4.f, 0.f, 5.f, 0.f);
+	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
+	Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
 }
 
 //Game update info goes here, more advanced functionality,
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
-	XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
+	//XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
 
 	if (Input::get()->GetKey(Forward)) {
-		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) + 0.01f);
+		Cam->Transform.Translation.z += 0.05f;
 	}
 	if (Input::get()->GetKey(Backward)) {
-		Manouvre = XMVectorSetZ(Manouvre, XMVectorGetZ(Manouvre) - 0.01f);
+		Cam->Transform.Translation.z -= 0.05f;
 	}
 	if (Input::get()->GetKey(Right)) {
-		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) + 0.01f);
+		Cam->Transform.Translation.x += 0.05f;
 	}
 	if (Input::get()->GetKey(Left)) {
-		Manouvre = XMVectorSetX(Manouvre, XMVectorGetX(Manouvre) - 0.01f);
+		Cam->Transform.Translation.x -= 0.05f;
 	}
 	if (Input::get()->GetKey(Up)) {
-		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) + 0.01f);
+		Cam->Transform.Translation.y += 0.05f;
 	}
 	if (Input::get()->GetKey(Down)) {
-		Manouvre = XMVectorSetY(Manouvre, XMVectorGetY(Manouvre) - 0.01f);
+		Cam->Transform.Translation.y -= 0.05f;
 	}
 
-	Cam->Position = Cam->Position + Manouvre;
+	//Cam->Position = Cam->Position + Manouvre;
 	Cam->Update();
 
 	float Rotat = 0.01f;
 
-	Renderer::get()->Models[0].Transform.Rotation = XMVectorSet(XMVectorGetX(Renderer::get()->Models[0].Transform.Rotation) + Rotat, XMVectorGetY(Renderer::get()->Models[0].Transform.Rotation) + Rotat, XMVectorGetZ(Renderer::get()->Models[0].Transform.Rotation) + Rotat, 0.f);
-	
+	Renderer::get()->Models[0].Transform.Rotation.x += Rotat;
+	Renderer::get()->Models[0].Transform.Rotation.y += Rotat;
+	Renderer::get()->Models[0].Transform.Rotation.z += Rotat;
 
 
 }

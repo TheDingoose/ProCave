@@ -6,9 +6,9 @@
 using namespace DirectX;
 
 struct cTransform {
-	XMVECTOR Translation = XMVectorSet(0.f, 0.f, 0.f, 0.f);
-	XMVECTOR Size = XMVectorSet(1.f, 1.f, 1.f, 0.f);
-	XMVECTOR Rotation = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 Translation = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 Size = XMFLOAT4(1.f, 1.f, 1.f, 0.f);
+	XMFLOAT4 Rotation = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
 	XMMATRIX Transform;
 
@@ -23,11 +23,11 @@ struct cTransform {
 		//	0.f, 0.f, 0.f, 0.f);
 		//
 		//XMMATRIX RotMat = XMMatrixRotationRollPitchYawFromVector(Rotation);
-
+		
 		Transform = 
-			XMMatrixScalingFromVector(Size) * 
-			XMMatrixRotationRollPitchYawFromVector(Rotation) * 
-			XMMatrixTranslationFromVector(Translation);
+			XMMatrixScalingFromVector(XMLoadFloat4(&Size)) * 
+			XMMatrixRotationRollPitchYawFromVector(XMLoadFloat4(&Rotation)) *
+			XMMatrixTranslationFromVector(XMLoadFloat4(&Translation));
 	}
 };
 
