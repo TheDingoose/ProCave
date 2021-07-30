@@ -9,6 +9,7 @@
 //#include <d3dx10.h>
 //#include <xnamath.h>
 
+#include "General/Transform.h"
 #include "Rendering/Vertex.h"
 #include "Rendering/Model.h"
 
@@ -17,6 +18,13 @@ using namespace DirectX;
 struct cbPerObject
 {
 	XMMATRIX  WVP;
+};
+
+struct ModelBuffers {
+	ID3D11Buffer* IndexBuffer;
+	UINT IndexSize;
+	ID3D11Buffer* VertexBuffer;
+	cTransform Transform;
 };
 
 
@@ -36,7 +44,8 @@ public:
 		VP = aVP;
 	}
 
-	std::vector<Model> Models;
+	std::vector<Model> ModelData;
+	std::vector<ModelBuffers> Models;
 
 private:
 	Renderer() {}
@@ -50,15 +59,12 @@ private:
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11Texture2D* depthStencilBuffer;
 	HRESULT hr;
-
 	
 	ID3D11Buffer* cbPerObjectBuffer;
-	std::vector<ID3D11Buffer*> ModelBuffers;
+	
 
 	XMMATRIX* VP = new XMMATRIX(XMMatrixIdentity());
 
-	ID3D11Buffer* IndexBuffer;
-	ID3D11Buffer* VertBuffer;
 	ID3D11VertexShader* VS;
 	ID3D11PixelShader* PS;
 	ID3DBlob* VS_Buffer;
@@ -84,20 +90,18 @@ public:
 
 			cbPerObjectBuffer->Release();
 
-			VertBuffer->Release();
-			IndexBuffer->Release();
 			VS->Release();
 			PS->Release();
 			VS_Buffer->Release();
 			PS_Buffer->Release();
 			vertLayout->Release();
 
-			Models.clear();
+			ModelData.clear();
 
-			for (auto i: ModelBuffers) {
-				i->Release();
+			for (auto i : Models) {
+				i.IndexBuffer->Release();
+				i.VertexBuffer->Release();
 			}
-
 	}
 
 	//Move this!
@@ -108,14 +112,27 @@ public:
 		d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
+		for (auto Mesh : Models) {
+			//Set the index buffer
+			d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			
+			//Set the vertex buffer
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
+			d3d11DevCon->IASetVertexBuffers(0, 1, &Mesh.VertexBuffer, &stride, &offset);
 
-		cbPerObj.WVP = XMMatrixTranspose(*VP);
-		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
 
-		//Draw!
-		d3d11DevCon->DrawIndexed(6, 0, 0);
+			Mesh.Transform.UpdateMatrix();
+			cbPerObj.WVP = XMMatrixTranspose(Mesh.Transform.Transform * *VP);
+			d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+			d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+			//Draw!
+			d3d11DevCon->DrawIndexed(Mesh.IndexSize, 0, 0);
+		}
+
+		
 
 		SwapChain->Present(0, 0);
 	}

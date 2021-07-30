@@ -98,7 +98,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;$(SolutionDir)Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -115,6 +115,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="General\Transform.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="User\Input.cpp" />
     <ClCompile Include="pch.cpp">
