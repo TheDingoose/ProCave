@@ -1,4 +1,4 @@
-
+#pragma once
 struct Vertex    //Overloaded Vertex Structure
 {
 	Vertex() {

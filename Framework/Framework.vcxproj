@@ -105,6 +105,7 @@
     <ClInclude Include="..\ThirdParty\Flecs\flecs.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="General\Transform.h" />
+    <ClInclude Include="Rendering\Model.h" />
     <ClInclude Include="User\Input.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\Vertex.h" />

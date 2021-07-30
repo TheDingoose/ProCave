@@ -3,11 +3,14 @@
 
 #include <d3d11.h>
 #include <dxgi.h>
-#include "Rendering/Vertex.h"
 #include <DirectXMath.h>
+#include <vector>
 //#include <d3dx11.h>
 //#include <d3dx10.h>
 //#include <xnamath.h>
+
+#include "Rendering/Vertex.h"
+#include "Rendering/Model.h"
 
 using namespace DirectX;
 
@@ -33,6 +36,8 @@ public:
 		VP = aVP;
 	}
 
+	std::vector<Model> Models;
+
 private:
 	Renderer() {}
 
@@ -46,7 +51,9 @@ private:
 	ID3D11Texture2D* depthStencilBuffer;
 	HRESULT hr;
 
+	
 	ID3D11Buffer* cbPerObjectBuffer;
+	std::vector<ID3D11Buffer*> ModelBuffers;
 
 	XMMATRIX* VP = new XMMATRIX(XMMatrixIdentity());
 
@@ -57,7 +64,6 @@ private:
 	ID3DBlob* VS_Buffer;
 	ID3DBlob* PS_Buffer;
 	ID3D11InputLayout* vertLayout;
-
 public:
 	Renderer(Renderer const&) = delete;
 	void operator=(Renderer const&) = delete;
@@ -65,6 +71,7 @@ public:
 
 	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
 	bool InitializeRenderer();
+	bool InitializeModel(Model aModel);
 
 	void ReleaseObjects() {
 			//Release the COM Objects we created
@@ -84,6 +91,13 @@ public:
 			VS_Buffer->Release();
 			PS_Buffer->Release();
 			vertLayout->Release();
+
+			Models.clear();
+
+			for (auto i: ModelBuffers) {
+				i->Release();
+			}
+
 	}
 
 	//Move this!
@@ -95,7 +109,7 @@ public:
 
 
 
-		cbPerObj.WVP = XMMatrixTranspose(   *VP);
+		cbPerObj.WVP = XMMatrixTranspose(*VP);
 		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 

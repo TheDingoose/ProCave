@@ -13,7 +13,6 @@ void BaseApp::Init()
 	Renderer* aRenderer = Renderer::get();
 	Cam = new Camera(&aRenderer->Width, &aRenderer->Height);
 	aRenderer->SetVP(&Cam->VP);
-
 }
 
 //Loading resources and assets, shaderloading goes here too

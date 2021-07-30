@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "spdlog/spdlog.h"
+
 
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
@@ -14,6 +16,7 @@ UINT numElements = ARRAYSIZE(layout);
 void CheckError(HRESULT Res, const char* msg) {
 #ifdef _DEBUG 
 	if (Res != S_OK) {
+		spdlog::error(msg);
 		OutputDebugStringA(msg);
 		throw(1);
 	}
@@ -24,6 +27,7 @@ void CheckError(HRESULT Res, const char* msg) {
 void CheckError(HRESULT Res, ID3DBlob* msg) {
 #ifdef _DEBUG 
 	if (Res != S_OK) {
+		spdlog::error((const char*)msg->GetBufferPointer());
 		OutputDebugStringA((const char*)msg->GetBufferPointer());
 		throw(1);
 	}
@@ -115,9 +119,9 @@ bool Renderer::InitializeRenderer()
 
 	//Create the Shader Objects
 	hr = d3d11Device->CreateVertexShader(VS_Buffer->GetBufferPointer(), VS_Buffer->GetBufferSize(), NULL, &VS);
-	CheckError(hr, "Whoops!");
+	CheckError(hr, "Error While compiling Vertex Shader!");
 	hr = d3d11Device->CreatePixelShader(PS_Buffer->GetBufferPointer(), PS_Buffer->GetBufferSize(), NULL, &PS);
-	CheckError(hr, "Whoops!");
+	CheckError(hr, "Error While compiling Pixel Shader!");
 
 	//Set Vertex and Pixel Shaders
 	d3d11DevCon->VSSetShader(VS, 0, 0);
@@ -134,10 +138,6 @@ bool Renderer::InitializeRenderer()
 	cbbd.MiscFlags = 0;
 
 	hr = d3d11Device->CreateBuffer(&cbbd, NULL, &cbPerObjectBuffer);
-
-
-
-
 
 	//Create the vertex buffer
 	Vertex v[] =
@@ -176,7 +176,7 @@ bool Renderer::InitializeRenderer()
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 	vertexBufferData.pSysMem = v;
 	hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &VertBuffer);
-	CheckError(hr, "Whoops!");
+	CheckError(hr, "Error creating Vertex Buffer!");
 
 	//Set the vertex buffer
 	UINT stride = sizeof(Vertex);
@@ -192,7 +192,7 @@ bool Renderer::InitializeRenderer()
 	//Create the Input Layout
 	hr = d3d11Device->CreateInputLayout(layout, numElements, VS_Buffer->GetBufferPointer(),
 		VS_Buffer->GetBufferSize(), &vertLayout);
-	CheckError(hr, "Whoops!");
+	CheckError(hr, "Error creating Input Layout!");
 
 	//Set the Input Layout
 	d3d11DevCon->IASetInputLayout(vertLayout);
@@ -215,5 +215,15 @@ bool Renderer::InitializeRenderer()
 	d3d11DevCon->RSSetViewports(1, &viewport);
 
 	return true;
+}
+
+bool Renderer::InitializeModel(Model aModel)
+{
+
+
+
+
+
+	return false;
 }
 
