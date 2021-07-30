@@ -30,9 +30,6 @@
     <ClInclude Include="Base\Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Base\ECS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Base\Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>

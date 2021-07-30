@@ -1,6 +1,6 @@
 // ProCave.cpp : Defines the entry point for the application.
 
-#include "flecs/flecs.h"
+//#include "flecs/flecs.h"
 
 #include "SH.h"
 #include "ProCave.h"
@@ -10,6 +10,9 @@
 
 #include "User/Input.h"
 #include "Base/Setup.h"
+
+#include "Rendering/DevUIDriver.h"
+#include "imgui/backends/imgui_impl_win32.h"
 
 #define MAX_LOADSTRING 100
 
@@ -27,7 +30,7 @@ HWND hWnd; //Handle to our now one window, this needs to be changed if I want mo
 BaseApp Game;
 Renderer* Graphics = Renderer::get();
 
-flecs::world ECS;
+//flecs::world ECS;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -49,7 +52,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     //#INITIALIZATION
    
-    SetupSystems(ECS);
+    //SetupSystems(ECS);
     SetupSpdlog();
     Game.Init();
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
@@ -57,6 +60,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     gainput::InputManager* GaInput = Input::get()->GetManager();
     GaInput->SetDisplaySize(Graphics->Width, Graphics->Height);
+
+    DevUIDriver::get()->SetupWindow(hWnd, Graphics->d3d11Device, Graphics->d3d11DevCon);
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_PROCAVE));
 
@@ -67,7 +72,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
     //#TICK
-    while (ECS.progress()) {
+    while (!Game.Shutdown) {
         GaInput->Update();
         // Main message loop:
         PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
@@ -81,7 +86,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         
 
         Game.Tick();
+        DevUIDriver::get()->Update(0.01f);
+
         Graphics->Draw();
+       
     }
     
     //#UNLOAD
@@ -157,8 +165,11 @@ BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+
     switch (message)
     {
+        
    //case WM_COMMAND:
    //    {
    //        int wmId = LOWORD(wParam);
@@ -183,13 +194,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
     case WM_SIZE:
        // if (!sizemove) {
-            Renderer::get()->Width = LOWORD(lParam);
-            Renderer::get()->Height = HIWORD(lParam);
-            Renderer::get()->Resize();
+        Graphics->Width = LOWORD(lParam);
+        Graphics->Height = HIWORD(lParam);
+        Graphics->Resize();
       //  }
         break;
     case WM_DESTROY:
-        ECS.quit();
+        //ECS.quit();
+        Game.Shutdown = true;
         PostQuitMessage(0);
         break;
     default:

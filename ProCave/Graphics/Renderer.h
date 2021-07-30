@@ -13,6 +13,8 @@
 #include "Rendering/Vertex.h"
 #include "Rendering/Model.h"
 
+#include "Rendering/DevUIDriver.h"
+
 using namespace DirectX;
 
 struct cbPerObject
@@ -47,14 +49,16 @@ public:
 	std::vector<Model> ModelData;
 	std::vector<ModelBuffers> Models;
 
+	ID3D11Device* d3d11Device;
+	ID3D11DeviceContext* d3d11DevCon;
+
 private:
 	Renderer() {}
 
 	cbPerObject cbPerObj;
 
 	IDXGISwapChain* SwapChain;
-	ID3D11Device* d3d11Device;
-	ID3D11DeviceContext* d3d11DevCon;
+	
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11Texture2D* depthStencilBuffer;
@@ -133,7 +137,7 @@ public:
 			d3d11DevCon->DrawIndexed(Mesh.IndexSize, 0, 0);
 		}
 
-		
+		DevUIDriver::get()->Draw();
 
 		SwapChain->Present(0, 0);
 	}

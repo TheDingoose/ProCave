@@ -4,6 +4,52 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_sinks.h"
 
+#include "Rendering/DevUIDriver.h"
+
+class TestUI : public DevUI
+{
+public:
+	TestUI() {
+		Name = "Testo";
+	};
+
+	void Draw() override {
+
+		ImGui::Begin("My First Tool");
+		ImGui::Text("This is some useful text.");
+		if (ImGui::Button("TestReturn", ImVec2(50, 25))) {
+			spdlog::info("Hello World!");
+		}
+
+		ImGui::End();
+		return;
+	};
+	//void Update() override {};
+	
+};
+
+class TestUI2 : public DevUI
+{
+public:
+	TestUI2() {
+		Name = "Testo2";
+	};
+
+	void Draw() override {
+
+		ImGui::Begin("My Second Tool");
+		ImGui::Text("This is some other useful text.");
+		if (ImGui::Button("TestReturn", ImVec2(50, 25))) {
+			spdlog::info("Hello World!");
+		}
+
+		ImGui::End();
+		return;
+	};
+	//void Update() override {};
+
+};
+
 void SetupSpdlog() {
 	if (AllocConsole())
 	{
@@ -49,4 +95,11 @@ void SetupSpdlog() {
 		std::wcin.clear();
 		std::cin.clear();
 	}
+
+
+	DevUIDriver::get()->Windows.push_back(new TestUI());
+	DevUIDriver::get()->Windows.push_back(new TestUI2());
+	//DevUIDriver::get()->Windows.push_back(new TestUI());
 }
+
+

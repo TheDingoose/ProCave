@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 
-#include "flecs/flecs.h"
+//#include "flecs/flecs.h"
 
 using namespace DirectX;
 
@@ -35,4 +35,4 @@ struct cVelocity {
 	XMVECTOR Speed = XMVectorSet(0.f, 0.f, 0.f, 0.f);
 };
 
-void ApplyVelocity(flecs::entity e, cTransform& T, cVelocity& V);
+//void ApplyVelocity(flecs::entity e, cTransform& T, cVelocity& V);

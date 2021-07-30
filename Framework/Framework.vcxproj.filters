@@ -21,9 +21,6 @@
     <ClInclude Include="Rendering\Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ThirdParty\Flecs\flecs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="General\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,12 +33,15 @@
     <ClInclude Include="Rendering\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Rendering\DevUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\DevUIDriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\Flecs\flecs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="User\Input.cpp">

@@ -74,7 +74,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Imgui.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -98,23 +98,20 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;$(SolutionDir)Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)Build\$(Platform)\$(Configuration)\Spdlog.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Gainput.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Spdlog.lib;$(SolutionDir)\Build\$(Platform)\$(Configuration)\Imgui.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\ThirdParty\Flecs\flecs.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="General\Transform.h" />
+    <ClInclude Include="Rendering\DevUI.h" />
+    <ClInclude Include="Rendering\DevUIDriver.h" />
     <ClInclude Include="Rendering\Model.h" />
     <ClInclude Include="User\Input.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\ThirdParty\Flecs\flecs.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="General\Transform.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="User\Input.cpp" />
