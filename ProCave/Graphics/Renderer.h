@@ -99,7 +99,7 @@ public:
 
 			ModelData.clear();
 
-			for (auto i : Models) {
+			for (auto& i : Models) {
 				i.IndexBuffer->Release();
 				i.VertexBuffer->Release();
 			}
@@ -113,7 +113,7 @@ public:
 		d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
-		for (auto Mesh : Models) {
+		for (auto& Mesh : Models) {
 			//Set the index buffer
 			d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 			

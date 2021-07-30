@@ -84,28 +84,37 @@ void BaseApp::Load()
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
-	//XMVECTOR Manouvre = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);;
-
 	if (Input::get()->GetKey(Forward)) {
-		Cam->Transform.Translation.z += 0.05f;
-	}
-	if (Input::get()->GetKey(Backward)) {
 		Cam->Transform.Translation.z -= 0.05f;
 	}
-	if (Input::get()->GetKey(Right)) {
-		Cam->Transform.Translation.x += 0.05f;
+	if (Input::get()->GetKey(Backward)) {
+		Cam->Transform.Translation.z += 0.05f;
 	}
-	if (Input::get()->GetKey(Left)) {
+	if (Input::get()->GetKey(Right)) {
 		Cam->Transform.Translation.x -= 0.05f;
 	}
-	if (Input::get()->GetKey(Up)) {
-		Cam->Transform.Translation.y += 0.05f;
+	if (Input::get()->GetKey(Left)) {
+		Cam->Transform.Translation.x += 0.05f;
 	}
-	if (Input::get()->GetKey(Down)) {
+	if (Input::get()->GetKey(Up)) {
 		Cam->Transform.Translation.y -= 0.05f;
 	}
+	if (Input::get()->GetKey(Down)) {
+		Cam->Transform.Translation.y += 0.05f;
+	}
+	if (Input::get()->GetKey(CamLeft)) {
+		Cam->Transform.Rotation.y -= 0.05f;
+	}
+	if (Input::get()->GetKey(CamRight)) {
+		Cam->Transform.Rotation.y += 0.05f;
+	}
+	if (Input::get()->GetKey(CamUp)) {
+		Cam->Transform.Rotation.x -= 0.05f;
+	}
+	if (Input::get()->GetKey(CamDown)) {
+		Cam->Transform.Rotation.x += 0.05f;
+	}
 
-	//Cam->Position = Cam->Position + Manouvre;
 	Cam->Update();
 
 	float Rotat = 0.01f;
@@ -114,7 +123,9 @@ void BaseApp::Tick()
 	Renderer::get()->Models[0].Transform.Rotation.y += Rotat;
 	Renderer::get()->Models[0].Transform.Rotation.z += Rotat;
 
-
+	Renderer::get()->Models[1].Transform.Rotation.x += Rotat;
+	Renderer::get()->Models[1].Transform.Rotation.y += Rotat;
+	Renderer::get()->Models[1].Transform.Rotation.z += Rotat;
 }
 
 //Free all currently claimed resources

@@ -17,5 +17,10 @@ Input::Input()
 	Map->MapBool(Key::Right, KeyboardId, gainput::KeyD);
 	Map->MapBool(Key::Up, KeyboardId, gainput::KeySpace);
 	Map->MapBool(Key::Down, KeyboardId, gainput::KeyShiftL);
+	Map->MapBool(Key::CamLeft, KeyboardId, gainput::KeyLeft);
+	Map->MapBool(Key::CamRight, KeyboardId, gainput::KeyRight);
+	Map->MapBool(Key::CamUp, KeyboardId, gainput::KeyUp);
+	Map->MapBool(Key::CamDown, KeyboardId, gainput::KeyDown);
+
 
 }

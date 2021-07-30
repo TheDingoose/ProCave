@@ -9,7 +9,11 @@ enum Key {
 	Left,
 	Right,
 	Up,
-	Down
+	Down,
+	CamLeft,
+	CamRight,
+	CamUp,
+	CamDown,
 };
 
 class Input

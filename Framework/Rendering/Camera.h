@@ -23,6 +23,8 @@ using namespace DirectX;
 
 
 		Camera(unsigned int* aWidth, unsigned int* aHeight) {
+			Transform.Translation.z = -0.1f;
+
 			ScreenWidth = aWidth;
 			ScreenHeight = aHeight;
 
@@ -35,7 +37,9 @@ using namespace DirectX;
 		}
 
 		void Update() {
-			View = XMMatrixLookAtLH(XMLoadFloat4(&Transform.Translation), Target, Up);
+			Transform.UpdateMatrix();
+
+			View = Transform.Transform;
 			Projection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)*ScreenWidth / *ScreenHeight, 1.0f, 1000.0f);
 			//World = XMMatrixIdentity();
 
