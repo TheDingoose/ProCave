@@ -5,6 +5,7 @@
 
 #include "spdlog/spdlog.h"
 
+#include "Graphics/RenderHelper.h"
 
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
@@ -13,27 +14,7 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 };
 UINT numElements = ARRAYSIZE(layout);
 
-void CheckError(HRESULT Res, const char* msg) {
-#ifdef _DEBUG 
-	if (Res != S_OK) {
-		spdlog::error(msg);
-		OutputDebugStringA(msg);
-		throw(1);
-	}
-#endif
-	return;
-}
 
-void CheckError(HRESULT Res, ID3DBlob* msg) {
-#ifdef _DEBUG 
-	if (Res != S_OK) {
-		spdlog::error((const char*)msg->GetBufferPointer());
-		OutputDebugStringA((const char*)msg->GetBufferPointer());
-		throw(1);
-	}
-#endif
-	return;
-}
 
 bool Renderer::InitializeDirect3d11App(HINSTANCE hInstance, HWND hwnd)
 {
@@ -67,8 +48,14 @@ bool Renderer::InitializeDirect3d11App(HINSTANCE hInstance, HWND hwnd)
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
+	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#if defined(_DEBUG)
+	// If the project is in a debug build, enable the debug layer.
+	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
 	//Create our SwapChain
-	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
+	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
 		D3D11_SDK_VERSION, &swapChainDesc, &SwapChain, &d3d11Device, NULL, &d3d11DevCon);
 
 	//Create our BackBuffer

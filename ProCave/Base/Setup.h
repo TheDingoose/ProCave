@@ -24,30 +24,6 @@ public:
 		ImGui::End();
 		return;
 	};
-	//void Update() override {};
-	
-};
-
-class TestUI2 : public DevUI
-{
-public:
-	TestUI2() {
-		Name = "Testo2";
-	};
-
-	void Draw() override {
-
-		ImGui::Begin("My Second Tool");
-		ImGui::Text("This is some other useful text.");
-		if (ImGui::Button("TestReturn", ImVec2(50, 25))) {
-			spdlog::info("Hello World!");
-		}
-
-		ImGui::End();
-		return;
-	};
-	//void Update() override {};
-
 };
 
 void SetupSpdlog() {
@@ -96,10 +72,7 @@ void SetupSpdlog() {
 		std::cin.clear();
 	}
 
-
 	DevUIDriver::get()->Windows.push_back(new TestUI());
-	DevUIDriver::get()->Windows.push_back(new TestUI2());
-	//DevUIDriver::get()->Windows.push_back(new TestUI());
 }
 
 

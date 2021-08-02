@@ -33,6 +33,15 @@
     <ClInclude Include="Base\Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Noise\Density.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Noise\NoiseTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ProCave.cpp">
@@ -42,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -51,7 +51,6 @@ public:
 
 	ID3D11Device* d3d11Device;
 	ID3D11DeviceContext* d3d11DevCon;
-
 private:
 	Renderer() {}
 
@@ -61,6 +60,7 @@ private:
 	
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
+	
 	ID3D11Texture2D* depthStencilBuffer;
 	HRESULT hr;
 	
@@ -111,6 +111,12 @@ public:
 
 	//Move this!
 	void Draw() {
+#if defined(_DEBUG)
+		
+		
+#endif
+
+
 		//Clear the screen before drawing anything new
 		float bgColor[4] = { (0.5f, 0.0f, 0.0f, 0.0f) };
 		d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
