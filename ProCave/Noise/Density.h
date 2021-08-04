@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 #include <DirectXMath.h>
-
+#include "perlin/PerlinNoise.hpp"
 using namespace DirectX;
+siv::PerlinNoise perlin;
 
 float GetDensity(XMFLOAT4 aPos) {
 	float Density = 0.f;
@@ -10,8 +11,9 @@ float GetDensity(XMFLOAT4 aPos) {
 	//Density -= aPos.y;
 	
 
-	Density += (fmod(((float)rand()) , 100.f) / 100.f) / aPos.y;
-
+	//Density += (fmod(((float)rand()) , 100.f) / 100.f) / aPos.y;
+	Density += std::fmin(perlin.noise3D(aPos.x, aPos.y, aPos.z), 1.f);
+	
 	if (aPos.y < 0) {
 		Density = 1.f;
 	}

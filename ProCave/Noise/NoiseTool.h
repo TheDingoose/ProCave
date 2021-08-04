@@ -22,7 +22,6 @@ public:
 	NoiseTool() {
 		Name = "NoiseTool";
 
-
 		float Buffer[SampleSize * SampleSize * 4];
 
 		for (int i = 0; i < SampleSize * SampleSize * 4; i++) {
@@ -64,7 +63,7 @@ public:
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		Renderer::get()->d3d11Device->CreateShaderResourceView(Texture, &srvDesc, &shaderResourceViewNoise);
 
-		
+		SwapImage();
 	}
 
 	~NoiseTool() {
@@ -73,7 +72,6 @@ public:
 	}
 
 	int Axis = 0;
-	//int Along = 0;
 	float SampleDistance = 1.f;
 	float SourcePos[3] = { 0.f, 0.f, 0.f };
 	
@@ -84,21 +82,13 @@ public:
 		ImGui::Begin(Name);
 		ImGui::SetWindowSize(ImVec2(950, 600),ImGuiCond_FirstUseEver);
 		if (ImGui::DragFloat3("SourcePos", SourcePos)) { SwapImage(); };
-		if (ImGui::DragFloat("SampleDistance", &SampleDistance,  0.1f, 0.f, 1000.f)) { SwapImage(); };
+		if (ImGui::DragFloat("SampleDistance", &SampleDistance,  0.1f, 0.1f, 1000.f)) { SwapImage(); };
 
 		if (ImGui::RadioButton("X", &Axis, 0)) { SwapImage(); }; ImGui::SameLine();
 		if (ImGui::RadioButton("Y", &Axis, 1)) { SwapImage(); }; ImGui::SameLine();
 		if (ImGui::RadioButton("Z", &Axis, 2)) { SwapImage(); };
 
-		//ImGui::Text("What layer along the line?");
-		//ImGui::SliderInt("Layer", &Along, 0, SampleSize);
-		
-
-		if (ImGui::Button("Refresh")) {
-
-			SwapImage();
-
-		}
+		if (ImGui::Button("Refresh")) { SwapImage(); }
 
 		ImGui::Image((void*)shaderResourceViewNoise, ImVec2(SampleSize, SampleSize));
 		ImGui::End();
@@ -108,8 +98,6 @@ public:
 	float Buffer[SampleSize * SampleSize * 4];
 
 	void SwapImage() {
-
-		
 		unsigned int WritePos = 0;
 
 		for (int i = -(SampleSize / 2); i < SampleSize / 2; i++) {
@@ -131,10 +119,6 @@ public:
 					SamplePos.y -= (float)i * SampleDistance;
 				}
 
-				if (GetDensity(SamplePos) > 0.f) {
-
-				}
-
 				Buffer[WritePos++] = GetDensity(SamplePos);
 				Buffer[WritePos++] = GetDensity(SamplePos);
 				Buffer[WritePos++] = GetDensity(SamplePos);
@@ -149,38 +133,9 @@ public:
 		HRESULT hr = Renderer::get()->d3d11DevCon->Map(Texture, 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
 		CheckError(hr, "Swap texture on noise regenerate");
 
-		//BufferData.pData = (void*)Buffer;
-		//for (int i = 0; i < SampleSize * SampleSize * 3; i++) {
-		//	((float*)BufferData.pData)[i] = Buffer[i];
-		//}
 		memcpy(BufferData.pData, Buffer, SampleSize * SampleSize * 4 * sizeof(float));
-		//BufferData.RowPitch = SampleSize * 4;
-		//Renderer::get()->d3d11DevCon->UpdateSubresource(
-		//	Texture,
-		//	0,
-		//	NULL,
-		//	Buffer,
-		//	BufferData.RowPitch,
-		//	BufferData.DepthPitch
-		//);
-
-		//BufferData.RowPitch = SampleSize;
-		//BufferData.DepthPitch = SampleSize * SampleSize;
 
 		Renderer::get()->d3d11DevCon->Unmap(Texture, 0);
-
-
-
-		//BufferData.pSysMem = Buffer;
-		//BufferData.SysMemPitch = SampleSize * 3 * sizeof(float);
-		//BufferData.SysMemSlicePitch = 0;
-		//
-		//
-		//
-		//
-		//
-		//
-		//
 	}
 
 
