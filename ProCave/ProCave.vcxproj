@@ -98,6 +98,7 @@
     <ClInclude Include="Base\BaseApp.h" />
     <ClInclude Include="Base\Resource.h" />
     <ClInclude Include="Base\Setup.h" />
+    <ClInclude Include="Graphics\MarchCube.h" />
     <ClInclude Include="Graphics\RenderHelper.h" />
     <ClInclude Include="Noise\Density.h" />
     <ClInclude Include="Graphics\Renderer.h" />
@@ -107,7 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\BaseApp.cpp" />
+    <ClCompile Include="Graphics\MarchCube.cpp" />
     <ClCompile Include="Graphics\RenderHelper.cpp" />
+    <ClCompile Include="Noise\NoiseTool.cpp" />
     <ClCompile Include="ProCave.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
   </ItemGroup>

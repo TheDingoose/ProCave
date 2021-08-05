@@ -60,7 +60,8 @@ private:
 	
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
-	
+	ID3D11RasterizerState* RasterizerState;
+
 	ID3D11Texture2D* depthStencilBuffer;
 	HRESULT hr;
 	

@@ -151,6 +151,20 @@ bool Renderer::InitializeRenderer()
 	//Set the Viewport
 	d3d11DevCon->RSSetViewports(1, &viewport);
 
+	D3D11_RASTERIZER_DESC rastdesc;
+	rastdesc.FillMode = D3D11_FILL_SOLID;
+	rastdesc.CullMode = D3D11_CULL_NONE;
+	rastdesc.FrontCounterClockwise = FALSE;
+	rastdesc.DepthBias = 0;
+	rastdesc.SlopeScaledDepthBias = 0.0f;
+	rastdesc.DepthBiasClamp = 0.0f;
+	rastdesc.DepthClipEnable = TRUE;
+	rastdesc.ScissorEnable = FALSE;
+	rastdesc.MultisampleEnable = FALSE;
+	rastdesc.AntialiasedLineEnable = FALSE;
+	
+	d3d11Device->CreateRasterizerState(&rastdesc, &RasterizerState);
+	d3d11DevCon->RSSetState(RasterizerState);
 	return true;
 }
 

@@ -1,6 +1,9 @@
 #include "BaseApp.h"
 #include "Graphics/Renderer.h"
 #include "User/Input.h"
+#include "Graphics/MarchCube.h"
+
+#include "spdlog/spdlog.h"
 
 BaseApp::BaseApp()
 {
@@ -73,11 +76,58 @@ void BaseApp::Load()
 
 	Model Square(sindices, sv);
 
-	Renderer::get()->InitializeModel(Square);
-	Renderer::get()->InitializeModel(Coob);
+	//Renderer::get()->InitializeModel(Square);
+	//Renderer::get()->InitializeModel(Coob);
+	//
+	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
+	//Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
 
-	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
-	Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
+	float sizee = 10.f;
+	sizee *= CubeSize;
+	XMVECTOR Worker = XMVectorZero();
+	int ModelNum = 0;
+	XMFLOAT4 Pos;
+	for (float x = -sizee; x < sizee; x += CubeSize) {
+		Worker.m128_f32[0] = x;
+		for (float y = -sizee; y < sizee; y += CubeSize) {
+			Worker.m128_f32[1] = y;
+			for (float z = -sizee; z < sizee; z += CubeSize) {
+				Worker.m128_f32[2] = z;
+
+				MarchCube Dud(Worker);
+
+				if (Dud.Vertices.size() == 0) {
+					continue;
+				}
+				//spdlog::info("------------------------------------");
+				//spdlog::info("Case: {0:d} , {0:b}", Dud.Case);
+				spdlog::info(ModelNum);
+				//std::vector<DWORD> ind;
+				int j = 0;
+				//for (int i = 0; i < Dud.Vertices.size(); i += 3) {
+				//	spdlog::info(j);
+				//	ind.push_back(j++);
+				//}
+				//spdlog::info("------------------------------------");
+				
+				
+
+				Renderer::get()->InitializeModel(Model(Dud.Indices, Dud.Vertices));
+				
+				XMStoreFloat4(&Pos, Worker);
+
+				Renderer::get()->Models[ModelNum++].Transform.Translation = Pos;
+			}
+		}
+	}
+
+
+
+
+
+
+
+
 }
 
 //Game update info goes here, more advanced functionality,
@@ -85,22 +135,22 @@ void BaseApp::Load()
 void BaseApp::Tick()
 {
 	if (Input::get()->GetKey(Forward)) {
-		Cam->Transform.Translation.z -= 0.05f;
+		Cam->Transform.Translation.z -= 0.5f;
 	}
 	if (Input::get()->GetKey(Backward)) {
-		Cam->Transform.Translation.z += 0.05f;
+		Cam->Transform.Translation.z += 0.5f;
 	}
 	if (Input::get()->GetKey(Right)) {
-		Cam->Transform.Translation.x -= 0.05f;
+		Cam->Transform.Translation.x -= 0.5f;
 	}
 	if (Input::get()->GetKey(Left)) {
-		Cam->Transform.Translation.x += 0.05f;
+		Cam->Transform.Translation.x += 0.5f;
 	}
 	if (Input::get()->GetKey(Up)) {
-		Cam->Transform.Translation.y -= 0.05f;
+		Cam->Transform.Translation.y -= 0.5f;
 	}
 	if (Input::get()->GetKey(Down)) {
-		Cam->Transform.Translation.y += 0.05f;
+		Cam->Transform.Translation.y += 0.5f;
 	}
 	if (Input::get()->GetKey(CamLeft)) {
 		Cam->Transform.Rotation.y += 0.05f;

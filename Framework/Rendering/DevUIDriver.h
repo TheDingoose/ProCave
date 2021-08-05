@@ -32,7 +32,7 @@ public:
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		if (ImGui::BeginMainMenuBar()) {
 			for (auto& i : Windows) {
