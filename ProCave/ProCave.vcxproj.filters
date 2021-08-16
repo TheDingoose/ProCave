@@ -77,5 +77,8 @@
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl" />
     <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="CubeVertexShader.hlsl" />
+    <FxCompile Include="CubePixelShader.hlsl" />
+    <FxCompile Include="CubeGeometryShader.hlsl" />
   </ItemGroup>
 </Project>

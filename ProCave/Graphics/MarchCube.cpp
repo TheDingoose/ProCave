@@ -420,7 +420,6 @@ void MarchCube::Sample(XMVECTOR aPos)
 
 		Indices.push_back(ntriang++);
 		
-
 		for (int j = 0; j < Indices.size() ; j++) {
 			if (ntriang == Indices[j]) {
 				break;
@@ -429,7 +428,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 
 
 		Vertices.push_back(Vertex(edgeposTable[triTable[Case][i]][0], edgeposTable[triTable[Case][i]][1], edgeposTable[triTable[Case][i]][2],
-		(fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), 1.f
+			(fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), 1.f
 		));
 	}
 }

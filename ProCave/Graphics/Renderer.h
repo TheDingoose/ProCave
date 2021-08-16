@@ -17,9 +17,15 @@
 
 using namespace DirectX;
 
+constexpr float MCSize = 1.f;
+constexpr unsigned int MCFieldSize = 10;
+
+
+
 struct cbPerObject
 {
 	XMMATRIX  WVP;
+	float MarchCubeSize = MCSize;
 };
 
 struct ModelBuffers {
@@ -42,8 +48,9 @@ public:
 	unsigned int Width = 800;
 	unsigned int Height = 800;
 
-	void SetVP(XMMATRIX* aVP) {
+	void SetVP(XMMATRIX* aVP, XMFLOAT4* aPlayerPos) {
 		VP = aVP;
+		PlayerPos = aPlayerPos;
 	}
 
 	std::vector<Model> ModelData;
@@ -70,11 +77,29 @@ private:
 
 	XMMATRIX* VP = new XMMATRIX(XMMatrixIdentity());
 
+	//Normal Device
 	ID3D11VertexShader* VS;
 	ID3D11PixelShader* PS;
 	ID3DBlob* VS_Buffer;
 	ID3DBlob* PS_Buffer;
 	ID3D11InputLayout* vertLayout;
+
+	//Marching Cube Device
+	ID3D11VertexShader* CubeVS;
+	ID3D11GeometryShader* CubeGS;
+	ID3D11PixelShader* CubePS;
+	ID3DBlob* CubeVS_Buffer;
+	ID3DBlob* CubePS_Buffer;
+	ID3DBlob* CubeGS_Buffer;
+	ID3D11InputLayout* CubepointLayout;
+
+	std::vector<XMVECTOR> CubePositions;
+	vector<ID3D11Buffer*> CubePosBuffer;
+	const UINT CubeStride = sizeof(XMVECTOR);
+	const UINT CubeOffset = 0;
+
+	XMFLOAT4* PlayerPos;
+
 public:
 	Renderer(Renderer const&) = delete;
 	void operator=(Renderer const&) = delete;
@@ -82,6 +107,7 @@ public:
 
 	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
 	bool InitializeRenderer();
+	bool InitializeCubeRenderer();
 	bool InitializeModel(Model aModel);
 	void Resize();
 
@@ -116,13 +142,21 @@ public:
 		
 		
 #endif
-
-
 		//Clear the screen before drawing anything new
 		float bgColor[4] = { (0.5f, 0.0f, 0.0f, 0.0f) };
 		d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 		d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+		//Set Shaders
+		d3d11DevCon->VSSetShader(VS, 0, 0);
+		d3d11DevCon->PSSetShader(PS, 0, 0);
+		d3d11DevCon->GSSetShader(0, 0, 0);
+
+		//Set Primitive Topology
+		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//Set the Input Layout
+		d3d11DevCon->IASetInputLayout(vertLayout);
 
 		for (auto& Mesh : Models) {
 			//Set the index buffer
@@ -144,6 +178,58 @@ public:
 			d3d11DevCon->DrawIndexed(Mesh.IndexSize, 0, 0);
 		}
 
+
+		//NOW MARCHING CUBES :)
+
+		//Set Shaders
+		d3d11DevCon->VSSetShader(CubeVS, 0, 0);
+		d3d11DevCon->PSSetShader(CubePS, 0, 0);
+		d3d11DevCon->GSSetShader(CubeGS, 0, 0);
+
+		//Set Primitive Topology
+		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		//Set the Input Layouts
+		d3d11DevCon->IASetInputLayout(CubepointLayout);
+
+		cbPerObj.WVP = XMMatrixTranspose(*VP);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+
+
+		XMVECTOR Player = XMLoadFloat4(PlayerPos);
+		XMVECTOR Worker = XMVectorZero();
+		unsigned int Numb = 0;
+		unsigned int BuffNumb = 0;
+		for (float x = (-(MCSize * (MCFieldSize / 2))); x < (MCSize * (MCFieldSize / 2)); x += MCSize) {
+			Worker.m128_f32[0] = x;
+			for (float y = (-(MCSize * (MCFieldSize / 2))); y < (MCSize * (MCFieldSize / 2)); y += MCSize) {
+				Worker.m128_f32[1] = y;
+				for (float z = (-(MCSize * (MCFieldSize / 2))); z < (MCSize * (MCFieldSize / 2)); z += MCSize) {
+					Worker.m128_f32[2] = z;
+					CubePositions[Numb] = XMVectorAdd(Worker, Player);
+					Numb++;
+				}
+			}
+
+			D3D11_MAPPED_SUBRESOURCE BufferData;
+			ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+			//D3D11CalcSubresource(0, 0, 1);
+			HRESULT hr = d3d11DevCon->Map(CubePosBuffer[BuffNumb], 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
+			//CheckError(hr, "Swap texture on noise regenerate");
+
+			memcpy(BufferData.pData, &CubePositions[Numb - MCFieldSize * MCFieldSize], sizeof(XMVECTOR) * MCFieldSize * MCFieldSize);
+
+			Renderer::get()->d3d11DevCon->Unmap(CubePosBuffer[BuffNumb], 0);
+
+			d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosBuffer[BuffNumb], &CubeStride, &CubeOffset);
+
+			d3d11DevCon->Draw(MCFieldSize * MCFieldSize, 0);
+			BuffNumb++;
+		}
+
+		
 		DevUIDriver::get()->Draw();
 
 		SwapChain->Present(0, 0);

@@ -15,7 +15,7 @@ void BaseApp::Init()
 {
 	Renderer* aRenderer = Renderer::get();
 	Cam = new Camera(&aRenderer->Width, &aRenderer->Height);
-	aRenderer->SetVP(&Cam->VP);
+	aRenderer->SetVP(&Cam->VP, &Cam->Transform.Translation);
 }
 
 //Loading resources and assets, shaderloading goes here too
@@ -76,12 +76,13 @@ void BaseApp::Load()
 
 	Model Square(sindices, sv);
 
-	//Renderer::get()->InitializeModel(Square);
-	//Renderer::get()->InitializeModel(Coob);
+	Renderer::get()->InitializeModel(Square);
+	Renderer::get()->InitializeModel(Coob);
 	//
-	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
-	//Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
+	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
+	Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
 
+	/* THIS IS THE MARCHING CUBES
 	float sizee = 10.f;
 	sizee *= CubeSize;
 	XMVECTOR Worker = XMVectorZero();
@@ -120,7 +121,7 @@ void BaseApp::Load()
 			}
 		}
 	}
-
+	*/
 
 
 
@@ -134,35 +135,42 @@ void BaseApp::Load()
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
+	XMVECTOR Change = XMVectorZero();
+	XMFLOAT4 Step;
 	if (Input::get()->GetKey(Forward)) {
-		Cam->Transform.Translation.z -= 0.5f;
+		Change.m128_f32[2] = 0.5f;
 	}
 	if (Input::get()->GetKey(Backward)) {
-		Cam->Transform.Translation.z += 0.5f;
+		Change.m128_f32[2] = -0.5f;
 	}
 	if (Input::get()->GetKey(Right)) {
-		Cam->Transform.Translation.x -= 0.5f;
+		Change.m128_f32[0] = 0.5f;
 	}
 	if (Input::get()->GetKey(Left)) {
-		Cam->Transform.Translation.x += 0.5f;
+		Change.m128_f32[0] = -0.5f;
 	}
 	if (Input::get()->GetKey(Up)) {
-		Cam->Transform.Translation.y -= 0.5f;
-	}
-	if (Input::get()->GetKey(Down)) {
 		Cam->Transform.Translation.y += 0.5f;
 	}
-	if (Input::get()->GetKey(CamLeft)) {
-		Cam->Transform.Rotation.y += 0.05f;
+	if (Input::get()->GetKey(Down)) {
+		Cam->Transform.Translation.y -= 0.5f;
 	}
-	if (Input::get()->GetKey(CamRight)) {
+	XMStoreFloat4(&Step, XMVector4Transform(Change, Cam->Transform.Transform));
+	Cam->Transform.Translation.x += Step.x;
+	Cam->Transform.Translation.y += Step.y;
+	Cam->Transform.Translation.z += Step.z;
+
+	if (Input::get()->GetKey(CamLeft)) {
 		Cam->Transform.Rotation.y -= 0.05f;
 	}
+	if (Input::get()->GetKey(CamRight)) {
+		Cam->Transform.Rotation.y += 0.05f;
+	}
 	if (Input::get()->GetKey(CamUp)) {
-		Cam->Transform.Rotation.x += 0.05f;
+		Cam->Transform.Rotation.x -= 0.05f;
 	}
 	if (Input::get()->GetKey(CamDown)) {
-		Cam->Transform.Rotation.x -= 0.05f;
+		Cam->Transform.Rotation.x += 0.05f;
 	}
 
 	Cam->Update();

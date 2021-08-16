@@ -14,6 +14,12 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 };
 UINT numElements = ARRAYSIZE(layout);
 
+D3D11_INPUT_ELEMENT_DESC Cubelayout[] =
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	//{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+UINT CubenumElements = ARRAYSIZE(Cubelayout);
 
 
 bool Renderer::InitializeDirect3d11App(HINSTANCE hInstance, HWND hwnd)
@@ -131,12 +137,6 @@ bool Renderer::InitializeRenderer()
 		VS_Buffer->GetBufferSize(), &vertLayout);
 	CheckError(hr, "Error creating Input Layout!");
 
-	//Set the Input Layout
-	d3d11DevCon->IASetInputLayout(vertLayout);
-
-	//Set Primitive Topology
-	d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	//Create the Viewport
 	D3D11_VIEWPORT viewport;
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
@@ -165,6 +165,57 @@ bool Renderer::InitializeRenderer()
 	
 	d3d11Device->CreateRasterizerState(&rastdesc, &RasterizerState);
 	d3d11DevCon->RSSetState(RasterizerState);
+
+	InitializeCubeRenderer();
+
+	return true;
+}
+
+bool Renderer::InitializeCubeRenderer()
+{
+	//Compile Shaders from shader file
+	ID3DBlob* compilationMsgs = nullptr;
+	
+	hr = D3DCompileFromFile(L"CubeVertexShader.hlsl", NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &CubeVS_Buffer, &compilationMsgs);
+	CheckError(hr, compilationMsgs);
+
+	hr = D3DCompileFromFile(L"CubePixelShader.hlsl", NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &CubePS_Buffer, &compilationMsgs);
+	CheckError(hr, compilationMsgs);
+
+	hr = D3DCompileFromFile(L"CubeGeometryShader.hlsl", NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0", 0, 0, &CubeGS_Buffer, &compilationMsgs);
+	CheckError(hr, compilationMsgs);
+
+	//Create the Shader Objects
+	hr = d3d11Device->CreateVertexShader(CubeVS_Buffer->GetBufferPointer(), CubeVS_Buffer->GetBufferSize(), NULL, &CubeVS);
+	CheckError(hr, "Error While compiling Cube Vertex Shader!");
+	hr = d3d11Device->CreatePixelShader(CubePS_Buffer->GetBufferPointer(), CubePS_Buffer->GetBufferSize(), NULL, &CubePS);
+	CheckError(hr, "Error While compiling Cube Pixel Shader!");
+	hr = d3d11Device->CreateGeometryShader(CubeGS_Buffer->GetBufferPointer(), CubeGS_Buffer->GetBufferSize(), NULL, &CubeGS);
+	CheckError(hr, "Error While compiling Cube Geometry Shader!");
+
+	//Create the Input Layout
+	hr = d3d11Device->CreateInputLayout(Cubelayout, CubenumElements, CubeVS_Buffer->GetBufferPointer(),
+		CubeVS_Buffer->GetBufferSize(), &CubepointLayout);
+	CheckError(hr, "Error creating Input Layout!");
+
+	//Setup the batch of position data of where to render the cubes
+	CubePositions.resize(MCFieldSize * MCFieldSize * MCFieldSize);
+
+	//Describe the vertex buffer
+	D3D11_BUFFER_DESC pointBufferDesc;
+	ZeroMemory(&pointBufferDesc, sizeof(pointBufferDesc));
+
+	pointBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	pointBufferDesc.ByteWidth = sizeof(XMVECTOR) * CubePositions.size();
+	pointBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	pointBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	pointBufferDesc.MiscFlags = 0;
+
+	CubePosBuffer.resize(MCFieldSize);
+	for (int i = 0; i < MCFieldSize; i++) {
+		hr = d3d11Device->CreateBuffer(&pointBufferDesc, 0, &CubePosBuffer[i]);
+	}
+
 	return true;
 }
 
