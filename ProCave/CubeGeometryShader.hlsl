@@ -310,6 +310,10 @@ float3 hash33(float3 p3)
 
 }
 
+float lerp(float min, float max, float t)
+{
+    return (min * (1 - t) + max * t);
+}
 //------------------------------------------------------------------------------------------
 
 
@@ -363,26 +367,33 @@ void main(
         
         //element.Color = float4(0.92f * Distance, 0.45f * Distance, 0.15f * Distance, 1.f);
     }
+    float Samples[8];
     
-    
-    
+    Samples[0] = snoise(float4((input[0].x - MCSized2), (input[0].y - MCSized2), (input[0].z + MCSized2), Time) * PosMod);
+    Samples[1] = snoise(float4((input[0].x + MCSized2), (input[0].y - MCSized2), (input[0].z + MCSized2), Time) * PosMod);
+    Samples[2] = snoise(float4((input[0].x + MCSized2), (input[0].y - MCSized2), (input[0].z - MCSized2), Time) * PosMod);
+    Samples[3] = snoise(float4((input[0].x - MCSized2), (input[0].y - MCSized2), (input[0].z - MCSized2), Time) * PosMod);
+    Samples[4] = snoise(float4((input[0].x - MCSized2), (input[0].y + MCSized2), (input[0].z + MCSized2), Time) * PosMod);
+    Samples[5] = snoise(float4((input[0].x + MCSized2), (input[0].y + MCSized2), (input[0].z + MCSized2), Time) * PosMod);
+    Samples[6] = snoise(float4((input[0].x + MCSized2), (input[0].y + MCSized2), (input[0].z - MCSized2), Time) * PosMod);
+    Samples[7] = snoise(float4((input[0].x - MCSized2), (input[0].y + MCSized2), (input[0].z - MCSized2), Time) * PosMod);
     
         unsigned int CubeIndex = 0;
-    if (snoise(float4((input[0].x - MCSized2), (input[0].y - MCSized2), (input[0].z + MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[0] < WallLevel)
         CubeIndex |= 1;           
-    if (snoise(float4((input[0].x + MCSized2), (input[0].y - MCSized2), (input[0].z + MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[1] < WallLevel)
         CubeIndex |= 2;           
-    if (snoise(float4((input[0].x + MCSized2), (input[0].y - MCSized2), (input[0].z - MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[2] < WallLevel)
         CubeIndex |= 4;           
-    if (snoise(float4((input[0].x - MCSized2), (input[0].y - MCSized2), (input[0].z - MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[3] < WallLevel)
         CubeIndex |= 8;           
-    if (snoise(float4((input[0].x - MCSized2), (input[0].y + MCSized2), (input[0].z + MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[4] < WallLevel)
         CubeIndex |= 16;          
-    if (snoise(float4((input[0].x + MCSized2), (input[0].y + MCSized2), (input[0].z + MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[5] < WallLevel)
         CubeIndex |= 32;          
-    if (snoise(float4((input[0].x + MCSized2), (input[0].y + MCSized2), (input[0].z - MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[6] < WallLevel)
         CubeIndex |= 64;          
-    if (snoise(float4((input[0].x - MCSized2), (input[0].y + MCSized2), (input[0].z - MCSized2), Time) * PosMod) < WallLevel)
+    if (Samples[7] < WallLevel)
         CubeIndex |= 128;
     
     if (CubeIndex == 0 || CubeIndex == 255)
@@ -390,58 +401,159 @@ void main(
     
     
    int ntriang = 0;
+   float Adapt = 0.f;
     for (int i = 0; round(triTable[CubeIndex * 16 + i].x) != -1 && !(i >= 16); i++)
    {
+        Adapt = 0.f;
        //Vertices.push_back(Vertex(edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 0], edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 1], edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 2],
-       
-        if (round(triTable[CubeIndex * 16 + i].x) == 0)
+       if (round(triTable[CubeIndex * 16 + i].x) == 0)
        {
-           element.pos = float4(0.f + input[0].x, -0.5f + input[0].y, 0.5f + input[0].z, 1.f);
+            if (Samples[0] < Samples[1])
+            {
+                Adapt = -lerp(-1, 1, Samples[0] - Samples[1]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[1] - Samples[0]) / 2.f;
+            }
+                element.pos = float4(Adapt + input[0].x, -0.5 + input[0].y, 0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 1)
        {
-           element.pos = float4(0.5f + input[0].x, -0.5f + input[0].y, 0.f + input[0].z, 1.f);
+            if (Samples[2] < Samples[1])
+            {
+                Adapt = -lerp(-1, 1, Samples[2] - Samples[1]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[1] - Samples[2]) / 2.f;
+            }
+           element.pos = float4(0.5f + input[0].x, -0.5f + input[0].y, Adapt + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 2)
        {
-               element.pos = float4(0.f + input[0].x, -0.5f + input[0].y, -0.5f + input[0].z, 1.f);
+            if (Samples[3] < Samples[2])
+            {
+                Adapt = -lerp(-1, 1, Samples[3] - Samples[2]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[2] - Samples[3]) / 2.f;
+            }
+               element.pos = float4(Adapt + input[0].x, -0.5f + input[0].y, -0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 3)
        {
-               element.pos = float4(-0.5f + input[0].x, -0.5f + input[0].y, 0.f + input[0].z, 1.f);
+            if (Samples[3] < Samples[0])
+            {
+                Adapt = -lerp(-1, 1, Samples[3] - Samples[0]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[0] - Samples[3]) / 2.f;
+            }
+               element.pos = float4(-0.5f + input[0].x, -0.5f + input[0].y, Adapt + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 4)
        {
-               element.pos = float4(0.f + input[0].x, 0.5f + input[0].y, 0.5f + input[0].z, 1.f);
+            if (Samples[4] < Samples[5])
+            {
+                Adapt = -lerp(-1, 1, Samples[4] - Samples[5]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[5] - Samples[4]) / 2.f;
+            }
+               element.pos = float4(Adapt + input[0].x, 0.5f + input[0].y, 0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 5)
        {
-               element.pos = float4(0.5f + input[0].x, 0.5f + input[0].y, 0.f + input[0].z, 1.f);
+            if (Samples[6] < Samples[5])
+            {
+                Adapt = -lerp(-1, 1, Samples[6] - Samples[5]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[5] - Samples[6]) / 2.f;
+            }
+               element.pos = float4(0.5f + input[0].x, 0.5f + input[0].y, Adapt + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 6)
        {
-               element.pos = float4(0.f + input[0].x, 0.5f + input[0].y, -0.5f + input[0].z, 1.f);
+            if (Samples[7] < Samples[6])
+            {
+                Adapt = -lerp(-1, 1, Samples[7] - Samples[6]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[6] - Samples[7]) / 2.f;
+            }
+               element.pos = float4(Adapt + input[0].x, 0.5f + input[0].y, -0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 7)
        {
-               element.pos = float4(-0.5f + input[0].x, 0.5f + input[0].y, 0.f + input[0].z, 1.f);
+            if (Samples[7] < Samples[4])
+            {
+                Adapt = -lerp(-1, 1, Samples[7] - Samples[4]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[4] - Samples[7]) / 2.f;
+            }
+               element.pos = float4(-0.5f + input[0].x, 0.5f + input[0].y, Adapt + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 8)
        {
-               element.pos = float4(-0.5f + input[0].x, 0.f + input[0].y, 0.5f + input[0].z, 1.f);
+            if (Samples[0] < Samples[4])
+            {
+                Adapt = -lerp(-1, 1, Samples[0] - Samples[4]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[4] - Samples[0]) / 2.f;
+            }
+               element.pos = float4(-0.5f + input[0].x, Adapt + input[0].y, 0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 9)
        {
-               element.pos = float4(0.5f + input[0].x, 0.f + input[0].y, 0.5f + input[0].z, 1.f);
+            if (Samples[1] < Samples[5])
+            {
+                Adapt = -lerp(-1, 1, Samples[1] - Samples[5]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[5] - Samples[1]) / 2.f;
+            }
+               element.pos = float4(0.5f + input[0].x, Adapt + input[0].y, 0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 10)
        {
-               element.pos = float4(0.5f + input[0].x, 0.f + input[0].y, -0.5f + input[0].z, 1.f);
+            if (Samples[2] < Samples[6])
+            {
+                Adapt = -lerp(-1, 1, Samples[2] - Samples[6]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[6] - Samples[2]) / 2.f;
+            }
+               element.pos = float4(0.5f + input[0].x, Adapt + input[0].y, -0.5f + input[0].z, 1.f);
        }
         else if (round(triTable[CubeIndex * 16 + i].x) == 11)
        {
-           element.pos = float4(-0.5f + input[0].x, 0.f + input[0].y, -0.5f + input[0].z, 1.f);
+            if (Samples[3] < Samples[7])
+            {
+                Adapt = -lerp(-1, 1, Samples[3] - Samples[7]) / 2.f;
+            }
+            else
+            {
+                Adapt = lerp(-1, 1, Samples[7] - Samples[3]) / 2.f;
+            }
+           element.pos = float4(-0.5f + input[0].x, Adapt + input[0].y, -0.5f + input[0].z, 1.f);
        }
+        
+        
+        
+        
        //element.pos = float4(edgeposTable[triTable[CubeIndex][i]][0] + input[0].x, edgeposTable[triTable[CubeIndex][i]][1] + input[0].y, edgeposTable[triTable[CubeIndex][i]][2] + input[0].z, 1.f);
        element.pos = mul(element.pos, WVP);
        output.Append(element);

@@ -95,8 +95,8 @@ private:
 	ID3D11GeometryShader* CubeGS;
 	ID3D11PixelShader* CubePS;
 	ID3DBlob* CubeVS_Buffer;
-	ID3DBlob* CubePS_Buffer;
 	ID3DBlob* CubeGS_Buffer;
+	ID3DBlob* CubePS_Buffer;
 	ID3D11InputLayout* CubepointLayout;
 
 	std::vector<XMVECTOR> CubePositions;
@@ -140,6 +140,19 @@ public:
 				i.IndexBuffer->Release();
 				i.VertexBuffer->Release();
 			}
+
+			CubeVS->Release();
+			CubeGS->Release();
+			CubePS->Release();
+			CubeVS_Buffer->Release();
+			CubeGS_Buffer->Release();
+			CubePS_Buffer->Release();
+			CubepointLayout->Release();
+			for (auto& i : CubePosBuffer) {
+				i->Release();
+			}
+			TriTableBuffer->Release();
+
 	}
 
 	//Move this!
