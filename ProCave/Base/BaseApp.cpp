@@ -166,10 +166,10 @@ void BaseApp::Tick()
 	if (Input::get()->GetKey(CamRight)) {
 		Cam->Transform.Rotation.y += 0.05f;
 	}
-	if (Input::get()->GetKey(CamUp)) {
-		Cam->Transform.Rotation.x -= 0.05f;
+	if (Input::get()->GetKey(CamUp) && Cam->Transform.Rotation.x > -3.0f / 2.f) {
+			Cam->Transform.Rotation.x -= 0.05f;
 	}
-	if (Input::get()->GetKey(CamDown)) {
+	if (Input::get()->GetKey(CamDown) && Cam->Transform.Rotation.x < 3.0f / 2.f) {
 		Cam->Transform.Rotation.x += 0.05f;
 	}
 

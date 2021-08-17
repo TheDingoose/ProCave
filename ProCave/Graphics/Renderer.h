@@ -18,14 +18,20 @@
 using namespace DirectX;
 
 constexpr float MCSize = 1.f;
-constexpr unsigned int MCFieldSize = 10;
+constexpr unsigned int MCFieldSize = 76;
 
 
 
 struct cbPerObject
 {
 	XMMATRIX  WVP;
+	XMFLOAT4 PlayerPos;
 	float MarchCubeSize = MCSize;
+	float Time;
+};
+
+struct CubeConstBuff {
+	int triTable[256 * 16];
 };
 
 struct ModelBuffers {
@@ -97,13 +103,13 @@ private:
 	vector<ID3D11Buffer*> CubePosBuffer;
 	const UINT CubeStride = sizeof(XMVECTOR);
 	const UINT CubeOffset = 0;
+	ID3D11Buffer* TriTableBuffer;
 
 	XMFLOAT4* PlayerPos;
 
 public:
 	Renderer(Renderer const&) = delete;
 	void operator=(Renderer const&) = delete;
-
 
 	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
 	bool InitializeRenderer();
@@ -191,12 +197,12 @@ public:
 
 		//Set the Input Layouts
 		d3d11DevCon->IASetInputLayout(CubepointLayout);
-
+		
+		cbPerObj.Time += 0.016f;
+		cbPerObj.PlayerPos = *PlayerPos;
 		cbPerObj.WVP = XMMatrixTranspose(*VP);
 		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-
-
 
 		XMVECTOR Player = XMLoadFloat4(PlayerPos);
 		XMVECTOR Worker = XMVectorZero();
