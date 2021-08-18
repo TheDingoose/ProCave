@@ -1,0 +1,36 @@
+#pragma once
+
+#include <DirectXMath.h>
+
+#include "Rendering/DevUI.h"
+
+using namespace DirectX;
+
+class MarchCubeSettings : public DevUI
+{
+public:
+
+	static MarchCubeSettings* get() {
+		static MarchCubeSettings Instance;
+		return &Instance;
+	}
+
+	
+
+	void Draw() override;
+
+
+
+
+	float CubeSize = 1.f;
+	unsigned int GridSize = 76;
+	float LightStrength = 70.f;
+	XMFLOAT4 SampleMod = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.05f);
+	XMFLOAT4 SampleOffset = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+
+private:
+	MarchCubeSettings();
+
+	unsigned int MaxGridSize = GridSize;
+};
+

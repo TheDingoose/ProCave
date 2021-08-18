@@ -14,6 +14,7 @@
 #include "Rendering/DevUIDriver.h"
 #include "imgui/backends/imgui_impl_win32.h"
 #include "Noise/NoiseTool.h"
+#include "Tools/MarchCubeSettings.h"
 
 #define MAX_LOADSTRING 100
 
@@ -69,7 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     DevUIDriver::get()->Windows.push_back(new NoiseTool());
-
+    DevUIDriver::get()->Windows.push_back(MarchCubeSettings::get());
 
     //#LOADRESOURCES 
     Game.Load();

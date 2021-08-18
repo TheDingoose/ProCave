@@ -10,17 +10,17 @@ Input::Input()
 
 
 	//Mapping Keys
-	Map->MapBool(Key::Confirm, KeyboardId, gainput::KeyReturn);
-	Map->MapBool(Key::Forward, KeyboardId, gainput::KeyW);
-	Map->MapBool(Key::Backward, KeyboardId, gainput::KeyS);
-	Map->MapBool(Key::Left, KeyboardId, gainput::KeyA);
-	Map->MapBool(Key::Right, KeyboardId, gainput::KeyD);
-	Map->MapBool(Key::Up, KeyboardId, gainput::KeySpace);
-	Map->MapBool(Key::Down, KeyboardId, gainput::KeyShiftL);
-	Map->MapBool(Key::CamLeft, KeyboardId, gainput::KeyLeft);
-	Map->MapBool(Key::CamRight, KeyboardId, gainput::KeyRight);
-	Map->MapBool(Key::CamUp, KeyboardId, gainput::KeyUp);
-	Map->MapBool(Key::CamDown, KeyboardId, gainput::KeyDown);
+	Map->MapBool(Key::Key_Confirm, KeyboardId, gainput::KeyReturn);
+	Map->MapBool(Key::Key_Forward, KeyboardId, gainput::KeyW);
+	Map->MapBool(Key::Key_Backward, KeyboardId, gainput::KeyS);
+	Map->MapBool(Key::Key_Left, KeyboardId, gainput::KeyA);
+	Map->MapBool(Key::Key_Right, KeyboardId, gainput::KeyD);
+	Map->MapBool(Key::Key_Up, KeyboardId, gainput::KeySpace);
+	Map->MapBool(Key::Key_Down, KeyboardId, gainput::KeyShiftL);
+	Map->MapBool(Key::Key_CamLeft, KeyboardId, gainput::KeyLeft);
+	Map->MapBool(Key::Key_CamRight, KeyboardId, gainput::KeyRight);
+	Map->MapBool(Key::Key_CamUp, KeyboardId, gainput::KeyUp);
+	Map->MapBool(Key::Key_CamDown, KeyboardId, gainput::KeyDown);
 
 
 }

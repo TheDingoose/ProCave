@@ -14,20 +14,30 @@
 #include "Rendering/Model.h"
 
 #include "Rendering/DevUIDriver.h"
+#include "Tools/MarchCubeSettings.h"
 
 using namespace DirectX;
 
-constexpr float MCSize = 1.f;
-constexpr unsigned int MCFieldSize = 76;
+//constexpr float MCSize = 1.f;
+//constexpr unsigned int MCFieldSize = 76;
 
-
+//float4x4 WVP;
+//float4 PlayerPos;
+//float CubeSize;
+//float LightStrength;
+//float4 SampleMod;
+//float4 SampleOffset;
+//float Time;
 
 struct cbPerObject
 {
 	XMMATRIX  WVP;
-	XMFLOAT4 PlayerPos;
-	float MarchCubeSize = MCSize;
-	float Time;
+	XMFLOAT4 PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	XMFLOAT4 SampleMod = MarchCubeSettings::get()->SampleMod;
+	XMFLOAT4 SampleOffset = MarchCubeSettings::get()->SampleOffset;
+	float CubeSize = MarchCubeSettings::get()->CubeSize;
+	float LightStrength = MarchCubeSettings::get()->LightStrength;
+	float Time = 0.f;
 };
 
 struct CubeConstBuff {
@@ -64,10 +74,14 @@ public:
 
 	ID3D11Device* d3d11Device;
 	ID3D11DeviceContext* d3d11DevCon;
-private:
-	Renderer() {}
 
 	cbPerObject cbPerObj;
+
+	vector<ID3D11Buffer*> CubePosBuffer;
+	std::vector<XMVECTOR> CubePositions;
+
+private:
+	Renderer() {}
 
 	IDXGISwapChain* SwapChain;
 	
@@ -99,8 +113,8 @@ private:
 	ID3DBlob* CubePS_Buffer;
 	ID3D11InputLayout* CubepointLayout;
 
-	std::vector<XMVECTOR> CubePositions;
-	vector<ID3D11Buffer*> CubePosBuffer;
+	
+	
 	const UINT CubeStride = sizeof(XMVECTOR);
 	const UINT CubeOffset = 0;
 	ID3D11Buffer* TriTableBuffer;
@@ -212,9 +226,11 @@ public:
 		//Set the Input Layouts
 		d3d11DevCon->IASetInputLayout(CubepointLayout);
 		
-		cbPerObj.Time += 0.016f;
-		cbPerObj.PlayerPos = *PlayerPos;
 		cbPerObj.WVP = XMMatrixTranspose(*VP);
+		cbPerObj.PlayerPos = *PlayerPos;
+		cbPerObj.Time += 0.016f;
+		
+		
 		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
@@ -222,11 +238,15 @@ public:
 		XMVECTOR Worker = XMVectorZero();
 		unsigned int Numb = 0;
 		unsigned int BuffNumb = 0;
-		for (float x = (-(MCSize * (MCFieldSize / 2))); x < (MCSize * (MCFieldSize / 2)); x += MCSize) {
+		int GridSize = MarchCubeSettings::get()->GridSize;
+
+		
+
+		for (float x = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - x) > 0.001f; x += cbPerObj.CubeSize) {
 			Worker.m128_f32[0] = x;
-			for (float y = (-(MCSize * (MCFieldSize / 2))); y < (MCSize * (MCFieldSize / 2)); y += MCSize) {
+			for (float y = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - y) > 0.001f; y += cbPerObj.CubeSize) {
 				Worker.m128_f32[1] = y;
-				for (float z = (-(MCSize * (MCFieldSize / 2))); z < (MCSize * (MCFieldSize / 2)); z += MCSize) {
+				for (float z = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - z) > 0.001f; z += cbPerObj.CubeSize) {
 					Worker.m128_f32[2] = z;
 					CubePositions[Numb] = XMVectorAdd(Worker, Player);
 					Numb++;
@@ -239,13 +259,13 @@ public:
 			HRESULT hr = d3d11DevCon->Map(CubePosBuffer[BuffNumb], 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
 			//CheckError(hr, "Swap texture on noise regenerate");
 
-			memcpy(BufferData.pData, &CubePositions[Numb - MCFieldSize * MCFieldSize], sizeof(XMVECTOR) * MCFieldSize * MCFieldSize);
+			memcpy(BufferData.pData, &CubePositions[Numb - GridSize * GridSize], sizeof(XMVECTOR) * GridSize * GridSize);
 
 			Renderer::get()->d3d11DevCon->Unmap(CubePosBuffer[BuffNumb], 0);
 
 			d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosBuffer[BuffNumb], &CubeStride, &CubeOffset);
 
-			d3d11DevCon->Draw(MCFieldSize * MCFieldSize, 0);
+			d3d11DevCon->Draw(GridSize * GridSize, 0);
 			BuffNumb++;
 		}
 

@@ -137,22 +137,22 @@ void BaseApp::Tick()
 {
 	XMVECTOR Change = XMVectorZero();
 	XMFLOAT4 Step;
-	if (Input::get()->GetKey(Forward)) {
+	if (Input::get()->GetKey(Key_Forward)) {
 		Change.m128_f32[2] = 0.5f;
 	}
-	if (Input::get()->GetKey(Backward)) {
+	if (Input::get()->GetKey(Key_Backward)) {
 		Change.m128_f32[2] = -0.5f;
 	}
-	if (Input::get()->GetKey(Right)) {
+	if (Input::get()->GetKey(Key_Right)) {
 		Change.m128_f32[0] = 0.5f;
 	}
-	if (Input::get()->GetKey(Left)) {
+	if (Input::get()->GetKey(Key_Left)) {
 		Change.m128_f32[0] = -0.5f;
 	}
-	if (Input::get()->GetKey(Up)) {
+	if (Input::get()->GetKey(Key_Up)) {
 		Cam->Transform.Translation.y += 0.5f;
 	}
-	if (Input::get()->GetKey(Down)) {
+	if (Input::get()->GetKey(Key_Down)) {
 		Cam->Transform.Translation.y -= 0.5f;
 	}
 	XMStoreFloat4(&Step, XMVector4Transform(Change, Cam->Transform.Transform));
@@ -160,16 +160,16 @@ void BaseApp::Tick()
 	Cam->Transform.Translation.y += Step.y;
 	Cam->Transform.Translation.z += Step.z;
 
-	if (Input::get()->GetKey(CamLeft)) {
+	if (Input::get()->GetKey(Key_CamLeft)) {
 		Cam->Transform.Rotation.y -= 0.05f;
 	}
-	if (Input::get()->GetKey(CamRight)) {
+	if (Input::get()->GetKey(Key_CamRight)) {
 		Cam->Transform.Rotation.y += 0.05f;
 	}
-	if (Input::get()->GetKey(CamUp) && Cam->Transform.Rotation.x > -3.0f / 2.f) {
+	if (Input::get()->GetKey(Key_CamUp) && Cam->Transform.Rotation.x > -3.0f / 2.f) {
 			Cam->Transform.Rotation.x -= 0.05f;
 	}
-	if (Input::get()->GetKey(CamDown) && Cam->Transform.Rotation.x < 3.0f / 2.f) {
+	if (Input::get()->GetKey(Key_CamDown) && Cam->Transform.Rotation.x < 3.0f / 2.f) {
 		Cam->Transform.Rotation.x += 0.05f;
 	}
 

@@ -203,7 +203,7 @@ bool Renderer::InitializeCubeRenderer()
 	CheckError(hr, "Error creating Input Layout!");
 
 	//Setup the batch of position data of where to render the cubes
-	CubePositions.resize(MCFieldSize * MCFieldSize * MCFieldSize);
+	CubePositions.resize(MarchCubeSettings::get()->GridSize * MarchCubeSettings::get()->GridSize * MarchCubeSettings::get()->GridSize);
 
 	//Describe the vertex buffer
 	D3D11_BUFFER_DESC pointBufferDesc;
@@ -215,8 +215,8 @@ bool Renderer::InitializeCubeRenderer()
 	pointBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	pointBufferDesc.MiscFlags = 0;
 
-	CubePosBuffer.resize(MCFieldSize);
-	for (int i = 0; i < MCFieldSize; i++) {
+	CubePosBuffer.resize(MarchCubeSettings::get()->GridSize);
+	for (int i = 0; i < MarchCubeSettings::get()->GridSize; i++) {
 		hr = d3d11Device->CreateBuffer(&pointBufferDesc, 0, &CubePosBuffer[i]);
 	}
 

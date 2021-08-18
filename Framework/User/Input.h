@@ -2,18 +2,18 @@
 #include "gainput/gainput.h"
 
 enum Key {
-	Confirm,
-	Cancel,
-	Forward,
-	Backward,
-	Left,
-	Right,
-	Up,
-	Down,
-	CamLeft,
-	CamRight,
-	CamUp,
-	CamDown,
+	Key_Confirm,
+	Key_Cancel,
+	Key_Forward,
+	Key_Backward,
+	Key_Left,
+	Key_Right,
+	Key_Up,
+	Key_Down,
+	Key_CamLeft,
+	Key_CamRight,
+	Key_CamUp,
+	Key_CamDown,
 };
 
 class Input
