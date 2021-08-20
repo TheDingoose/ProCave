@@ -583,8 +583,6 @@ void Renderer::Resize()
 		CheckError(hr, "Error in creating the new render target view");
 		pBuffer->Release();
 
-		d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, NULL);
-
 		// Set up the viewport.
 		D3D11_VIEWPORT vp;
 		vp.Width = Width;
@@ -594,6 +592,31 @@ void Renderer::Resize()
 		vp.TopLeftX = 0;
 		vp.TopLeftY = 0;
 		d3d11DevCon->RSSetViewports(1, &vp);
+
+		depthStencilBuffer->Release();
+		depthStencilView->Release();
+
+
+		//Describe our Depth/Stencil Buffer
+		D3D11_TEXTURE2D_DESC depthStencilDesc;
+
+		depthStencilDesc.Width = Width;
+		depthStencilDesc.Height = Height;
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		//Create our Depthbuffer
+		d3d11Device->CreateTexture2D(&depthStencilDesc, NULL, &depthStencilBuffer);
+		d3d11Device->CreateDepthStencilView(depthStencilBuffer, NULL, &depthStencilView);
+
+		d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	}
 }
 
