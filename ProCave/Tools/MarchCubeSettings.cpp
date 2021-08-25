@@ -13,11 +13,6 @@ void MarchCubeSettings::Draw() {
 
 	ImGui::Begin(Name);
 	ImGui::SetWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
-
-	//cbPerObj.CubeSize = MarchCubeSettings::get()->CubeSize;
-	//cbPerObj.LightStrength = MarchCubeSettings::get()->LightStrength;
-	//cbPerObj.SampleMod = MarchCubeSettings::get()->SampleMod;
-	//cbPerObj.SampleOffset = MarchCubeSettings::get()->SampleMod;
 	
 	if (ImGui::DragFloat("CubeSize", &CubeSize, 0.1f)) {
 		Renderer::get()->cbPerObj.CubeSize = MarchCubeSettings::get()->CubeSize;
@@ -54,6 +49,9 @@ void MarchCubeSettings::Draw() {
 	};
 	if (ImGui::DragFloat4("SampleOffset", &SampleOffset.x, 0.5f)) {
 		Renderer::get()->cbPerObj.SampleOffset = MarchCubeSettings::get()->SampleOffset;
+	};
+	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.1f)) {
+		Renderer::get()->cbPerObj.DensityLimit = MarchCubeSettings::get()->DensityLimit;
 	};
 
 	ImGui::End();

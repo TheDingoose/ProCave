@@ -37,7 +37,8 @@ struct cbPerObject
 	XMFLOAT4 SampleOffset = MarchCubeSettings::get()->SampleOffset;
 	float CubeSize = MarchCubeSettings::get()->CubeSize;
 	float LightStrength = MarchCubeSettings::get()->LightStrength;
-	float Time = 0.f;
+	float Time = MarchCubeSettings::get()->Time;
+	float DensityLimit = MarchCubeSettings::get()->DensityLimit;
 };
 
 struct CubeConstBuff {
@@ -228,7 +229,7 @@ public:
 		
 		cbPerObj.WVP = XMMatrixTranspose(*VP);
 		cbPerObj.PlayerPos = *PlayerPos;
-		cbPerObj.Time += 0.016f;
+		cbPerObj.Time = MarchCubeSettings::get()->Time;
 		
 		
 		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);

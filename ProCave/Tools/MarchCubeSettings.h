@@ -23,10 +23,12 @@ public:
 
 
 	float CubeSize = 1.f;
-	unsigned int GridSize = 76;
+	unsigned int GridSize = 70;
 	float LightStrength = 70.f;
 	XMFLOAT4 SampleMod = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.05f);
 	XMFLOAT4 SampleOffset = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	float DensityLimit = 0.f;
+	float Time = 0.f;
 
 private:
 	MarchCubeSettings();

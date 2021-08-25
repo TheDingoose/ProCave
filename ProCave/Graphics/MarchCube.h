@@ -8,7 +8,7 @@
 using namespace DirectX;
 
 const float DensityLimit = 0.0f;
-constexpr float CubeSize = 5.f;
+constexpr float CubeSize = 1.f;
 constexpr float CubeSized2 = CubeSize / 2.f;
 
 

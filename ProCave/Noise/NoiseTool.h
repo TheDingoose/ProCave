@@ -9,7 +9,7 @@
 
 #include "Rendering/DevUI.h"
 
-constexpr int SampleSize = 16;
+constexpr int SampleSize = 64;
 
 class NoiseTool : public DevUI {
 public:

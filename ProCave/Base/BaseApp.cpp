@@ -5,6 +5,8 @@
 
 #include "spdlog/spdlog.h"
 
+#include "Noise/Ray.h"
+
 BaseApp::BaseApp()
 {
 }
@@ -82,49 +84,50 @@ void BaseApp::Load()
 	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
 	Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
 
-	/* THIS IS THE MARCHING CUBES
-	float sizee = 10.f;
-	sizee *= CubeSize;
-	XMVECTOR Worker = XMVectorZero();
-	int ModelNum = 0;
-	XMFLOAT4 Pos;
-	for (float x = -sizee; x < sizee; x += CubeSize) {
-		Worker.m128_f32[0] = x;
-		for (float y = -sizee; y < sizee; y += CubeSize) {
-			Worker.m128_f32[1] = y;
-			for (float z = -sizee; z < sizee; z += CubeSize) {
-				Worker.m128_f32[2] = z;
+	
+	//// THIS IS THE MARCHING CUBES
+	//float sizee = 10.f;
+	//sizee *= CubeSize;
+	//XMVECTOR Worker = XMVectorZero();
+	//int ModelNum = 0;
+	//XMFLOAT4 Pos;
+	//for (float x = -sizee; x < sizee; x += CubeSize) {
+	//	Worker.m128_f32[0] = x;
+	//	for (float y = -sizee; y < sizee; y += CubeSize) {
+	//		Worker.m128_f32[1] = y;
+	//		for (float z = -sizee; z < sizee; z += CubeSize) {
+	//			Worker.m128_f32[2] = z;
+	//
+	//			MarchCube Dud(Worker);
+	//
+	//			if (Dud.Vertices.size() == 0) {
+	//				continue;
+	//			}
+	//			//spdlog::info("------------------------------------");
+	//			//spdlog::info("Case: {0:d} , {0:b}", Dud.Case);
+	//			spdlog::info(ModelNum);
+	//			//std::vector<DWORD> ind;
+	//			int j = 0;
+	//			//for (int i = 0; i < Dud.Vertices.size(); i += 3) {
+	//			//	spdlog::info(j);
+	//			//	ind.push_back(j++);
+	//			//}
+	//			//spdlog::info("------------------------------------");
+	//			
+	//			
+	//
+	//			Renderer::get()->InitializeModel(Model(Dud.Indices, Dud.Vertices));
+	//			
+	//			XMStoreFloat4(&Pos, Worker);
+	//
+	//			Renderer::get()->Models[ModelNum++].Transform.Translation = Pos;
+	//		}
+	//	}
+	//}
+	
 
-				MarchCube Dud(Worker);
 
-				if (Dud.Vertices.size() == 0) {
-					continue;
-				}
-				//spdlog::info("------------------------------------");
-				//spdlog::info("Case: {0:d} , {0:b}", Dud.Case);
-				spdlog::info(ModelNum);
-				//std::vector<DWORD> ind;
-				int j = 0;
-				//for (int i = 0; i < Dud.Vertices.size(); i += 3) {
-				//	spdlog::info(j);
-				//	ind.push_back(j++);
-				//}
-				//spdlog::info("------------------------------------");
-				
-				
-
-				Renderer::get()->InitializeModel(Model(Dud.Indices, Dud.Vertices));
-				
-				XMStoreFloat4(&Pos, Worker);
-
-				Renderer::get()->Models[ModelNum++].Transform.Translation = Pos;
-			}
-		}
-	}
-	*/
-
-
-
+	
 
 
 
@@ -135,6 +138,8 @@ void BaseApp::Load()
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick()
 {
+	MarchCubeSettings::get()->Time += 0.016f;
+
 	XMVECTOR Change = XMVectorZero();
 	XMFLOAT4 Step;
 	if (Input::get()->GetKey(Key_Forward)) {
@@ -173,7 +178,11 @@ void BaseApp::Tick()
 		Cam->Transform.Rotation.x += 0.05f;
 	}
 
+
 	Cam->Update();
+
+	
+	XMStoreFloat4(&Renderer::get()->Models[1].Transform.Translation, Ray::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
 
 	float Rotat = 0.01f;
 
