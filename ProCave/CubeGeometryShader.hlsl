@@ -24,7 +24,14 @@ struct GS_Output
     float4 Color : COLOR;
 };
 
+// ----------------------------------- 4D SIMPLEX NOISE -------------------------------------
+
 #define NOISE_SIMPLEX_1_DIV_289 0.00346020761245674740484429065744f
+
+float mod289(float x)
+{
+    return x - floor(x * NOISE_SIMPLEX_1_DIV_289) * 289.0;
+}
 
 float3 mod289(float3 x)
 {
@@ -38,9 +45,8 @@ float4 mod289(float4 x)
 
 float permute(float x)
 {
-    return fmod(
-        x * x * 34.0 + x,
-        289.0
+    return mod289(
+        x * x * 34.0 + x
     );
 }
 
@@ -49,6 +55,11 @@ float4 permute(float4 x)
     return mod289(
 		x * x * 34.0 + x
 	);
+}
+
+float taylorInvSqrt(float r)
+{
+    return 1.79284291400159 - 0.85373472095314 * r;
 }
 
 float4 taylorInvSqrt(float4 r)
@@ -72,8 +83,6 @@ float4 grad4(float j, float4 ip)
 	
     return p;
 }
-
-// ----------------------------------- 4D SIMPLEX NOISE -------------------------------------
 
 float snoise(float4 v)
 {

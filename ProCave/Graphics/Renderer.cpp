@@ -483,7 +483,6 @@ bool Renderer::InitializeCubeRenderer()
 	0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
-
 	int PaddedtriTable[256 * 16 * 4];
 	//This is stupid and I hate it
 	for (int i = 0; i < 256 * 16; i ++) {
@@ -558,6 +557,7 @@ bool Renderer::InitializeModel(Model aModel)
 
 void Renderer::Resize()
 {
+	if (Width == 0 || Height == 0) { return; }
 	if (SwapChain)
 	{
 		d3d11DevCon->OMSetRenderTargets(0, 0, 0);

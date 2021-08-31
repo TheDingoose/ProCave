@@ -92,5 +92,6 @@
     <FxCompile Include="CubeVertexShader.hlsl" />
     <FxCompile Include="CubePixelShader.hlsl" />
     <FxCompile Include="CubeGeometryShader.hlsl" />
+    <FxCompile Include="MarchCubeToTexture.hlsl" />
   </ItemGroup>
 </Project>

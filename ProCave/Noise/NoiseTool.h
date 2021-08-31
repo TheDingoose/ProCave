@@ -26,6 +26,12 @@ public:
 	
 	ID3D11Texture2D* Texture = nullptr;
 	ID3D11ShaderResourceView* shaderResourceViewNoise = nullptr;
+	ID3D11Texture2D* GPUTexture = nullptr;
+	ID3D11UnorderedAccessView* GPUshaderResourceViewNoise = nullptr;
+	ID3D11ShaderResourceView* GPUNoiseViewer = nullptr;
+	ID3D11Buffer* GPUConstBuffer;
+	ID3DBlob* GPUCS_Buffer;
+	ID3D11ComputeShader* GPUShader;
 
 	void Draw() override;
 
