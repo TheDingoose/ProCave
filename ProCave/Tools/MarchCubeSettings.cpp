@@ -50,7 +50,7 @@ void MarchCubeSettings::Draw() {
 	if (ImGui::DragFloat4("SampleOffset", &SampleOffset.x, 0.5f)) {
 		Renderer::get()->cbPerObj.SampleOffset = MarchCubeSettings::get()->SampleOffset;
 	};
-	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.1f)) {
+	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.01f, -1.f, 1.f)) {
 		Renderer::get()->cbPerObj.DensityLimit = MarchCubeSettings::get()->DensityLimit;
 	};
 

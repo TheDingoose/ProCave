@@ -14,6 +14,9 @@ enum Key {
 	Key_CamRight,
 	Key_CamUp,
 	Key_CamDown,
+	Key_MouseUnlock,
+	Mouse_X,
+	Mouse_Y
 };
 
 class Input
@@ -33,10 +36,19 @@ public:
 		return Map->GetBool(key);
 	}
 
+	float GetValue(Key key) {
+		return Map->GetFloat(key);
+	}
+
+	float GetValueDelta(Key key) {
+		return Map->GetFloatDelta(key);
+	}
+
 private:
 	Input();
 	gainput::InputManager GainputManager;
 	gainput::DeviceId KeyboardId;
+	gainput::DeviceId MouseId;
 	gainput::InputMap* Map;
 };
 

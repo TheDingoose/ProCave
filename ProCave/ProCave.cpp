@@ -2,6 +2,11 @@
 
 //#include "flecs/flecs.h"
 
+#include <chrono>
+//#include <iostream>
+//#include <sys/time.h>
+#include <ctime>
+
 #include "SH.h"
 #include "ProCave.h"
 #include "Base/BaseApp.h"
@@ -31,7 +36,7 @@ HWND hWnd; //Handle to our now one window, this needs to be changed if I want mo
 
 BaseApp Game;
 Renderer* Graphics = Renderer::get();
-
+float Deltatime = 0.f;
 //flecs::world ECS;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -57,6 +62,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     //SetupSystems(ECS);
     SetupSpdlog();
     Game.Init();
+    Game.HandleWindow = hWnd;
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
     Graphics->InitializeRenderer();
 
@@ -74,10 +80,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     //#LOADRESOURCES 
     Game.Load();
-
-
+    
+    float LastTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    float Calcer;
     //#TICK
     while (!Game.Shutdown) {
+        Calcer = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+        Deltatime = (Calcer - LastTime) / 1000.f;
+        LastTime = Calcer;
+
         GaInput->Update();
         // Main message loop:
         PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
@@ -90,8 +101,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
         
 
-        Game.Tick();
-        DevUIDriver::get()->Update(0.01f);
+        Game.Tick(Deltatime);
+        DevUIDriver::get()->Update(Deltatime);
 
         Graphics->Draw();
        

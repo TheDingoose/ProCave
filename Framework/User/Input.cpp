@@ -6,8 +6,8 @@
 Input::Input()
 {
 	KeyboardId = GainputManager.CreateDevice<gainput::InputDeviceKeyboard>();
+	MouseId = GainputManager.CreateDevice<gainput::InputDeviceMouse>();
 	Map = new gainput::InputMap(GainputManager);
-
 
 	//Mapping Keys
 	Map->MapBool(Key::Key_Confirm, KeyboardId, gainput::KeyReturn);
@@ -21,6 +21,8 @@ Input::Input()
 	Map->MapBool(Key::Key_CamRight, KeyboardId, gainput::KeyRight);
 	Map->MapBool(Key::Key_CamUp, KeyboardId, gainput::KeyUp);
 	Map->MapBool(Key::Key_CamDown, KeyboardId, gainput::KeyDown);
+	Map->MapBool(Key::Key_MouseUnlock, KeyboardId, gainput::KeyT);
 
-
+	Map->MapFloat(Key::Mouse_X, MouseId, gainput::MouseAxisX);
+	Map->MapFloat(Key::Mouse_Y, MouseId, gainput::MouseAxisY);
 }

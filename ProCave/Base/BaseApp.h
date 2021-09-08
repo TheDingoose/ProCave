@@ -1,5 +1,6 @@
 #pragma once
 #include "Rendering/Camera.h"
+#include "SH.h"
 class Renderer;
 
 class BaseApp
@@ -13,12 +14,13 @@ public:
 
 	void Load();
 
-	void Tick();
+	void Tick(float Deltatime);
 
 	void UnLoad();
 
 	void Exit();
 
+	HWND HandleWindow;
 	Camera* Cam;
 	bool Shutdown = false;
 };

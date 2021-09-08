@@ -1,4 +1,5 @@
 #include "BaseApp.h"
+
 #include "Graphics/Renderer.h"
 #include "User/Input.h"
 #include "Graphics/MarchCube.h"
@@ -63,26 +64,10 @@ void BaseApp::Load()
 
 	Model Coob(indices, v);
 
-	std::vector<Vertex> sv =
-	{
-		Vertex(-0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f),
-		Vertex(-0.5f,  0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f),
-		Vertex(0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f),
-		Vertex(0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f),
-	};
-
-	std::vector<DWORD> sindices = {
-	0, 1, 2,
-	0, 2, 3,
-	};
-
-	Model Square(sindices, sv);
-
-	Renderer::get()->InitializeModel(Square);
 	Renderer::get()->InitializeModel(Coob);
-	//
+	
 	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
-	Renderer::get()->Models[1].Transform.Translation = XMFLOAT4(4.f, 0.f, 5.f, 0.f);
+
 
 	
 	//// THIS IS THE MARCHING CUBES
@@ -134,65 +119,98 @@ void BaseApp::Load()
 
 }
 
+XMVECTOR Velocity = XMVectorZero();
+
 //Game update info goes here, more advanced functionality,
 //such as messaging, happens in ProCave.cpp
-void BaseApp::Tick()
+void BaseApp::Tick(float Deltatime)
 {
-	MarchCubeSettings::get()->Time += 0.016f;
+	//MarchCubeSettings::get()->Time += Deltatime;
 
-	XMVECTOR Change = XMVectorZero();
-	XMFLOAT4 Step;
-	if (Input::get()->GetKey(Key_Forward)) {
-		Change.m128_f32[2] = 0.5f;
-	}
-	if (Input::get()->GetKey(Key_Backward)) {
-		Change.m128_f32[2] = -0.5f;
-	}
-	if (Input::get()->GetKey(Key_Right)) {
-		Change.m128_f32[0] = 0.5f;
-	}
-	if (Input::get()->GetKey(Key_Left)) {
-		Change.m128_f32[0] = -0.5f;
-	}
-	if (Input::get()->GetKey(Key_Up)) {
-		Cam->Transform.Translation.y += 0.5f;
-	}
-	if (Input::get()->GetKey(Key_Down)) {
-		Cam->Transform.Translation.y -= 0.5f;
-	}
-	XMStoreFloat4(&Step, XMVector4Transform(Change, Cam->Transform.Transform));
-	Cam->Transform.Translation.x += Step.x;
-	Cam->Transform.Translation.y += Step.y;
-	Cam->Transform.Translation.z += Step.z;
-
-	if (Input::get()->GetKey(Key_CamLeft)) {
-		Cam->Transform.Rotation.y -= 0.05f;
-	}
-	if (Input::get()->GetKey(Key_CamRight)) {
-		Cam->Transform.Rotation.y += 0.05f;
-	}
-	if (Input::get()->GetKey(Key_CamUp) && Cam->Transform.Rotation.x > -3.0f / 2.f) {
-			Cam->Transform.Rotation.x -= 0.05f;
-	}
-	if (Input::get()->GetKey(Key_CamDown) && Cam->Transform.Rotation.x < 3.0f / 2.f) {
-		Cam->Transform.Rotation.x += 0.05f;
-	}
-
-
+	Cam->Transform.Translation.y -= 3.f;
 	Cam->Update();
 
+	XMVECTOR PlayerAcc = XMVectorZero();
+	XMFLOAT4 Step;
+	if (Input::get()->GetKey(Key_Forward)) {
+		PlayerAcc.m128_f32[2] = 1.f;
+	}
+	if (Input::get()->GetKey(Key_Backward)) {
+		PlayerAcc.m128_f32[2] = -1.f;
+	}
+	if (Input::get()->GetKey(Key_Right)) {
+		PlayerAcc.m128_f32[0] = 1.f;
+	}
+	if (Input::get()->GetKey(Key_Left)) {
+		PlayerAcc.m128_f32[0] = -1.f;
+	}
+
+	PlayerAcc = XMVector4Transform(PlayerAcc, Cam->Transform.Transform);
 	
-	XMStoreFloat4(&Renderer::get()->Models[1].Transform.Translation, Ray::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
+	
+
+	PlayerAcc.m128_f32[1] = 0.f;
+	XMVECTOR Offset = XMVector3Normalize(PlayerAcc);
+
+	PlayerAcc = XMVector3Normalize(PlayerAcc) * 1.f;
+
+
+
+	if (Input::get()->GetKey(Key_Up)) {
+		PlayerAcc.m128_f32[1] = 2.f;
+	}
+
+	PlayerAcc.m128_f32[1] += -1.f;
+	//Velocity = Velocity * Deltatime;
+
+	Velocity += PlayerAcc;
+
+	XMVECTOR Temp = XMLoadFloat4(&Cam->Transform.Translation);
+
+	Ray::DensityCollisionVelocityTest(&Temp, &Velocity, Deltatime);
+	XMStoreFloat4(&Cam->Transform.Translation, Temp);
+	
+
+	
+
+
+	//if (Input::get()->GetKey(Key_Down)) {
+	//	Cam->Transform.Translation.y -= 0.5f;
+	//}
+	
+
+
+	
+
+	//PlayerAcc *= 0.3f;
+
+
+	if (!Input::get()->GetKey(Key_MouseUnlock) && GetForegroundWindow() == HandleWindow) {
+		POINT cPos;
+		GetCursorPos(&cPos);
+		RECT rect = { NULL };
+		GetWindowRect(HandleWindow, &rect);
+		float Movex = -(rect.left + (rect.right - rect.left) / 2 - cPos.x) / 300.f;
+		float Movey = -(rect.top + (rect.bottom - rect.top) / 2 - cPos.y) / 300.f;
+
+		if (Cam->Transform.Rotation.x + Movey > -3.0f / 2.f && Cam->Transform.Rotation.x + Movey < 3.0f / 2.f) {
+			Cam->Transform.Rotation.x += Movey;
+		}
+		Cam->Transform.Rotation.y += Movex;
+
+		SetCursorPos(rect.left + (rect.right - rect.left) / 2, rect.top + (rect.bottom - rect.top) / 2);
+	}
+
+	Cam->Transform.Translation.y += 3.f;
+	Cam->Update();
+	XMStoreFloat4(&Renderer::get()->Models[0].Transform.Translation, Ray::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
+	
 
 	float Rotat = 0.01f;
 
 	Renderer::get()->Models[0].Transform.Rotation.x += Rotat;
 	Renderer::get()->Models[0].Transform.Rotation.y += Rotat;
 	Renderer::get()->Models[0].Transform.Rotation.z += Rotat;
-
-	Renderer::get()->Models[1].Transform.Rotation.x += Rotat;
-	Renderer::get()->Models[1].Transform.Rotation.y += Rotat;
-	Renderer::get()->Models[1].Transform.Rotation.z += Rotat;
 }
 
 //Free all currently claimed resources
