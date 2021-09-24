@@ -115,7 +115,9 @@ void BaseApp::Load()
 	
 
 
-
+	Cam->Transform.Translation.x = 4.f;
+	Cam->Transform.Translation.y = -10.f;
+	Cam->Transform.Translation.z = -12.f;
 
 }
 
@@ -125,10 +127,10 @@ XMVECTOR Velocity = XMVectorZero();
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick(float Deltatime)
 {
-	//MarchCubeSettings::get()->Time += Deltatime;
+	MarchCubeSettings::get()->Time += Deltatime;
 
-	Cam->Transform.Translation.y -= 3.f;
-	Cam->Update();
+	//Cam->Transform.Translation.y -= 3.f;
+	//Cam->Update();
 
 	XMVECTOR PlayerAcc = XMVectorZero();
 	XMFLOAT4 Step;
@@ -167,7 +169,19 @@ void BaseApp::Tick(float Deltatime)
 
 	XMVECTOR Temp = XMLoadFloat4(&Cam->Transform.Translation);
 
-	Ray::DensityCollisionVelocityTest(&Temp, &Velocity, Deltatime);
+
+	CollisionShape p;
+	p.Positions.push_back(XMVectorSet(2.f, 0.f, 0.f, 0.f));
+	p.Positions.push_back(XMVectorSet(-2.f, 0.f, 0.f, 0.f));
+	p.Positions.push_back(XMVectorSet(0.f, 0.f, 2.f, 0.f));
+	p.Positions.push_back(XMVectorSet(0.f, 0.f, -2.f, 0.f));
+	p.Positions.push_back(XMVectorSet(0.f, 2.f, 0.f, 0.f));
+	p.Positions.push_back(XMVectorSet(2.f, -3.f, 0.f, 0.f));
+	p.Positions.push_back(XMVectorSet(-2.f, -3.f, 0.f, 0.f));
+	p.Positions.push_back(XMVectorSet(0.f, -3.f, 2.f, 0.f));
+	p.Positions.push_back(XMVectorSet(0.f, -3.f, -2.f, 0.f));
+
+	Ray::LoosyCollisionTest(&Temp, p, &Velocity, Deltatime);
 	XMStoreFloat4(&Cam->Transform.Translation, Temp);
 	
 
@@ -201,7 +215,7 @@ void BaseApp::Tick(float Deltatime)
 		SetCursorPos(rect.left + (rect.right - rect.left) / 2, rect.top + (rect.bottom - rect.top) / 2);
 	}
 
-	Cam->Transform.Translation.y += 3.f;
+	//Cam->Transform.Translation.y += 3.f;
 	Cam->Update();
 	XMStoreFloat4(&Renderer::get()->Models[0].Transform.Translation, Ray::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
 	

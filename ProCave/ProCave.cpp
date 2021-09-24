@@ -86,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     //#TICK
     while (!Game.Shutdown) {
         Calcer = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-        Deltatime = (Calcer - LastTime) / 1000.f;
+        Deltatime = fmin((Calcer - LastTime) / 1000.f, 0.016f);
         LastTime = Calcer;
 
         GaInput->Update();
