@@ -7,6 +7,11 @@
 
 #include "Graphics/RenderHelper.h"
 
+#include "Tools/DebugSettings.h"
+
+#include "reactphysics3d/reactphysics3d.h"
+using namespace reactphysics3d;
+
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },  
@@ -21,7 +26,12 @@ D3D11_INPUT_ELEMENT_DESC Cubelayout[] =
 };
 UINT CubenumElements = ARRAYSIZE(Cubelayout);
 
-
+D3D11_INPUT_ELEMENT_DESC Debuglayout[] =
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+UINT DebugnumElements = ARRAYSIZE(Debuglayout);
 
 
 
@@ -171,7 +181,7 @@ bool Renderer::InitializeRenderer()
 	d3d11DevCon->RSSetState(RasterizerState);
 
 	InitializeCubeRenderer();
-
+	InitializeDebugRenderer();
 	return true;
 }
 
@@ -510,6 +520,44 @@ bool Renderer::InitializeCubeRenderer()
 	return true;
 }
 
+bool Renderer::InitializeDebugRenderer()
+{
+	ID3DBlob* compilationMsgs = nullptr;
+
+	hr = D3DCompileFromFile(L"DebugVertexShader.hlsl", NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", 0, 0, &DebugVS_Buffer, &compilationMsgs);
+	CheckError(hr, compilationMsgs);
+
+	hr = D3DCompileFromFile(L"DebugPixelShader.hlsl", NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", 0, 0, &DebugPS_Buffer, &compilationMsgs);
+	CheckError(hr, compilationMsgs);
+
+	//Create the Shader Objects
+	hr = d3d11Device->CreateVertexShader(DebugVS_Buffer->GetBufferPointer(), DebugVS_Buffer->GetBufferSize(), NULL, &DebugVS);
+	CheckError(hr, "Error While compiling Debug Vertex Shader!");
+	hr = d3d11Device->CreatePixelShader(DebugPS_Buffer->GetBufferPointer(), DebugPS_Buffer->GetBufferSize(), NULL, &DebugPS);
+	CheckError(hr, "Error While compiling Debug Pixel Shader!");
+
+	//Create the Input Layout
+	hr = d3d11Device->CreateInputLayout(Debuglayout, DebugnumElements, DebugVS_Buffer->GetBufferPointer(),
+		DebugVS_Buffer->GetBufferSize(), &DebugLineLayout);
+	CheckError(hr, "Error creating Input Layout!");
+
+	D3D11_RASTERIZER_DESC rastdesc;
+	rastdesc.FillMode = D3D11_FILL_WIREFRAME;
+	rastdesc.CullMode = D3D11_CULL_NONE;
+	rastdesc.FrontCounterClockwise = FALSE;
+	rastdesc.DepthBias = 0;
+	rastdesc.SlopeScaledDepthBias = 0.0f;
+	rastdesc.DepthBiasClamp = 0.0f;
+	rastdesc.DepthClipEnable = TRUE;
+	rastdesc.ScissorEnable = FALSE;
+	rastdesc.MultisampleEnable = FALSE;
+	rastdesc.AntialiasedLineEnable = FALSE;
+
+	d3d11Device->CreateRasterizerState(&rastdesc, &DebugRasterizerState);
+
+	return true;
+}
+
 bool Renderer::InitializeModel(Model aModel)
 {
 	ModelBuffers Buffers;
@@ -618,5 +666,161 @@ void Renderer::Resize()
 
 		d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
 	}
+}
+
+void Renderer::Draw()
+{
+#if defined(_DEBUG)
+
+
+#endif
+	//Clear the screen before drawing anything new
+	float bgColor[4] = { 0.37f, 0.18f, 0.56f, 1.f };
+
+	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
+	d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	//Set Shaders
+	d3d11DevCon->VSSetShader(VS, 0, 0);
+	d3d11DevCon->PSSetShader(PS, 0, 0);
+	d3d11DevCon->GSSetShader(0, 0, 0);
+
+	//Set Primitive Topology
+	d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//Set the Input Layout
+	d3d11DevCon->IASetInputLayout(vertLayout);
+
+	for (auto& Mesh : Models) {
+		//Set the index buffer
+		d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		//Set the vertex buffer
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		d3d11DevCon->IASetVertexBuffers(0, 1, &Mesh.VertexBuffer, &stride, &offset);
+
+
+
+		Mesh.Transform.UpdateMatrix();
+		cbPerObj.WVP = XMMatrixTranspose(Mesh.Transform.Transform * *VP);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+		//Draw!
+		d3d11DevCon->DrawIndexed(Mesh.IndexSize, 0, 0);
+	}
+
+	//! NOW MARCHING CUBES :)
+
+	//Set Shaders
+	d3d11DevCon->VSSetShader(CubeVS, 0, 0);
+	d3d11DevCon->PSSetShader(CubePS, 0, 0);
+	d3d11DevCon->GSSetShader(CubeGS, 0, 0);
+
+	//Set Primitive Topology
+	d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	//Set the Input Layouts
+	d3d11DevCon->IASetInputLayout(CubepointLayout);
+
+	cbPerObj.WVP = XMMatrixTranspose(*VP);
+	cbPerObj.PlayerPos = *PlayerPos;
+	cbPerObj.Time = MarchCubeSettings::get()->Time;
+
+
+	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
+	XMVECTOR Worker = XMVectorZero();
+	unsigned int Numb = 0;
+	unsigned int BuffNumb = 0;
+	int GridSize = MarchCubeSettings::get()->GridSize;
+
+	for (float x = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - x) > 0.001f; x += cbPerObj.CubeSize) {
+		Worker.m128_f32[0] = x;
+		for (float y = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - y) > 0.001f; y += cbPerObj.CubeSize) {
+			Worker.m128_f32[1] = y;
+			for (float z = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - z) > 0.001f; z += cbPerObj.CubeSize) {
+				Worker.m128_f32[2] = z;
+				CubePositions[Numb] = XMVectorAdd(Worker, Player);
+				Numb++;
+			}
+		}
+
+		D3D11_MAPPED_SUBRESOURCE BufferData;
+		ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+		HRESULT hr = d3d11DevCon->Map(CubePosBuffer[BuffNumb], 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
+		//CheckError(hr, "Swap texture on noise regenerate");
+
+		memcpy(BufferData.pData, &CubePositions[Numb - GridSize * GridSize], sizeof(XMVECTOR) * GridSize * GridSize);
+
+		Renderer::get()->d3d11DevCon->Unmap(CubePosBuffer[BuffNumb], 0);
+
+		d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosBuffer[BuffNumb], &CubeStride, &CubeOffset);
+
+		d3d11DevCon->Draw(GridSize * GridSize, 0);
+		BuffNumb++;
+	}
+
+
+	//! Collision Debug Draw!	
+	{
+		if (DebugSettings::get()->DrawPhysicsDebug && debugRenderer->getNbTriangles() > 0) {
+			
+			d3d11DevCon->VSSetShader(DebugVS, 0, 0);
+			d3d11DevCon->PSSetShader(DebugPS, 0, 0);
+			d3d11DevCon->GSSetShader(0, 0, 0);
+
+			d3d11DevCon->RSSetState(DebugRasterizerState);
+
+			//Set Primitive Topology
+			d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			//Set the Input Layout
+			d3d11DevCon->IASetInputLayout(DebugLineLayout);
+
+			//Set the vertex buffer
+			UINT stride = sizeof(XMVECTOR);
+			UINT offset = 0;
+
+			ID3D11Buffer* Buffer;
+
+			//Describe the vertex buffer
+			D3D11_BUFFER_DESC vertexBufferDesc;
+			ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+
+			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+			vertexBufferDesc.ByteWidth = sizeof(XMVECTOR) * debugRenderer->getNbTriangles() * 3;
+			vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			vertexBufferDesc.CPUAccessFlags = 0;
+			vertexBufferDesc.MiscFlags = 0;
+
+			D3D11_SUBRESOURCE_DATA vertexBufferData;
+
+			ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+			vertexBufferData.pSysMem = debugRenderer->getTrianglesArray();
+			hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffer);
+			CheckError(hr, "Error creating Vertex Buffer!");
+
+			d3d11DevCon->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
+
+			//Mesh.Transform.UpdateMatrix();
+			cbPerObj.WVP = XMMatrixTranspose(*VP);
+			d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+			d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+			//Draw!
+			d3d11DevCon->Draw(debugRenderer->getNbTriangles() * 3, 0);
+
+			Buffer->Release();
+			d3d11DevCon->RSSetState(RasterizerState);
+
+		}
+	}
+	DevUIDriver::get()->Draw();
+
+	SwapChain->Present(0, 0);
 }
 

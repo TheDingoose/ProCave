@@ -2,6 +2,8 @@
 
 #include "Noise/Density.h"
 
+#include "Tools/MarchCubeSettings.h"
+
 int edgeTable[256] = {
 0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -294,6 +296,8 @@ int triTable[256][16] =
 {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1} };
 
+float CubeSized2 = MarchCubeSettings::get()->CubeSize / 2.f;
+
 float edgeposTable[12][3] = {
 	{0.f, -CubeSized2, CubeSized2}, //0
 	{CubeSized2, -CubeSized2, 0.f}, //1
@@ -341,7 +345,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Case = 0;
 	Vertices.clear();
 
-	float HalfCoob = CubeSize / 2.f;
+	float HalfCoob = MarchCubeSettings::get()->CubeSize / 2.f;
 	//__m128 HalfCoob = _mm_set1_ps(CubeSize / 2.f);
 	XMVECTOR Worker = XMVectorZero();
 	
@@ -349,7 +353,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 1;
 	};
 	Worker = XMVectorZero();
@@ -357,7 +361,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 2;
 	};
 	Worker = XMVectorZero();
@@ -365,7 +369,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 4;
 	};
 	Worker = XMVectorZero();
@@ -373,7 +377,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 8;
 	};
 	Worker = XMVectorZero();
@@ -381,7 +385,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 16;
 	};
 	Worker = XMVectorZero();
@@ -389,7 +393,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 32;
 	};
 	Worker = XMVectorZero();
@@ -397,7 +401,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 64;
 	};
 	Worker = XMVectorZero();
@@ -405,7 +409,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 128;
 	};
 	Worker = XMVectorZero();
@@ -430,5 +434,6 @@ void MarchCube::Sample(XMVECTOR aPos)
 		Vertices.push_back(Vertex(edgeposTable[triTable[Case][i]][0], edgeposTable[triTable[Case][i]][1], edgeposTable[triTable[Case][i]][2],
 			(fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), 1.f
 		));
+		LooseVertices.push_back(XMVectorSet(edgeposTable[triTable[Case][i]][0], edgeposTable[triTable[Case][i]][1], edgeposTable[triTable[Case][i]][2], 0.f));
 	}
 }

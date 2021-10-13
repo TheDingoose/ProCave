@@ -28,6 +28,9 @@ using namespace DirectX;
 //float4 SampleMod;
 //float4 SampleOffset;
 //float Time;
+namespace reactphysics3d {
+class DebugRenderer;
+}
 
 struct cbPerObject
 {
@@ -81,6 +84,8 @@ public:
 	vector<ID3D11Buffer*> CubePosBuffer;
 	std::vector<XMVECTOR> CubePositions;
 
+	reactphysics3d::DebugRenderer* debugRenderer;
+
 private:
 	Renderer() {}
 
@@ -120,6 +125,13 @@ private:
 	const UINT CubeOffset = 0;
 	ID3D11Buffer* TriTableBuffer;
 
+	ID3D11VertexShader* DebugVS;
+	ID3D11PixelShader* DebugPS;
+	ID3DBlob* DebugVS_Buffer;
+	ID3DBlob* DebugPS_Buffer;
+	ID3D11InputLayout* DebugLineLayout;
+	ID3D11RasterizerState* DebugRasterizerState;
+
 	XMFLOAT4* PlayerPos;
 
 public:
@@ -129,6 +141,7 @@ public:
 	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
 	bool InitializeRenderer();
 	bool InitializeCubeRenderer();
+	bool InitializeDebugRenderer();
 	bool InitializeModel(Model aModel);
 	void Resize();
 
@@ -168,115 +181,13 @@ public:
 			}
 			TriTableBuffer->Release();
 
+			DebugVS->Release();
+			DebugPS->Release();
+			DebugVS_Buffer->Release();
+			DebugPS_Buffer->Release();
+			DebugLineLayout->Release();
+
 	}
 
-	//Move this!
-	void Draw() {
-#if defined(_DEBUG)
-		
-		
-#endif
-		//Clear the screen before drawing anything new
-		float bgColor[4] = { 0.37f, 0.18f, 0.56f, 1.f };
-
-		d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
-		d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-		//Set Shaders
-		d3d11DevCon->VSSetShader(VS, 0, 0);
-		d3d11DevCon->PSSetShader(PS, 0, 0);
-		d3d11DevCon->GSSetShader(0, 0, 0);
-
-		//Set Primitive Topology
-		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//Set the Input Layout
-		d3d11DevCon->IASetInputLayout(vertLayout);
-
-		for (auto& Mesh : Models) {
-			//Set the index buffer
-			d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-			
-			//Set the vertex buffer
-			UINT stride = sizeof(Vertex);
-			UINT offset = 0;
-			d3d11DevCon->IASetVertexBuffers(0, 1, &Mesh.VertexBuffer, &stride, &offset);
-
-
-
-			Mesh.Transform.UpdateMatrix();
-			cbPerObj.WVP = XMMatrixTranspose(Mesh.Transform.Transform * *VP);
-			d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-			d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-
-			//Draw!
-			d3d11DevCon->DrawIndexed(Mesh.IndexSize, 0, 0);
-		}
-
-
-		//NOW MARCHING CUBES :)
-
-		//Set Shaders
-		d3d11DevCon->VSSetShader(CubeVS, 0, 0);
-		d3d11DevCon->PSSetShader(CubePS, 0, 0);
-		d3d11DevCon->GSSetShader(CubeGS, 0, 0);
-
-		//Set Primitive Topology
-		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-		//Set the Input Layouts
-		d3d11DevCon->IASetInputLayout(CubepointLayout);
-		
-		cbPerObj.WVP = XMMatrixTranspose(*VP);
-		cbPerObj.PlayerPos = *PlayerPos;
-		cbPerObj.Time = MarchCubeSettings::get()->Time;
-		
-		
-		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-
-		XMVECTOR Player = XMLoadFloat4(PlayerPos);
-		XMVECTOR Worker = XMVectorZero();
-		unsigned int Numb = 0;
-		unsigned int BuffNumb = 0;
-		int GridSize = MarchCubeSettings::get()->GridSize;
-
-		
-
-		for (float x = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - x) > 0.001f; x += cbPerObj.CubeSize) {
-			Worker.m128_f32[0] = x;
-			for (float y = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - y) > 0.001f; y += cbPerObj.CubeSize) {
-				Worker.m128_f32[1] = y;
-				for (float z = (-(cbPerObj.CubeSize * (GridSize / 2))); ((cbPerObj.CubeSize * (GridSize / 2)) - z) > 0.001f; z += cbPerObj.CubeSize) {
-					Worker.m128_f32[2] = z;
-					CubePositions[Numb] = XMVectorAdd(Worker, Player);
-					Numb++;
-				}
-			}
-
-			D3D11_MAPPED_SUBRESOURCE BufferData;
-			ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
-			//D3D11CalcSubresource(0, 0, 1);
-			HRESULT hr = d3d11DevCon->Map(CubePosBuffer[BuffNumb], 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
-			//CheckError(hr, "Swap texture on noise regenerate");
-
-			memcpy(BufferData.pData, &CubePositions[Numb - GridSize * GridSize], sizeof(XMVECTOR) * GridSize * GridSize);
-
-			Renderer::get()->d3d11DevCon->Unmap(CubePosBuffer[BuffNumb], 0);
-
-			d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosBuffer[BuffNumb], &CubeStride, &CubeOffset);
-
-			d3d11DevCon->Draw(GridSize * GridSize, 0);
-			BuffNumb++;
-		}
-
-		
-		DevUIDriver::get()->Draw();
-
-		SwapChain->Present(0, 0);
-	}
-
-
-
-
+	void Draw();
 };

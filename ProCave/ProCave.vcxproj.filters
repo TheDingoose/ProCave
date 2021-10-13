@@ -51,6 +51,9 @@
     <ClInclude Include="Noise\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tools\DebugSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ProCave.cpp">
@@ -77,6 +80,9 @@
     <ClCompile Include="Noise\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tools\DebugSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\DemoAssets\small.ico">
@@ -93,5 +99,7 @@
     <FxCompile Include="CubePixelShader.hlsl" />
     <FxCompile Include="CubeGeometryShader.hlsl" />
     <FxCompile Include="MarchCubeToTexture.hlsl" />
+    <FxCompile Include="DebugVertexShader.hlsl" />
+    <FxCompile Include="DebugPixelShader.hlsl" />
   </ItemGroup>
 </Project>

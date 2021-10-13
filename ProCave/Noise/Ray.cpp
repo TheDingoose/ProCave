@@ -13,7 +13,7 @@ constexpr float MinDelta = 0.001f;
 
 XMVECTOR LastDir = XMVectorZero();
 
-XMVECTOR Ray::Test(XMVECTOR Pos, XMVECTOR Direction)
+XMVECTOR NoiseRay::Test(XMVECTOR Pos, XMVECTOR Direction)
 {
 	Direction = XMVector3Normalize(Direction);
 	XMVECTOR Estimation = Pos;
@@ -30,7 +30,7 @@ XMVECTOR Ray::Test(XMVECTOR Pos, XMVECTOR Direction)
 	return Estimation;
 }
 
-XMVECTOR Ray::GetNormal(XMVECTOR Pos)
+XMVECTOR NoiseRay::GetNormal(XMVECTOR Pos)
 {
 	XMVECTOR Normal;
 	//is using StepTest even smart?
@@ -41,7 +41,7 @@ XMVECTOR Ray::GetNormal(XMVECTOR Pos)
 	return Normal;
 }
 
-XMVECTOR Ray::GetNormal(XMVECTOR Pos, float Offset)
+XMVECTOR NoiseRay::GetNormal(XMVECTOR Pos, float Offset)
 {
 	XMVECTOR Normal;
 	//is using StepTest even smart?
@@ -52,7 +52,7 @@ XMVECTOR Ray::GetNormal(XMVECTOR Pos, float Offset)
 	return Normal;
 }
 
-bool Ray::HitCheck(XMVECTOR Pos, XMVECTOR Velocity)
+bool NoiseRay::HitCheck(XMVECTOR Pos, XMVECTOR Velocity)
 {
 	//Get the stepsize for this velocity
 	float Step = XMVector3Length(Velocity).m128_f32[0] / MaxSteps;
@@ -71,7 +71,7 @@ bool Ray::HitCheck(XMVECTOR Pos, XMVECTOR Velocity)
 	return false;
 }
 
-XMVECTOR Ray::CollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
+XMVECTOR NoiseRay::CollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 {
 	//Get the stepsize for this velocity
 	float Step = XMVector3Length(Velocity).m128_f32[0] / MaxSteps;
@@ -97,7 +97,7 @@ XMVECTOR Ray::CollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 	return Estimation - Pos;
 }
 
-XMVECTOR Ray::InvertedCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
+XMVECTOR NoiseRay::InvertedCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 {
 	//Get the stepsize for this velocity
 	float Step = XMVector3Length(Velocity).m128_f32[0] / MaxSteps;
@@ -127,7 +127,7 @@ XMVECTOR Ray::InvertedCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 
 
 
-XMVECTOR Ray::DensityCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
+XMVECTOR NoiseRay::DensityCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 {
 	XMVECTOR FinalVelocity = XMVectorZero();
 
@@ -185,18 +185,18 @@ XMVECTOR Ray::DensityCollisionTest(XMVECTOR Pos, XMVECTOR Velocity)
 	return FinalVelocity;
 }
 
-void Ray::Decollide(XMVECTOR* Pos, CollisionShape Shape)
+void NoiseRay::Decollide(XMVECTOR* Pos, NoiseCollisionShape Shape)
 {
 	XMVECTOR move = XMVectorZero();
 	XMVECTOR Normal = XMVectorZero();
 
 	for (auto i : Shape.Positions) {
 		if (GetDensity(*Pos + i, MarchCubeSettings::get()->Time) < MarchCubeSettings::get()->DensityLimit) {
-			Normal += Ray::GetNormal(*Pos + i);
+			Normal += NoiseRay::GetNormal(*Pos + i);
 		}
 	}
 
-	XMVECTOR BigNormal = Ray::GetNormal(*Pos, BigNormOffset);
+	XMVECTOR BigNormal = NoiseRay::GetNormal(*Pos, BigNormOffset);
 
 	Normal = XMVector3Normalize(Normal);
 	//Normal = XMVector3Normalize(Normal + (BigNormal * 0.2f));
@@ -231,18 +231,18 @@ void Ray::Decollide(XMVECTOR* Pos, CollisionShape Shape)
 	//}
 }
 
-void Ray::Decollide2(XMVECTOR* Pos, CollisionShape Shape)
+void NoiseRay::Decollide2(XMVECTOR* Pos, NoiseCollisionShape Shape)
 {
 	XMVECTOR move = XMVectorZero();
 	XMVECTOR Normal = XMVectorZero();
 
 	for (auto i : Shape.Positions) {
 		if (GetDensity(*Pos + i, MarchCubeSettings::get()->Time) < MarchCubeSettings::get()->DensityLimit) {
-			Normal += Ray::GetNormal(*Pos + i);
+			Normal += NoiseRay::GetNormal(*Pos + i);
 		}
 	}
 
-	//XMVECTOR BigNormal = Ray::GetNormal(*Pos, BigNormOffset);
+	//XMVECTOR BigNormal = NoiseRay::GetNormal(*Pos, BigNormOffset);
 
 	Normal = XMVector3Normalize(Normal);
 	//Normal = XMVector3Normalize(Normal + (BigNormal * 0.2f));
@@ -277,7 +277,7 @@ void Ray::Decollide2(XMVECTOR* Pos, CollisionShape Shape)
 	//}
 }
 
-void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float DeltaTime)
+void NoiseRay::DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float DeltaTime)
 {
 	if (HitCheck(*Pos, *Velocity * DeltaTime)) {
 
@@ -298,7 +298,7 @@ void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float 
 
 		//if (XMVector3Length(FirstStep).m128_f32[0] < 0.00001f) { //We are inside of terrain!
 		//
-		//	XMVECTOR Normal = Ray::GetNormal(*Pos);
+		//	XMVECTOR Normal = NoiseRay::GetNormal(*Pos);
 		//	Normal.m128_f32[3] = 0.f;
 		//
 		//	XMVECTOR move = InvertedCollisionTest(*Pos, Normal) + (Normal * 0.001f);
@@ -321,7 +321,7 @@ void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float 
 		//}
 
 
-		XMVECTOR Normal = Ray::GetNormal(*Pos + FirstStep);
+		XMVECTOR Normal = NoiseRay::GetNormal(*Pos + FirstStep);
 
 
 		Velocity->m128_f32[3] = 0.f;
@@ -373,7 +373,7 @@ void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float 
 	return;
 }
 
-void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velocity, float DeltaTime)
+void NoiseRay::DensityCollisionVelocityTest(XMVECTOR* Pos, NoiseCollisionShape Shape, XMVECTOR* Velocity, float DeltaTime)
 {
 	std::vector<unsigned int> RelevantShape;
 	bool Hit = false;
@@ -452,7 +452,7 @@ void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, CollisionShape Shape, XMVE
 		//	return;
 		//}
 
-		XMVECTOR Normal = Ray::GetNormal(*Pos + FirstStep + Center);
+		XMVECTOR Normal = NoiseRay::GetNormal(*Pos + FirstStep + Center);
 
 		Velocity->m128_f32[3] = 0.f;
 		Normal.m128_f32[3] = 0.f;
@@ -488,7 +488,7 @@ void Ray::DensityCollisionVelocityTest(XMVECTOR* Pos, CollisionShape Shape, XMVE
 	return;
 }
 
-void Ray::LoosyCollisionTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velocity, float DeltaTime)
+void NoiseRay::LoosyCollisionTest(XMVECTOR* Pos, NoiseCollisionShape Shape, XMVECTOR* Velocity, float DeltaTime)
 {
 	//Broad Phase
 	std::vector<unsigned int> RelevantShape;
@@ -548,7 +548,7 @@ void Ray::LoosyCollisionTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velo
 		for (auto i : Shape.Positions) {
 			if (GetDensity(*Pos + i, MarchCubeSettings::get()->Time) < MarchCubeSettings::get()->DensityLimit) {
 				
-				XMVECTOR Normal = Ray::GetNormal(*Pos + i);
+				XMVECTOR Normal = NoiseRay::GetNormal(*Pos + i);
 				//FRICTION!
 
 				//This * is probably also not the correct function
@@ -578,7 +578,7 @@ void Ray::LoosyCollisionTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velo
 		//for (auto i : Shape.Positions) {
 		//	if (GetDensity(*Pos + i, MarchCubeSettings::get()->Time) < MarchCubeSettings::get()->DensityLimit) {
 		//
-		//		Normal += Ray::GetNormal(*Pos + i);
+		//		Normal += NoiseRay::GetNormal(*Pos + i);
 		//
 		//
 		//	}

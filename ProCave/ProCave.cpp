@@ -20,6 +20,7 @@
 #include "imgui/backends/imgui_impl_win32.h"
 #include "Noise/NoiseTool.h"
 #include "Tools/MarchCubeSettings.h"
+#include "Tools/DebugSettings.h"
 
 #define MAX_LOADSTRING 100
 
@@ -65,6 +66,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Game.HandleWindow = hWnd;
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
     Graphics->InitializeRenderer();
+ 
 
     gainput::InputManager* GaInput = Input::get()->GetManager();
     GaInput->SetDisplaySize(Graphics->Width, Graphics->Height);
@@ -77,6 +79,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     DevUIDriver::get()->Windows.push_back(new NoiseTool());
     DevUIDriver::get()->Windows.push_back(MarchCubeSettings::get());
+    DevUIDriver::get()->Windows.push_back(DebugSettings::get());
+
 
     //#LOADRESOURCES 
     Game.Load();

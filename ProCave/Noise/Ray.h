@@ -5,12 +5,12 @@
 
 using namespace DirectX;
 
-struct CollisionShape {
+struct NoiseCollisionShape {
 	std::vector<XMVECTOR> Positions;
 };
 
 
-class Ray
+class NoiseRay
 {
 public:
 	static XMVECTOR Test(XMVECTOR Pos, XMVECTOR Direction);
@@ -20,11 +20,11 @@ public:
 	static XMVECTOR CollisionTest(XMVECTOR Pos, XMVECTOR Velocity);
 	static XMVECTOR InvertedCollisionTest(XMVECTOR Pos, XMVECTOR Velocity);
 	static XMVECTOR DensityCollisionTest(XMVECTOR Pos, XMVECTOR Velocity);
-	static void Decollide(XMVECTOR* Pos, CollisionShape Shape);
-	static void Decollide2(XMVECTOR* Pos, CollisionShape Shape);
+	static void Decollide(XMVECTOR* Pos, NoiseCollisionShape Shape);
+	static void Decollide2(XMVECTOR* Pos, NoiseCollisionShape Shape);
 	static void DensityCollisionVelocityTest(XMVECTOR* Pos, XMVECTOR* Velocity, float DeltaTime);
-	static void DensityCollisionVelocityTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velocity, float DeltaTime);
-	static void LoosyCollisionTest(XMVECTOR* Pos, CollisionShape Shape, XMVECTOR* Velocity, float DeltaTime);
+	static void DensityCollisionVelocityTest(XMVECTOR* Pos, NoiseCollisionShape Shape, XMVECTOR* Velocity, float DeltaTime);
+	static void LoosyCollisionTest(XMVECTOR* Pos, NoiseCollisionShape Shape, XMVECTOR* Velocity, float DeltaTime);
 	
 
 };

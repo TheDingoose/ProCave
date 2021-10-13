@@ -306,7 +306,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[1] - Samples[0]) / 2.f;
             }
-            element.pos = float4(Adapt + input[0].x, -MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
+            element.pos = float4(/*Adapt +*/ input[0].x, -MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 1)
        {
@@ -318,7 +318,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[1] - Samples[2]) / 2.f;
             }
-            element.pos = float4(MCSized2 + input[0].x, -MCSized2 + input[0].y, Adapt + input[0].z, 1.f);
+            element.pos = float4(MCSized2 + input[0].x, -MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 2)
        {
@@ -330,7 +330,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[2] - Samples[3]) / 2.f;
             }
-            element.pos = float4(Adapt + input[0].x, -MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
+            element.pos = float4(/*Adapt +*/ input[0].x, -MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 3)
        {
@@ -342,7 +342,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[0] - Samples[3]) / 2.f;
             }
-            element.pos = float4(-MCSized2 + input[0].x, -MCSized2 + input[0].y, Adapt + input[0].z, 1.f);
+            element.pos = float4(-MCSized2 + input[0].x, -MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 4)
        {
@@ -354,7 +354,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[5] - Samples[4]) / 2.f;
             }
-            element.pos = float4(Adapt + input[0].x, MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
+            element.pos = float4(/*Adapt +*/ input[0].x, MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 5)
        {
@@ -366,7 +366,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[5] - Samples[6]) / 2.f;
             }
-            element.pos = float4(MCSized2 + input[0].x, MCSized2 + input[0].y, Adapt + input[0].z, 1.f);
+            element.pos = float4(MCSized2 + input[0].x, MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 6)
        {
@@ -378,7 +378,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[6] - Samples[7]) / 2.f;
             }
-            element.pos = float4(Adapt + input[0].x, MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
+            element.pos = float4(/*Adapt +*/ input[0].x, MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 7)
        {
@@ -390,7 +390,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[4] - Samples[7]) / 2.f;
             }
-            element.pos = float4(-MCSized2 + input[0].x, MCSized2 + input[0].y, Adapt + input[0].z, 1.f);
+            element.pos = float4(-MCSized2 + input[0].x, MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 8)
        {
@@ -403,7 +403,7 @@ void main(
                 Adapt = lerp(-1, 1, Samples[4] - Samples[0]) / 2.f;
             }
             
-            element.pos = float4(-MCSized2 + input[0].x, Adapt + input[0].y, MCSized2 + input[0].z, 1.f);
+            element.pos = float4(-MCSized2 + input[0].x, /*Adapt +*/ input[0].y, MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 9)
        {
@@ -415,7 +415,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[5] - Samples[1]) / 2.f;
             }
-            element.pos = float4(MCSized2 + input[0].x, Adapt + input[0].y, MCSized2 + input[0].z, 1.f);
+            element.pos = float4(MCSized2 + input[0].x, /*Adapt +*/ input[0].y, MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 10)
        {
@@ -427,7 +427,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[6] - Samples[2]) / 2.f;
             }
-            element.pos = float4(MCSized2 + input[0].x, Adapt + input[0].y, -MCSized2 + input[0].z, 1.f);
+            element.pos = float4(MCSized2 + input[0].x, /*Adapt +*/ input[0].y, -MCSized2 + input[0].z, 1.f);
         }
         else if (round(triTable[CubeIndex * 16 + i].x) == 11)
        {
@@ -439,7 +439,7 @@ void main(
             {
                 Adapt = lerp(-1, 1, Samples[7] - Samples[3]) / 2.f;
             }
-            element.pos = float4(-MCSized2 + input[0].x, Adapt + input[0].y, -MCSized2 + input[0].z, 1.f);
+            element.pos = float4(-MCSized2 + input[0].x, /*Adapt +*/ input[0].y, -MCSized2 + input[0].z, 1.f);
         }
         
        element.pos = mul(element.pos, WVP);
