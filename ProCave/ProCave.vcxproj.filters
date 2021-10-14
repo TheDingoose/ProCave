@@ -54,6 +54,9 @@
     <ClInclude Include="Tools\DebugSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Base\EnvironmentCollisionHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ProCave.cpp">
@@ -81,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tools\DebugSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\EnvironmentCollisionHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

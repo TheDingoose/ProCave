@@ -8,6 +8,10 @@
 
 #include "Noise/Ray.h"
 
+#include "EnvironmentCollisionHandler.h"
+#include "Collision/EnvironmentCollider.h"
+
+
 BaseApp::BaseApp()
 {
 }
@@ -19,11 +23,21 @@ void BaseApp::Init()
 	Renderer* aRenderer = Renderer::get();
 	Cam = new Camera(&aRenderer->Width, &aRenderer->Height);
 	aRenderer->SetVP(&Cam->VP, &Cam->Transform.Translation);
+
+	world = physicsCommon.createPhysicsWorld();
+
+	world->setIsDebugRenderingEnabled(true);
+	Renderer::get()->debugRenderer = &world->getDebugRenderer();
+	world->getDebugRenderer().setIsDebugItemDisplayed(DebugRenderer::DebugItem::COLLISION_SHAPE, true); ;
+
+	EnvCollision = new EnvironmentCollisionHandler;
+	EnvCollision->world = world;
+	EnvCollision->physicsCommon = &physicsCommon;
 }
 
 
 
-
+RigidBody* Testbody;
 
 //Loading resources and assets, shaderloading goes here too
 void BaseApp::Load()
@@ -33,11 +47,7 @@ void BaseApp::Load()
 	//Quaternion orientation = Quaternion::identity();
 	//Transform transformm(position, orientation);
 	//RigidBody* body = world->createRigidBody(transformm);
-	world = physicsCommon.createPhysicsWorld();
-
-	world->setIsDebugRenderingEnabled(true);
-	Renderer::get()->debugRenderer = &world->getDebugRenderer();
-	world->getDebugRenderer().setIsDebugItemDisplayed(DebugRenderer::DebugItem::COLLISION_SHAPE, true); ;
+	
 
 
 	//std::vector<Vertex> v =
@@ -127,25 +137,28 @@ void BaseApp::Load()
 	//}
 
 	// Initial position and orientation of the rigid body 
-	//Vector3 position(0.0, 0.0, 0.0);
-	//Quaternion orientation = Quaternion::identity();
-	//Transform transform(position, orientation);
-	//// Create a rigid body in the world 
-	//RigidBody* body = world->createRigidBody(transform);
-	//// Create the sphere shape with a radius of 2m 
-	//SphereShape* sphereShape = physicsCommon.createSphereShape(2.0);
-	//
-	//// Relative transform of the collider relative to the body origin 
-	//Transform transformm = Transform::identity();
-	//// Add the collider to the rigid body 
-	//Collider* collider;
-	//collider = body->addCollider(sphereShape, transformm);
-	//body->setType(BodyType::DYNAMIC);
-	//body->enableGravity(true);
-	//body->setIsAllowedToSleep(false);
-	////Cam->Transform.Translation.x = 4.f;
-	////Cam->Transform.Translation.y = -10.f;
-	////Cam->Transform.Translation.z = -12.f;
+	Vector3 position(0.0, 0.0, 0.0);
+	Quaternion orientation = Quaternion::identity();
+	Transform transform(position, orientation);
+	// Create a rigid body in the world 
+	Testbody = world->createRigidBody(transform);
+	// Create the sphere shape with a radius of 2m 
+	SphereShape* sphereShape = physicsCommon.createSphereShape(1.0);
+
+	// Relative transform of the collider relative to the body origin 
+	Transform transformm = Transform::identity();
+	// Add the collider to the rigid body 
+	Collider* collider;
+	collider = Testbody->addCollider(sphereShape, transformm);
+	Testbody->setType(BodyType::DYNAMIC);
+	Testbody->enableGravity(true);
+	Testbody->setIsAllowedToSleep(false);
+	
+	EnvCollision->Colliders.push_back(EnvironmentCollider(Testbody->getEntity().id, 1.f));
+
+	//Cam->Transform.Translation.x = 4.f;
+	//Cam->Transform.Translation.y = -10.f;
+	//Cam->Transform.Translation.z = -12.f;
 	//
 	//
 	//position.y -= 10.f;
@@ -175,11 +188,8 @@ XMVECTOR Velocity = XMVectorZero();
 //such as messaging, happens in ProCave.cpp
 void BaseApp::Tick(float Deltatime)
 {
-	//MarchCubeSettings::get()->Time += Deltatime;
 	
-	
-	//Cam->Transform.Translation.y -= 3.f;
-	//Cam->Update();
+	MarchCubeSettings::get()->Time += Deltatime;
 
 	XMVECTOR PlayerAcc = XMVectorZero();
 	XMFLOAT4 Step;
@@ -198,68 +208,10 @@ void BaseApp::Tick(float Deltatime)
 
 	PlayerAcc = XMVector4Transform(PlayerAcc, Cam->Transform.Transform);
 
-	XMFLOAT4 Raypos;
-	XMStoreFloat4(&Raypos, XMVectorRound(NoiseRay::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target)));
-	if(Raypos.x != 0.f)
-	{
-		std::vector<RigidBody*> Bodies;
-		std::vector<MarchCube> Coobs;
+	EnvCollision->MakeCollide();
 
-		int Bodynum = 0;
-		float AreaSize = 1.f;
-
-
-		//const int nbVertices = TestCoob.Vertices.size();
-		//const int nbTriangles = TestCoob.Indices.size() / 3;
-		//float vertices[3 * nbVertices] = Tes;
-		//int indices[3 * nbTriangles] = ...;
-		for (float x = -AreaSize * MarchCubeSettings::get()->CubeSize; x <= AreaSize * MarchCubeSettings::get()->CubeSize; x += MarchCubeSettings::get()->CubeSize) {
-			for (float y = -AreaSize * MarchCubeSettings::get()->CubeSize; y <= AreaSize * MarchCubeSettings::get()->CubeSize; y += MarchCubeSettings::get()->CubeSize) {
-				for (float z = -AreaSize * MarchCubeSettings::get()->CubeSize; z <= AreaSize * MarchCubeSettings::get()->CubeSize; z += MarchCubeSettings::get()->CubeSize) {
-					Coobs.push_back((XMLoadFloat4(&Raypos) + XMVectorSet(x, y, z, 0.f)));
-					if (Coobs.back().Vertices.size() > 0) {
-
-						TriangleVertexArray* triangleArray =
-							new TriangleVertexArray(Coobs.back().Vertices.size(), &Coobs.back().LooseVertices[0], 4 * sizeof(float), Coobs.back().Indices.size() / 3,
-								&Coobs.back().Indices[0], 3 * sizeof(int),
-								TriangleVertexArray::VertexDataType::VERTEX_FLOAT_TYPE,
-								TriangleVertexArray::IndexDataType::INDEX_INTEGER_TYPE);
-
-						TriangleMesh* triangleMesh = physicsCommon.createTriangleMesh();
-
-						// Add the triangle vertex array to the triangle mesh 
-						triangleMesh->addSubpart(triangleArray);
-
-						// Create the concave mesh shape 
-						ConcaveMeshShape* concaveMesh = physicsCommon.createConcaveMeshShape(triangleMesh);
-
-						Vector3 position((XMLoadFloat4(&Raypos) + XMVectorSet(x, y, z, 0.f)).m128_f32[0], (XMLoadFloat4(&Raypos) + XMVectorSet(x, y, z, 0.f)).m128_f32[1], (XMLoadFloat4(&Raypos) + XMVectorSet(x, y, z, 0.f)).m128_f32[2]);
-						Quaternion orientation = Quaternion::identity();
-						Transform transform(position, orientation);
-
-						// Create a rigid body in the world 
-						Bodies.push_back(world->createRigidBody(transform));
-
-						// Relative transform of the collider relative to the body origin 
-						Transform transformm = Transform::identity();
-						// Add the collider to the rigid body 
-						
-						Bodies.back()->addCollider(concaveMesh, transformm);
-						Bodies.back()->setType(BodyType::STATIC);
-						Bodies.back()->enableGravity(false);
-						Bodies.back()->setIsAllowedToSleep(false);
-
-						//Bodies.push_back(body);
-					}
-				}
-			}
-		}
 		if (Deltatime > 0.f) { world->update(Deltatime); };
 
-		for (int i = 0; i < Bodies.size(); i++) {
-			world->destroyRigidBody(Bodies[i]);
-		}
-	}
 	//}
 	//XMStoreFloat4(, PlayerAcc + XMLoadFloat4(&Cam->Transform.Translation));
 	Cam->Transform.Translation.x += PlayerAcc.m128_f32[0];
@@ -285,6 +237,9 @@ void BaseApp::Tick(float Deltatime)
 
 		SetCursorPos(rect.left + (rect.right - rect.left) / 2, rect.top + (rect.bottom - rect.top) / 2);
 	}
+
+
+	EnvCollision->BreakCollide();
 
 	Cam->Update();
 	//XMStoreFloat4(&Renderer::get()->Models[0].Transform.Translation, NoiseRay::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));

@@ -353,7 +353,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 1;
 	};
 	Worker = XMVectorZero();
@@ -361,7 +361,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 2;
 	};
 	Worker = XMVectorZero();
@@ -369,7 +369,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 4;
 	};
 	Worker = XMVectorZero();
@@ -377,7 +377,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = -HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 8;
 	};
 	Worker = XMVectorZero();
@@ -385,7 +385,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 16;
 	};
 	Worker = XMVectorZero();
@@ -393,7 +393,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 32;
 	};
 	Worker = XMVectorZero();
@@ -401,7 +401,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 64;
 	};
 	Worker = XMVectorZero();
@@ -409,7 +409,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 	Worker.m128_f32[0] = -HalfCoob;
 	Worker.m128_f32[1] = HalfCoob;
 	Worker.m128_f32[2] = -HalfCoob;
-	if (GetDensity(XMVectorAdd(aPos, Worker)) > MarchCubeSettings::get()->DensityLimit) {
+	if (GetDensity(XMVectorAdd(aPos, Worker), MarchCubeSettings::get()->Time) > MarchCubeSettings::get()->DensityLimit) {
 		Case |= 128;
 	};
 	Worker = XMVectorZero();

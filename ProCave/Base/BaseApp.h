@@ -6,7 +6,7 @@
 using namespace reactphysics3d;
 
 class Renderer;
-
+class EnvironmentCollisionHandler;
 class BaseApp
 {
 
@@ -27,6 +27,8 @@ public:
 	HWND HandleWindow;
 	Camera* Cam;
 	bool Shutdown = false;
+
+	EnvironmentCollisionHandler* EnvCollision;
 
 	PhysicsCommon physicsCommon;
 	PhysicsWorld* world ;
