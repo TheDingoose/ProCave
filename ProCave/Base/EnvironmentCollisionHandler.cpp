@@ -75,6 +75,8 @@ void EnvironmentCollisionHandler::GenerateEnvironmentConcave(EnvironmentCollider
 					RigidBodies.back()->setType(BodyType::STATIC);
 					RigidBodies.back()->enableGravity(false);
 					RigidBodies.back()->setIsAllowedToSleep(false);
+					RigidBodies.back()->getCollider(0)->getMaterial().setBounciness(0.f);
+					RigidBodies.back()->getCollider(0)->getMaterial().setFrictionCoefficient(0.5f);
 				}
 			}
 		}

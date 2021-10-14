@@ -5,6 +5,8 @@
 #include "reactphysics3d/reactphysics3d.h"
 using namespace reactphysics3d;
 
+#include "Player.h"
+
 class Renderer;
 class EnvironmentCollisionHandler;
 class BaseApp
@@ -29,6 +31,8 @@ public:
 	bool Shutdown = false;
 
 	EnvironmentCollisionHandler* EnvCollision;
+	
+	Player* ThePlayer;
 
 	PhysicsCommon physicsCommon;
 	PhysicsWorld* world ;

@@ -140,46 +140,50 @@ void BaseApp::Load()
 	Vector3 position(0.0, 0.0, 0.0);
 	Quaternion orientation = Quaternion::identity();
 	Transform transform(position, orientation);
+//	// Create a rigid body in the world 
+//	Testbody = world->createRigidBody(transform);
+//	// Create the sphere shape with a radius of 2m 
+//	SphereShape* sphereShape = physicsCommon.createSphereShape(1.0);
+//
+//	// Relative transform of the collider relative to the body origin 
+//	Transform transformm = Transform::identity();
+//	// Add the collider to the rigid body 
+//	Collider* collider;
+//	collider = Testbody->addCollider(sphereShape, transformm);
+//	Testbody->setType(BodyType::DYNAMIC);
+//	Testbody->enableGravity(true);
+//	Testbody->setIsAllowedToSleep(false);
+//
+//	EnvCollision->Colliders.push_back(EnvironmentCollider(Testbody->getEntity().id, 1.f));
+
+
+	position = Vector3(0.0, 0.0, 0.0);
+	transform = Transform(position, orientation);
+
 	// Create a rigid body in the world 
-	Testbody = world->createRigidBody(transform);
+	ThePlayer = new Player(world->createRigidBody(transform));
+
 	// Create the sphere shape with a radius of 2m 
+	//CapsuleShape* Cappy = physicsCommon.createCapsuleShape(1.0, 1.0);
 	SphereShape* sphereShape = physicsCommon.createSphereShape(1.0);
-
 	// Relative transform of the collider relative to the body origin 
-	Transform transformm = Transform::identity();
+	position = Vector3(0.0, 0.0, 0.0);
+	transform = Transform(position, orientation);
 	// Add the collider to the rigid body 
-	Collider* collider;
-	collider = Testbody->addCollider(sphereShape, transformm);
-	Testbody->setType(BodyType::DYNAMIC);
-	Testbody->enableGravity(true);
-	Testbody->setIsAllowedToSleep(false);
+	Collider* colliderb;
+	colliderb = ThePlayer->Collisionbody->addCollider(sphereShape, transform);
+	colliderb->getMaterial().setFrictionCoefficient(0.6f);
+	colliderb->getMaterial().setBounciness(0.f);
+	ThePlayer->Collisionbody->setType(BodyType::DYNAMIC);
+	ThePlayer->Collisionbody->enableGravity(true);
+	ThePlayer->Collisionbody->setIsAllowedToSleep(false);
+	ThePlayer->Collisionbody->setAngularDamping(1.f);
+	ThePlayer->Collisionbody->setLinearDamping(0.1f);
+
+	EnvCollision->Colliders.push_back(EnvironmentCollider(ThePlayer->Collisionbody->getEntity().id, 1.f));
+
+	ThePlayer->SyncPos(&Cam->Transform);
 	
-	EnvCollision->Colliders.push_back(EnvironmentCollider(Testbody->getEntity().id, 1.f));
-
-	//Cam->Transform.Translation.x = 4.f;
-	//Cam->Transform.Translation.y = -10.f;
-	//Cam->Transform.Translation.z = -12.f;
-	//
-	//
-	//position.y -= 10.f;
-	//position.x -= 0.1f;
-	//Transform transformb(position, orientation);
-	//// Create a rigid body in the world 
-	//RigidBody* bodyb = world->createRigidBody(transformb);
-	//// Create the sphere shape with a radius of 2m 
-	////SphereShape* sphereShape = physicsCommon.createSphereShape(2.0);
-	//
-	//// Relative transform of the collider relative to the body origin 
-	////Transform transformm = Transform::identity();
-	//// Add the collider to the rigid body 
-	////Collider* collider;
-	//collider = bodyb->addCollider(sphereShape, transformm);
-	//bodyb->setType(BodyType::STATIC);
-	//bodyb->enableGravity(false);
-	//bodyb->setIsAllowedToSleep(false);
-
-
-
 }
 
 XMVECTOR Velocity = XMVectorZero();
@@ -206,19 +210,24 @@ void BaseApp::Tick(float Deltatime)
 		PlayerAcc.m128_f32[0] = -1.f;
 	}
 
-	PlayerAcc = XMVector4Transform(PlayerAcc, Cam->Transform.Transform);
+	PlayerAcc = XMVector3Normalize(XMVector4Transform(PlayerAcc, Cam->Transform.Transform));
+
+	ThePlayer->HandleInput(Vector3(PlayerAcc.m128_f32[0], 0.f, PlayerAcc.m128_f32[2]));
 
 	EnvCollision->MakeCollide();
 
-		if (Deltatime > 0.f) { world->update(Deltatime); };
+	if (Deltatime > 0.f) { world->update(Deltatime); };
+
+
+	ThePlayer->SyncPos(&Cam->Transform);
 
 	//}
 	//XMStoreFloat4(, PlayerAcc + XMLoadFloat4(&Cam->Transform.Translation));
-	Cam->Transform.Translation.x += PlayerAcc.m128_f32[0];
-	Cam->Transform.Translation.y += PlayerAcc.m128_f32[1];
-	Cam->Transform.Translation.z += PlayerAcc.m128_f32[2];
+	//Cam->Transform.Translation.x += PlayerAcc.m128_f32[0];
+	//Cam->Transform.Translation.y += PlayerAcc.m128_f32[1];
+	//Cam->Transform.Translation.z += PlayerAcc.m128_f32[2];
 
-	Cam->Update();
+	//Cam->Update();
 
 
 

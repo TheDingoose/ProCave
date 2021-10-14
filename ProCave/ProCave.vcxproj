@@ -176,6 +176,7 @@
     <ClInclude Include="Base\EnvironmentCollisionHandler.h" />
     <ClInclude Include="Base\Resource.h" />
     <ClInclude Include="Base\Setup.h" />
+    <ClInclude Include="Base\Player.h" />
     <ClInclude Include="Tools\DebugSettings.h" />
     <ClInclude Include="Graphics\MarchCube.h" />
     <ClInclude Include="Graphics\RenderHelper.h" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="Base\BaseApp.cpp" />
     <ClCompile Include="Base\EnvironmentCollisionHandler.cpp" />
+    <ClCompile Include="Base\Player.cpp" />
     <ClCompile Include="Tools\DebugSettings.cpp" />
     <ClCompile Include="Graphics\MarchCube.cpp" />
     <ClCompile Include="Graphics\RenderHelper.cpp" />
