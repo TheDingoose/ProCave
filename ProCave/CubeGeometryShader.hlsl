@@ -22,6 +22,7 @@ struct GS_Output
 {
 	float4 pos : SV_POSITION;
     float4 Color : COLOR;
+    float4 Normal : NORMAL;
 };
 
 // ----------------------------------- 4D SIMPLEX NOISE -------------------------------------
@@ -237,6 +238,8 @@ float lerp(float min, float max, float t)
 //------------------------------------------------------------------------------------------
 
 
+//const float NormSDist = 0.05f;
+#define NormSDist 0.1f
 
 [maxvertexcount(15)]
 void main(
@@ -245,7 +248,7 @@ void main(
 )
 {
     GS_Output element;
-    
+    element.Normal = 1.f;
     //PERLIN TIME
     float MCSized2 = CubeSize / 2.f;
     
@@ -441,6 +444,19 @@ void main(
             }
             element.pos = float4(-MCSized2 + input[0].x, /*Adapt +*/ input[0].y, -MCSized2 + input[0].z, 1.f);
         }
+        
+       
+       //Normal calculation!
+        element.Normal.x = snoise(float4(((element.pos.x - NormSDist - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w)) 
+        - snoise(float4(((element.pos.x + NormSDist - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.y = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - NormSDist - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y + NormSDist - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormSDist + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormSDist + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.w = 0.f;
+      element.Normal = normalize(element.Normal);
+        element.Color = element.pos;
+        
         
        element.pos = mul(element.pos, WVP);
        output.Append(element);

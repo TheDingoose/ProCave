@@ -675,7 +675,8 @@ void Renderer::Draw()
 
 #endif
 	//Clear the screen before drawing anything new
-	float bgColor[4] = { 0.37f, 0.18f, 0.56f, 1.f };
+	float bgColor[4] = { 0.f, 0.f, 0.f, 1.f };
+	//float bgColor[4] = { 0.37f, 0.18f, 0.56f, 1.f };
 
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 	d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -723,14 +724,15 @@ void Renderer::Draw()
 
 	//Set the Input Layouts
 	d3d11DevCon->IASetInputLayout(CubepointLayout);
-
+	
 	cbPerObj.WVP = XMMatrixTranspose(*VP);
 	cbPerObj.PlayerPos = *PlayerPos;
 	cbPerObj.Time = MarchCubeSettings::get()->Time;
 
-
+	
 	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+	d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
 	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
 	XMVECTOR Worker = XMVectorZero();
@@ -766,59 +768,59 @@ void Renderer::Draw()
 
 
 	//! Collision Debug Draw!	
-	{
-		if (DebugSettings::get()->DrawPhysicsDebug && debugRenderer->getNbTriangles() > 0) {
-			
-			d3d11DevCon->VSSetShader(DebugVS, 0, 0);
-			d3d11DevCon->PSSetShader(DebugPS, 0, 0);
-			d3d11DevCon->GSSetShader(0, 0, 0);
+	
+	if (DebugSettings::get()->DrawPhysicsDebug && debugRenderer->getNbTriangles() > 0) {
+		
+		d3d11DevCon->VSSetShader(DebugVS, 0, 0);
+		d3d11DevCon->PSSetShader(DebugPS, 0, 0);
+		d3d11DevCon->GSSetShader(0, 0, 0);
 
-			d3d11DevCon->RSSetState(DebugRasterizerState);
+		d3d11DevCon->RSSetState(DebugRasterizerState);
 
-			//Set Primitive Topology
-			d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//Set Primitive Topology
+		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-			//Set the Input Layout
-			d3d11DevCon->IASetInputLayout(DebugLineLayout);
+		//Set the Input Layout
+		d3d11DevCon->IASetInputLayout(DebugLineLayout);
 
-			//Set the vertex buffer
-			UINT stride = sizeof(XMVECTOR);
-			UINT offset = 0;
+		//Set the vertex buffer
+		UINT stride = sizeof(XMVECTOR);
+		UINT offset = 0;
 
-			ID3D11Buffer* Buffer;
+		ID3D11Buffer* Buffer;
 
-			//Describe the vertex buffer
-			D3D11_BUFFER_DESC vertexBufferDesc;
-			ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+		//Describe the vertex buffer
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 
-			vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-			vertexBufferDesc.ByteWidth = sizeof(XMVECTOR) * debugRenderer->getNbTriangles() * 3;
-			vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			vertexBufferDesc.CPUAccessFlags = 0;
-			vertexBufferDesc.MiscFlags = 0;
+		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.ByteWidth = sizeof(XMVECTOR) * debugRenderer->getNbTriangles() * 3;
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.MiscFlags = 0;
 
-			D3D11_SUBRESOURCE_DATA vertexBufferData;
+		D3D11_SUBRESOURCE_DATA vertexBufferData;
 
-			ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-			vertexBufferData.pSysMem = debugRenderer->getTrianglesArray();
-			hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffer);
-			CheckError(hr, "Error creating Vertex Buffer!");
+		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+		vertexBufferData.pSysMem = debugRenderer->getTrianglesArray();
+		hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffer);
+		CheckError(hr, "Error creating Vertex Buffer!");
 
-			d3d11DevCon->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
+		d3d11DevCon->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
 
-			//Mesh.Transform.UpdateMatrix();
-			cbPerObj.WVP = XMMatrixTranspose(*VP);
-			d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-			d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+		//Mesh.Transform.UpdateMatrix();
+		cbPerObj.WVP = XMMatrixTranspose(*VP);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
-			//Draw!
-			d3d11DevCon->Draw(debugRenderer->getNbTriangles() * 3, 0);
+		//Draw!
+		d3d11DevCon->Draw(debugRenderer->getNbTriangles() * 3, 0);
 
-			Buffer->Release();
-			d3d11DevCon->RSSetState(RasterizerState);
+		Buffer->Release();
+		d3d11DevCon->RSSetState(RasterizerState);
 
-		}
 	}
+	
 	DevUIDriver::get()->Draw();
 
 	SwapChain->Present(0, 0);

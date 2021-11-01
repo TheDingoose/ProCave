@@ -178,7 +178,7 @@ void BaseApp::Load()
 	ThePlayer->Collisionbody->enableGravity(true);
 	ThePlayer->Collisionbody->setIsAllowedToSleep(false);
 	ThePlayer->Collisionbody->setAngularDamping(1.f);
-	ThePlayer->Collisionbody->setLinearDamping(0.1f);
+	ThePlayer->Collisionbody->setLinearDamping(0.01f);
 
 	EnvCollision->Colliders.push_back(EnvironmentCollider(ThePlayer->Collisionbody->getEntity().id, 1.f));
 
