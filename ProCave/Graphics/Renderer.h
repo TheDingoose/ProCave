@@ -42,6 +42,10 @@ struct cbPerObject
 	float LightStrength = MarchCubeSettings::get()->LightStrength;
 	float Time = MarchCubeSettings::get()->Time;
 	float DensityLimit = MarchCubeSettings::get()->DensityLimit;
+	float NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+	float Padding;
+	float Padding2;
+	float Padding3;
 };
 
 struct CubeConstBuff {

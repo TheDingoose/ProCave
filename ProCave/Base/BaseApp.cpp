@@ -228,10 +228,12 @@ void BaseApp::Tick(float Deltatime)
 	//Cam->Transform.Translation.z += PlayerAcc.m128_f32[2];
 
 	//Cam->Update();
+	if (Input::get()->GetKey(Key_MouseUnlock)) {
+		MouseLock = !MouseLock;
+	}
 
 
-
-	if (!Input::get()->GetKey(Key_MouseUnlock) && GetForegroundWindow() == HandleWindow) {
+	if (MouseLock && GetForegroundWindow() == HandleWindow) {
 		POINT cPos;
 		GetCursorPos(&cPos);
 		RECT rect = { NULL };

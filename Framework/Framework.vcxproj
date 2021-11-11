@@ -193,6 +193,7 @@
     <ClInclude Include="Rendering\DevUI.h" />
     <ClInclude Include="Rendering\DevUIDriver.h" />
     <ClInclude Include="Rendering\Model.h" />
+    <ClInclude Include="Rendering\TextureManager.h" />
     <ClInclude Include="User\Input.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\Vertex.h" />

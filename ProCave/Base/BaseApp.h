@@ -29,6 +29,7 @@ public:
 	HWND HandleWindow;
 	Camera* Cam;
 	bool Shutdown = false;
+	bool MouseLock = true;
 
 	EnvironmentCollisionHandler* EnvCollision;
 	

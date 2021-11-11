@@ -53,6 +53,9 @@ void MarchCubeSettings::Draw() {
 	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.01f, -1.f, 1.f)) {
 		Renderer::get()->cbPerObj.DensityLimit = MarchCubeSettings::get()->DensityLimit;
 	};
+	if (ImGui::DragFloat("NormalSampleDistance", &NormalSampleDistance, 0.001f, 0.f, 100.f)) {
+		Renderer::get()->cbPerObj.NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+	};
 
 	ImGui::End();
 	return;

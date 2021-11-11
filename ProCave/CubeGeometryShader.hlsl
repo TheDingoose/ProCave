@@ -8,6 +8,8 @@ cbuffer cbPerObject
     float LightStrength;
     float Time;
     float DensityLimit;
+    float NormalSampleDistance;
+    float3 Padding;
 };
 
 cbuffer TableBuffer
@@ -16,7 +18,33 @@ cbuffer TableBuffer
 };
 //ConstantBuffer<int> triTable[256][16] : register(b1);
 
+static float3 CornerPosTable[8] =
+{
+    float3(-1.f, -1.f, 1.f),  //0
+    float3(1.f, -1.f, 1.f),   //1
+    float3(1.f, -1.f, -1.f),  //2
+    float3(-1.f, -1.f, -1.f), //3
+    float3(-1.f, 1.f, 1.f),   //4
+    float3(1.f, 1.f, 1.f),    //5
+    float3(1.f, 1.f, -1.f),   //6
+    float3(-1.f, 1.f, -1.f),  //7
+};
 
+static int EdgeCornerTable[12][2] =
+{
+    { 0, 1 }, //0
+    { 1, 2 }, //1
+    { 2, 3 }, //2
+    { 0, 3 }, //3
+    { 4, 5 }, //4
+    { 5, 6 }, //5
+    { 6, 7 }, //6
+    { 4, 7 }, //7
+    { 0, 4 }, //8
+    { 1, 5 }, //9
+    { 2, 6 }, //10
+    { 3, 7 }  //11
+};
 
 struct GS_Output
 {
@@ -237,10 +265,6 @@ float lerp(float min, float max, float t)
 }
 //------------------------------------------------------------------------------------------
 
-
-//const float NormSDist = 0.05f;
-#define NormSDist 0.1f
-
 [maxvertexcount(15)]
 void main(
 	point float4 input[1] : SV_POSITION, 
@@ -297,162 +321,18 @@ void main(
    float Adapt = 0.f;
     for (int i = 0; round(triTable[CubeIndex * 16 + i].x) != -1 && !(i >= 16); i++)
    {
-        Adapt = 0.f;
-       //Vertices.push_back(Vertex(edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 0], edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 1], edgeposTable[triTable[CubeIndex * 16 + i] * 16 + 2],
-       if (round(triTable[CubeIndex * 16 + i].x) == 0)
-       {
-            if (Samples[0] < Samples[1])
-            {
-                Adapt = -lerp(-1, 1, Samples[0] - Samples[1]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[1] - Samples[0]) / 2.f;
-            }
-            element.pos = float4(/*Adapt +*/ input[0].x, -MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 1)
-       {
-            if (Samples[2] < Samples[1])
-            {
-                Adapt = -lerp(-1, 1, Samples[2] - Samples[1]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[1] - Samples[2]) / 2.f;
-            }
-            element.pos = float4(MCSized2 + input[0].x, -MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 2)
-       {
-            if (Samples[3] < Samples[2])
-            {
-                Adapt = -lerp(-1, 1, Samples[3] - Samples[2]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[2] - Samples[3]) / 2.f;
-            }
-            element.pos = float4(/*Adapt +*/ input[0].x, -MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 3)
-       {
-            if (Samples[3] < Samples[0])
-            {
-                Adapt = -lerp(-1, 1, Samples[3] - Samples[0]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[0] - Samples[3]) / 2.f;
-            }
-            element.pos = float4(-MCSized2 + input[0].x, -MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 4)
-       {
-            if (Samples[4] < Samples[5])
-            {
-                Adapt = -lerp(-1, 1, Samples[4] - Samples[5]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[5] - Samples[4]) / 2.f;
-            }
-            element.pos = float4(/*Adapt +*/ input[0].x, MCSized2 + input[0].y, MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 5)
-       {
-            if (Samples[6] < Samples[5])
-            {
-                Adapt = -lerp(-1, 1, Samples[6] - Samples[5]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[5] - Samples[6]) / 2.f;
-            }
-            element.pos = float4(MCSized2 + input[0].x, MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 6)
-       {
-            if (Samples[7] < Samples[6])
-            {
-                Adapt = -lerp(-1, 1, Samples[7] - Samples[6]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[6] - Samples[7]) / 2.f;
-            }
-            element.pos = float4(/*Adapt +*/ input[0].x, MCSized2 + input[0].y, -MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 7)
-       {
-            if (Samples[7] < Samples[4])
-            {
-                Adapt = -lerp(-1, 1, Samples[7] - Samples[4]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[4] - Samples[7]) / 2.f;
-            }
-            element.pos = float4(-MCSized2 + input[0].x, MCSized2 + input[0].y, /*Adapt +*/ input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 8)
-       {
-            if (Samples[0] < Samples[4])
-            {
-                Adapt = -lerp(-1, 1, Samples[0] - Samples[4]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[4] - Samples[0]) / 2.f;
-            }
-            
-            element.pos = float4(-MCSized2 + input[0].x, /*Adapt +*/ input[0].y, MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 9)
-       {
-            if (Samples[1] < Samples[5])
-            {
-                Adapt = -lerp(-1, 1, Samples[1] - Samples[5]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[5] - Samples[1]) / 2.f;
-            }
-            element.pos = float4(MCSized2 + input[0].x, /*Adapt +*/ input[0].y, MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 10)
-       {
-            if (Samples[2] < Samples[6])
-            {
-                Adapt = -lerp(-1, 1, Samples[2] - Samples[6]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[6] - Samples[2]) / 2.f;
-            }
-            element.pos = float4(MCSized2 + input[0].x, /*Adapt +*/ input[0].y, -MCSized2 + input[0].z, 1.f);
-        }
-        else if (round(triTable[CubeIndex * 16 + i].x) == 11)
-       {
-            if (Samples[3] < Samples[7])
-            {
-                Adapt = -lerp(-1, 1, Samples[3] - Samples[7]) / 2.f;
-            }
-            else
-            {
-                Adapt = lerp(-1, 1, Samples[7] - Samples[3]) / 2.f;
-            }
-            element.pos = float4(-MCSized2 + input[0].x, /*Adapt +*/ input[0].y, -MCSized2 + input[0].z, 1.f);
-        }
-        
-       
+        int Corners[2] = EdgeCornerTable[triTable[CubeIndex * 16 + i]];
+
+        float t = (0 - Samples[Corners[0]]) / (Samples[Corners[1]] - Samples[Corners[0]]);
+        element.pos = input[0] + float4(((CornerPosTable[Corners[0]] * MCSized2) + (t * ((CornerPosTable[Corners[1]] - CornerPosTable[Corners[0]]) * MCSized2))), 0.f);
+      
        //Normal calculation!
-        element.Normal.x = snoise(float4(((element.pos.x - NormSDist - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w)) 
-        - snoise(float4(((element.pos.x + NormSDist - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        element.Normal.y = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - NormSDist - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
-        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y + NormSDist - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormSDist + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
-        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormSDist + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.x = snoise(float4(((element.pos.x - NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - snoise(float4(((element.pos.x + NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.y = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y + NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
         element.Normal.w = 0.f;
       element.Normal = normalize(element.Normal);
         element.Color = element.pos;
