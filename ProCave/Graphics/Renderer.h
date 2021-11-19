@@ -72,9 +72,11 @@ public:
 	unsigned int Width = 800;
 	unsigned int Height = 800;
 
-	void SetVP(XMMATRIX* aVP, XMFLOAT4* aPlayerPos) {
+	void SetVP(XMMATRIX* aVP, XMMATRIX* aPlayerTransform, XMFLOAT4* aPlayerPos, XMVECTOR* aPlayerForward)  {
 		VP = aVP;
+		PlayerTransform = aPlayerTransform;
 		PlayerPos = aPlayerPos;
+		PlayerForward = aPlayerForward;
 	}
 
 	std::vector<Model> ModelData;
@@ -87,6 +89,7 @@ public:
 
 	vector<ID3D11Buffer*> CubePosBuffer;
 	std::vector<XMVECTOR> CubePositions;
+	ID3D11Buffer* CubePosiBuffer;
 
 	reactphysics3d::DebugRenderer* debugRenderer;
 
@@ -137,6 +140,8 @@ private:
 	ID3D11RasterizerState* DebugRasterizerState;
 
 	XMFLOAT4* PlayerPos;
+	XMVECTOR* PlayerForward;
+	XMMATRIX* PlayerTransform;
 
 public:
 	Renderer(Renderer const&) = delete;

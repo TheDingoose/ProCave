@@ -29,7 +29,7 @@ using namespace DirectX;
 			ScreenHeight = aHeight;
 
 			View = XMMatrixLookAtLH(XMLoadFloat4(&Transform.Translation), Target, Up);
-			Projection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)*aWidth / *aHeight, 1.0f, 1000.0f);
+			Projection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)*aWidth / *aHeight, 0.3f, 1000.0f);
 			//World = XMMatrixIdentity();
 
 			VP = View * Projection;
@@ -46,7 +46,7 @@ using namespace DirectX;
 
 			//View = Transform.Transform;
 			View = XMMatrixLookAtLH(XMLoadFloat4(&Transform.Translation), XMLoadFloat4(&Transform.Translation) + Target, Up);
-			Projection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)*ScreenWidth / *ScreenHeight, 1.0f, 1000.0f);
+			Projection = XMMatrixPerspectiveFovLH(0.4f * 3.14f, (float)*ScreenWidth / *ScreenHeight, 0.3f, 1000.0f);
 			//World = XMMatrixIdentity();
 
 			VP = View * Projection;

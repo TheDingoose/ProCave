@@ -23,7 +23,7 @@ public:
 
 
 	float CubeSize = 1.f;
-	unsigned int GridSize = 70;
+	unsigned int GridSize = 35;
 	float LightStrength = 30.f;
 	XMFLOAT4 SampleMod = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.01f);
 	XMFLOAT4 SampleOffset = XMFLOAT4(0.f, 0.f, 0.f, 0.f);

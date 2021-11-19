@@ -15,9 +15,8 @@ cbuffer cbPerObject
 struct GS_OUTPUT
 {
     float4 Pos : SV_POSITION;
-    float4 Color : COLOR;
     float4 Normal : NORMAL;
-    
+    float4 Color : COLOR;
 };
 //float3(0.92f, 0.45f, 0.15f)
 float4 main(GS_OUTPUT input) : SV_TARGET

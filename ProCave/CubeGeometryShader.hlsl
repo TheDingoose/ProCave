@@ -49,8 +49,8 @@ static int EdgeCornerTable[12][2] =
 struct GS_Output
 {
 	float4 pos : SV_POSITION;
-    float4 Color : COLOR;
     float4 Normal : NORMAL;
+    float4 Color : COLOR;
 };
 
 // ----------------------------------- 4D SIMPLEX NOISE -------------------------------------
@@ -324,6 +324,7 @@ void main(
         int Corners[2] = EdgeCornerTable[triTable[CubeIndex * 16 + i]];
 
         float t = (0 - Samples[Corners[0]]) / (Samples[Corners[1]] - Samples[Corners[0]]);
+        //float t = 0.5f;
         element.pos = input[0] + float4(((CornerPosTable[Corners[0]] * MCSized2) + (t * ((CornerPosTable[Corners[1]] - CornerPosTable[Corners[0]]) * MCSized2))), 0.f);
       
        //Normal calculation!
@@ -334,7 +335,7 @@ void main(
         element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
         - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
         element.Normal.w = 0.f;
-      element.Normal = normalize(element.Normal);
+        element.Normal = normalize(element.Normal);
         element.Color = element.pos;
         
         

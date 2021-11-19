@@ -22,7 +22,7 @@ void BaseApp::Init()
 {
 	Renderer* aRenderer = Renderer::get();
 	Cam = new Camera(&aRenderer->Width, &aRenderer->Height);
-	aRenderer->SetVP(&Cam->VP, &Cam->Transform.Translation);
+	aRenderer->SetVP(&Cam->VP, &Cam->Transform.Transform ,&Cam->Transform.Translation, &Cam->Target);
 
 	world = physicsCommon.createPhysicsWorld();
 
