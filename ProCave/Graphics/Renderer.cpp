@@ -518,6 +518,11 @@ bool Renderer::InitializeCubeRenderer()
 	hr = d3d11Device->CreateBuffer(&cbbd, &Deets, &TriTableBuffer);
 	d3d11DevCon->GSSetConstantBuffers(1, 1, &TriTableBuffer);
 
+	//? Test      tasdasdasdsad===========================================================================
+	TextureTester.LoadTexture(d3d11Device, "../Assets/Texture/test.png");
+
+
+
 	return true;
 }
 
@@ -734,6 +739,9 @@ void Renderer::Draw()
 	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 	d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+
+	d3d11DevCon->PSSetShaderResources(0, 1, &TextureTester.m_TextureView);
+	d3d11DevCon->PSSetSamplers(0, 1, &TextureTester.m_SamplerState);
 
 	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
 	XMVECTOR Worker = XMVectorZero();

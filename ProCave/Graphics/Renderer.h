@@ -12,9 +12,11 @@
 #include "General/Transform.h"
 #include "Rendering/Vertex.h"
 #include "Rendering/Model.h"
+#include "Rendering/Texture.h"
 
 #include "Rendering/DevUIDriver.h"
 #include "Tools/MarchCubeSettings.h"
+
 
 using namespace DirectX;
 
@@ -95,6 +97,8 @@ public:
 
 private:
 	Renderer() {}
+
+	Texture TextureTester;
 
 	IDXGISwapChain* SwapChain;
 	

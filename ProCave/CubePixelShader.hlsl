@@ -12,6 +12,9 @@ cbuffer cbPerObject
     float3 Padding;
 };
 
+Texture2D shaderTexture;
+SamplerState SampleType;
+
 struct GS_OUTPUT
 {
     float4 Pos : SV_POSITION;
@@ -30,8 +33,8 @@ float4 main(GS_OUTPUT input) : SV_TARGET
     
     Distance = ((LightStrength - Distance) / LightStrength);
     
-    
-    float3 Clr = float3(0.92f, 0.45f, 0.15f) * (LightAngleStrength * Distance);
+    float3 Clr = float3(shaderTexture.Sample(SampleType, input.Color.yz).x * abs(input.Normal.x), shaderTexture.Sample(SampleType, input.Color.xz).y * abs(input.Normal.y), shaderTexture.Sample(SampleType, input.Color.xy).z * abs(input.Normal.z)) * 2 * (LightAngleStrength * Distance);
+    //float3 Clr = float3(0.92f, 0.45f, 0.15f) * (LightAngleStrength * Distance);
     
     return float4(Clr, 1.f);
 }
