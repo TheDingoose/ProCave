@@ -42,19 +42,25 @@ void MarchCubeSettings::Draw() {
 		}
 	};
 	if (ImGui::DragFloat("LightStrength", &LightStrength)) { //Move this later
-		Renderer::get()->cbPerObj.LightStrength = MarchCubeSettings::get()->LightStrength;
+		Renderer::get()->cbPerObj.LightStrength = LightStrength;
 	}; 
 	if (ImGui::DragFloat4("SampleMod", &SampleMod.x, 0.005f)) {
-		Renderer::get()->cbPerObj.SampleMod = MarchCubeSettings::get()->SampleMod;
+		Renderer::get()->cbPerObj.SampleMod = SampleMod;
 	};
 	if (ImGui::DragFloat4("SampleOffset", &SampleOffset.x, 0.5f)) {
-		Renderer::get()->cbPerObj.SampleOffset = MarchCubeSettings::get()->SampleOffset;
+		Renderer::get()->cbPerObj.SampleOffset = SampleOffset;
 	};
 	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.01f, -1.f, 1.f)) {
-		Renderer::get()->cbPerObj.DensityLimit = MarchCubeSettings::get()->DensityLimit;
+		Renderer::get()->cbPerObj.DensityLimit = DensityLimit;
 	};
 	if (ImGui::DragFloat("NormalSampleDistance", &NormalSampleDistance, 0.001f, 0.f, 100.f)) {
-		Renderer::get()->cbPerObj.NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+		Renderer::get()->cbPerObj.NormalSampleDistance = NormalSampleDistance;
+	};
+	if (ImGui::DragFloat("BlendOffset", &TextureBlendOffset, 0.01f, 0.f, 0.5f)) {
+		Renderer::get()->cbPerObj.TextureBlendOffset = TextureBlendOffset;
+	};
+	if (ImGui::DragFloat("BlendExponent", &TextureBlendExponent, 0.5f, 1.f, 8.f)) {
+		Renderer::get()->cbPerObj.TextureBlendExponent = TextureBlendExponent;
 	};
 
 	ImGui::End();

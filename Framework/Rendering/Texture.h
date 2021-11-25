@@ -6,6 +6,8 @@
 #include <string>
 #include "spdlog/spdlog.h"
 
+static int counter = 0;
+
 class Texture
 {
 public:
@@ -29,7 +31,8 @@ public:
 		desc.Width = width;
 		desc.Height = height;
 		desc.MipLevels = desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		//desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Usage = D3D11_USAGE_DEFAULT;
@@ -41,7 +44,8 @@ public:
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		ZeroMemory(&srvDesc, sizeof(srvDesc));
-		srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		//srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = desc.MipLevels;
 		srvDesc.Texture2D.MostDetailedMip = 0;
@@ -61,7 +65,7 @@ public:
 		Device->CreateSamplerState(&sampDesc, &m_SamplerState);
 	};
 
-	Texture() { m_Texture = 0; };
+	//Texture() { m_Texture = 0; };
 	Texture(ID3D11Device* Device, std::string FileName) {
 		LoadTexture(Device, FileName);
 	};
@@ -70,6 +74,8 @@ public:
 			m_Texture->Release();
 		}
 	};
+
+	int count = counter++;
 
 	ID3D11Texture2D* m_Texture;
 	ID3D11SamplerState* m_SamplerState;

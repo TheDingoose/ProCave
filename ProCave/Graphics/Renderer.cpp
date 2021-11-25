@@ -518,8 +518,14 @@ bool Renderer::InitializeCubeRenderer()
 	hr = d3d11Device->CreateBuffer(&cbbd, &Deets, &TriTableBuffer);
 	d3d11DevCon->GSSetConstantBuffers(1, 1, &TriTableBuffer);
 
-	//? Test      tasdasdasdsad===========================================================================
-	TextureTester.LoadTexture(d3d11Device, "../Assets/Texture/test.png");
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/sandstone.jpg"));
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/roughstone.jpg"));
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/crackedstone.jpg"));
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockalb.jpg"));
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrocknor.jpg"));
+	//WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/normaal.jpg"));
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockbump.png"));
+	
 
 
 
@@ -739,9 +745,22 @@ void Renderer::Draw()
 	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 	d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+	//
+	//d3d11DevCon->PSSetShaderResources(0, 1, &TextureTester.m_TextureView);
+	//d3d11DevCon->PSSetSamplers(0, 1, &TextureTester.m_SamplerState);
 
-	d3d11DevCon->PSSetShaderResources(0, 1, &TextureTester.m_TextureView);
-	d3d11DevCon->PSSetSamplers(0, 1, &TextureTester.m_SamplerState);
+	//d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[0].m_TextureView);
+	//d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[0].m_SamplerState);
+
+	d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[3]->m_TextureView);
+	d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[3]->m_SamplerState);
+
+	d3d11DevCon->PSSetShaderResources(1, 1, &WorldTextures[4]->m_TextureView);
+	d3d11DevCon->PSSetSamplers(1, 1, &WorldTextures[4]->m_SamplerState);
+
+	//d3d11DevCon->GSSetShaderResources(0, 1, &WorldTextures[5].m_TextureView);
+	//d3d11DevCon->GSSetSamplers(0, 1, &WorldTextures[5].m_SamplerState);
+
 
 	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
 	XMVECTOR Worker = XMVectorZero();
@@ -801,59 +820,6 @@ void Renderer::Draw()
 
 	d3d11DevCon->Draw(NumPoints, 0);
 	}
-
-
-	
-	//for (int Depth = 0; Depth < GridSize; Depth++) {
-	//	//Calculate the width and height
-	//	
-	//
-	//	
-	//	//CHeight = round(CHeight);
-	//	//CWidth = round(CWidth);d
-	//
-	//
-	//	float DepthDist = (float)Depth * cbPerObj.CubeSize;
-	//	DepthPos = Player + (XMVectorMultiply(PlayerZAngle, XMVectorSet(DepthDist, DepthDist, DepthDist, DepthDist)));
-	//	//DepthPos = XMVectorRound(DepthPos);
-	//	Points.resize((int)ceil(CWidth) * (int)ceil(CHeight) * 2);
-	//	for (float x = -CWidth / 2; (CWidth / 2 - x) > 0.001f; x += cbPerObj.CubeSize) {
-	//		Worker = DepthPos + (XMVectorMultiply(PlayerXAngle, XMVectorSet(x, x, x, 0.f)));
-	//		//Worker = XMVectorRound(Worker);
-	//
-	//
-	//		for (float y = -CHeight / 2 ; (CHeight / 2 - y) > 0.001f; y += cbPerObj.CubeSize) {
-	//
-	//			Points[NumPoints] = XMVectorRound(Worker + (XMVectorMultiply(PlayerYAngle, XMVectorSet(y, y, y, 0.f))));
-	//			//Points[NumPoints] = XMVectorRound(Worker + (XMVectorMultiply(PlayerYAngle, XMVectorSet(y, y, y, 0.f))));
-	//			NumPoints++;
-	//
-	//
-	//		}
-	//	}
-	//
-	//	//Make the aligned points
-	//	///Maybe Just make the points as float and round them? 
-	//
-	//	//Send them!
-	//	D3D11_MAPPED_SUBRESOURCE BufferData;
-	//	ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	//	HRESULT hr = d3d11DevCon->Map(CubePosiBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
-	//	//CheckError(hr, "Swap texture on noise regenerate");
-	//
-	//	memcpy(BufferData.pData, &Points[0], sizeof(XMVECTOR) * NumPoints);
-	//
-	//	Renderer::get()->d3d11DevCon->Unmap(CubePosiBuffer, 0);
-	//
-	//	d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosiBuffer, &CubeStride, &CubeOffset);
-	//
-	//	d3d11DevCon->Draw(NumPoints, 0);
-	//
-	//
-	//
-	//
-	//	NumPoints = 0;
-	//}
 
 
 	//! Collision Debug Draw!	

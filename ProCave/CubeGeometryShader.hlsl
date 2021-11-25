@@ -9,7 +9,9 @@ cbuffer cbPerObject
     float Time;
     float DensityLimit;
     float NormalSampleDistance;
-    float3 Padding;
+    float TextureBlendOffset;
+    float TextureBlendExponent;
+    float Padding;
 };
 
 cbuffer TableBuffer
@@ -265,12 +267,19 @@ float lerp(float min, float max, float t)
 }
 //------------------------------------------------------------------------------------------
 
+Texture2D shaderTexture;
+SamplerState SampleType;
+
 [maxvertexcount(15)]
 void main(
 	point float4 input[1] : SV_POSITION, 
 	inout TriangleStream< GS_Output > output
 )
 {
+    
+    
+    
+
     GS_Output element;
     element.Normal = 1.f;
     //PERLIN TIME
@@ -335,9 +344,14 @@ void main(
         element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
         - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
         element.Normal.w = 0.f;
-        element.Normal = normalize(element.Normal);
+        element.Normal.xyz = normalize(-element.Normal.xyz);
         element.Color = element.pos;
+            
+        //element.pos.x += element.pos.x * element.Normal.x * shaderTexture.Sample(SampleType, element.pos.yz * 0.05) * Weights.x;
+        //element.pos.y += element.pos.y * element.Normal.y * shaderTexture.Sample(SampleType, element.pos.zx * 0.05) * Weights.y;
+        //element.pos.z += element.pos.z * element.Normal.z * shaderTexture.Sample(SampleType, element.pos.xy * 0.05) * Weights.z;
         
+       // element.pos += element.pos * element.Normal * shaderTexture.Sample(SampleType, input.Color.yz * 0.05) * Weights.x)
         
        element.pos = mul(element.pos, WVP);
        output.Append(element);

@@ -45,8 +45,8 @@ struct cbPerObject
 	float Time = MarchCubeSettings::get()->Time;
 	float DensityLimit = MarchCubeSettings::get()->DensityLimit;
 	float NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
-	float Padding;
-	float Padding2;
+	float TextureBlendOffset = MarchCubeSettings::get()->TextureBlendOffset;
+	float TextureBlendExponent = MarchCubeSettings::get()->TextureBlendExponent;
 	float Padding3;
 };
 
@@ -98,7 +98,9 @@ public:
 private:
 	Renderer() {}
 
-	Texture TextureTester;
+	//Texture TextureTester;
+	std::vector<Texture*> WorldTextures;
+
 
 	IDXGISwapChain* SwapChain;
 	
