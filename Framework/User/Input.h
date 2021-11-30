@@ -16,7 +16,8 @@ enum Key {
 	Key_CamDown,
 	Key_MouseUnlock,
 	Mouse_X,
-	Mouse_Y
+	Mouse_Y,
+	Key_Light
 };
 
 class Input
@@ -34,6 +35,10 @@ public:
 
 	bool GetKey(Key key) {
 		return Map->GetBool(key);
+	}
+
+	bool GetKeyDown(Key key) {
+		return Map->GetBoolIsNew(key);
 	}
 
 	float GetValue(Key key) {

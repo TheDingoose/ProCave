@@ -62,6 +62,9 @@ void MarchCubeSettings::Draw() {
 	if (ImGui::DragFloat("BlendExponent", &TextureBlendExponent, 0.5f, 1.f, 8.f)) {
 		Renderer::get()->cbPerObj.TextureBlendExponent = TextureBlendExponent;
 	};
+	if (ImGui::DragFloat("BlendHeightStrength", &TextureBlendHeightStrength, 0.01f, 0.f, 0.99f)) {
+		Renderer::get()->cbPerObj.TextureBlendHeightStrength = TextureBlendHeightStrength;
+	};
 
 	ImGui::End();
 	return;

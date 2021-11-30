@@ -15,15 +15,25 @@ public:
 
 	EnvironmentCollisionHandler();
 
+
+	std::vector<unsigned int> EnvironmentIndices;
+	std::vector<float> EnvironmentVertices;
+	rp3d::RigidBody* EnvironmentBody;
+	int Inds = 0;
+	int Verts = 0;
+
+
 	std::vector<EnvironmentCollider> Colliders;
 	std::vector<std::vector<unsigned int>*> MarchCubeIndices;
 	std::vector<std::vector<float>*> MarchCubeVertices;
-	std::vector<rp3d::RigidBody*> RigidBodies;
+	std::vector<rp3d::RigidBody*> MarchCubeRigidBodies;
 
 	rp3d::PhysicsWorld* world;
 	rp3d::PhysicsCommon* physicsCommon;
 
 	void GenerateEnvironmentConcave(EnvironmentCollider Collider);
+
+	void CleanRemoved();
 
 	void MakeCollide();
 	void BreakCollide();

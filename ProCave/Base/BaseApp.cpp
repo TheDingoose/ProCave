@@ -12,6 +12,7 @@
 #include "Collision/EnvironmentCollider.h"
 
 
+
 BaseApp::BaseApp()
 {
 }
@@ -174,13 +175,14 @@ void BaseApp::Load()
 	colliderb = ThePlayer->Collisionbody->addCollider(sphereShape, transform);
 	colliderb->getMaterial().setFrictionCoefficient(0.6f);
 	colliderb->getMaterial().setBounciness(0.f);
+	colliderb->getMaterial().setMassDensity(80.f);
 	ThePlayer->Collisionbody->setType(BodyType::DYNAMIC);
 	ThePlayer->Collisionbody->enableGravity(true);
 	ThePlayer->Collisionbody->setIsAllowedToSleep(false);
 	ThePlayer->Collisionbody->setAngularDamping(1.f);
 	ThePlayer->Collisionbody->setLinearDamping(0.01f);
 
-	EnvCollision->Colliders.push_back(EnvironmentCollider(ThePlayer->Collisionbody->getEntity().id, 1.f));
+	EnvCollision->Colliders.push_back(EnvironmentCollider(ThePlayer->Collisionbody, 1.f));
 
 	ThePlayer->SyncPos(&Cam->Transform);
 	
@@ -214,6 +216,30 @@ void BaseApp::Tick(float Deltatime)
 
 	ThePlayer->HandleInput(Vector3(PlayerAcc.m128_f32[0], 0.f, PlayerAcc.m128_f32[2]));
 
+	if (MouseLock && GetForegroundWindow() == HandleWindow) {
+		POINT cPos;
+		GetCursorPos(&cPos);
+		RECT rect = { NULL };
+		GetWindowRect(HandleWindow, &rect);
+		float Movex = -(rect.left + (rect.right - rect.left) / 2 - cPos.x) / 300.f;
+		float Movey = -(rect.top + (rect.bottom - rect.top) / 2 - cPos.y) / 300.f;
+
+		if (Cam->Transform.Rotation.x + Movey > -3.0f / 2.f && Cam->Transform.Rotation.x + Movey < 3.0f / 2.f) {
+			Cam->Transform.Rotation.x += Movey;
+		}
+		Cam->Transform.Rotation.y += Movex;
+
+		SetCursorPos(rect.left + (rect.right - rect.left) / 2, rect.top + (rect.bottom - rect.top) / 2);
+	}
+
+	if (Input::get()->GetKeyDown(Key_Light)) {
+
+		Lights.push_back(new ThrowLight(world, &physicsCommon));
+
+		EnvCollision->Colliders.push_back(EnvironmentCollider(Lights[Lights.size() - 1]->CollisionBody, 0.5f));
+
+	}
+
 	EnvCollision->MakeCollide();
 
 	if (Deltatime > 0.f) { world->update(Deltatime); };
@@ -233,26 +259,23 @@ void BaseApp::Tick(float Deltatime)
 	}
 
 
-	if (MouseLock && GetForegroundWindow() == HandleWindow) {
-		POINT cPos;
-		GetCursorPos(&cPos);
-		RECT rect = { NULL };
-		GetWindowRect(HandleWindow, &rect);
-		float Movex = -(rect.left + (rect.right - rect.left) / 2 - cPos.x) / 300.f;
-		float Movey = -(rect.top + (rect.bottom - rect.top) / 2 - cPos.y) / 300.f;
-
-		if (Cam->Transform.Rotation.x + Movey > -3.0f / 2.f && Cam->Transform.Rotation.x + Movey < 3.0f / 2.f) {
-			Cam->Transform.Rotation.x += Movey;
-		}
-		Cam->Transform.Rotation.y += Movex;
-
-		SetCursorPos(rect.left + (rect.right - rect.left) / 2, rect.top + (rect.bottom - rect.top) / 2);
-	}
+	
 
 
 	EnvCollision->BreakCollide();
 
 	Cam->Update();
+
+	std::vector<XMVECTOR> LightPosses;
+	for (int i = 0; i < Lights.size(); i++) {
+		LightPosses.push_back(XMVectorSet(
+			Lights[i]->CollisionBody->getTransform().getPosition().x,
+			Lights[i]->CollisionBody->getTransform().getPosition().y,
+			Lights[i]->CollisionBody->getTransform().getPosition().z,
+			0.f));
+	}
+
+	Renderer::get()->SetLights(LightPosses);
 	//XMStoreFloat4(&Renderer::get()->Models[0].Transform.Translation, NoiseRay::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
 	//
 	//

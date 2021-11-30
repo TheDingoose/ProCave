@@ -36,7 +36,7 @@ class DebugRenderer;
 
 struct cbPerObject
 {
-	XMMATRIX  WVP;
+	XMMATRIX WVP = XMMatrixIdentity();
 	XMFLOAT4 PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 SampleMod = MarchCubeSettings::get()->SampleMod;
 	XMFLOAT4 SampleOffset = MarchCubeSettings::get()->SampleOffset;
@@ -47,8 +47,14 @@ struct cbPerObject
 	float NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
 	float TextureBlendOffset = MarchCubeSettings::get()->TextureBlendOffset;
 	float TextureBlendExponent = MarchCubeSettings::get()->TextureBlendExponent;
-	float Padding3;
+	float TextureBlendHeightStrength = MarchCubeSettings::get()->TextureBlendHeightStrength;
 };
+
+struct LightingCollection {
+	XMVECTOR Positions[64];
+	unsigned int Amount = 0;
+};
+
 
 struct CubeConstBuff {
 	int triTable[256 * 16];
@@ -81,6 +87,15 @@ public:
 		PlayerForward = aPlayerForward;
 	}
 
+	void SetLights(std::vector<XMVECTOR> aLights) {
+
+		Lights.Amount = aLights.size();
+
+		for (int i = 0; i < aLights.size(); i++) {
+			Lights.Positions[i] = aLights[i];
+		}
+	}
+	
 	std::vector<Model> ModelData;
 	std::vector<ModelBuffers> Models;
 
@@ -101,6 +116,8 @@ private:
 	//Texture TextureTester;
 	std::vector<Texture*> WorldTextures;
 
+	LightingCollection Lights;
+	ID3D11Buffer* LightBuffer;
 
 	IDXGISwapChain* SwapChain;
 	

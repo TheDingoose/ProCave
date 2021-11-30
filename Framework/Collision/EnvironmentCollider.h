@@ -1,13 +1,20 @@
 #pragma once
 
+#include "reactphysics3d/reactphysics3d.h"
+
+using namespace reactphysics3d;
+
 class EnvironmentCollider
 {
 public:
-	EnvironmentCollider(unsigned int a_ID, float a_Radius = 1.f) { ID = a_ID; Radius = a_Radius; };
-	EnvironmentCollider() { };
+	EnvironmentCollider(RigidBody* aCollisionBody, float a_Radius = 1.f) { CollisionBody = aCollisionBody; Radius = a_Radius; };
+	//EnvironmentCollider() { };
 
 	//What is my ID in the collisionworld?
-	unsigned int ID;
+	//unsigned int ID;
+	//This is extremely unsafe
+	RigidBody* CollisionBody;
+
 
 	//In what radius around me should I generate coobs?
 	float Radius = 1.f;

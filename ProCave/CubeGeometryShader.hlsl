@@ -11,7 +11,7 @@ cbuffer cbPerObject
     float NormalSampleDistance;
     float TextureBlendOffset;
     float TextureBlendExponent;
-    float Padding;
+    float TextureBlendHeightStrength;
 };
 
 cbuffer TableBuffer

@@ -6,6 +6,8 @@
 using namespace reactphysics3d;
 
 #include "Player.h"
+#include <vector>
+#include "Gadgets/ThrowLight.h"
 
 class Renderer;
 class EnvironmentCollisionHandler;
@@ -34,6 +36,7 @@ public:
 	EnvironmentCollisionHandler* EnvCollision;
 	
 	Player* ThePlayer;
+	std::vector<ThrowLight*> Lights;
 
 	PhysicsCommon physicsCommon;
 	PhysicsWorld* world ;

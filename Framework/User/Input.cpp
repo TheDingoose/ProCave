@@ -22,6 +22,7 @@ Input::Input()
 	Map->MapBool(Key::Key_CamUp, KeyboardId, gainput::KeyUp);
 	Map->MapBool(Key::Key_CamDown, KeyboardId, gainput::KeyDown);
 	Map->MapBool(Key::Key_MouseUnlock, KeyboardId, gainput::KeyT);
+	Map->MapBool(Key::Key_Light, KeyboardId, gainput::KeyQ);
 
 	Map->MapFloat(Key::Mouse_X, MouseId, gainput::MouseAxisX);
 	Map->MapFloat(Key::Mouse_Y, MouseId, gainput::MouseAxisY);

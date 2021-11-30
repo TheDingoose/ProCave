@@ -518,16 +518,17 @@ bool Renderer::InitializeCubeRenderer()
 	hr = d3d11Device->CreateBuffer(&cbbd, &Deets, &TriTableBuffer);
 	d3d11DevCon->GSSetConstantBuffers(1, 1, &TriTableBuffer);
 
+	Deets.pSysMem = &Lights;
+	cbbd.ByteWidth = sizeof(LightingCollection);
+	hr = d3d11Device->CreateBuffer(&cbbd, &Deets, &LightBuffer);
+
 	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/sandstone.jpg"));
 	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/roughstone.jpg"));
 	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/crackedstone.jpg"));
 	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockalb.jpg"));
 	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrocknor.jpg"));
 	//WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/normaal.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockbump.png"));
-	
-
-
+	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockbmp.jpg"));
 
 	return true;
 }
@@ -741,16 +742,11 @@ void Renderer::Draw()
 	cbPerObj.PlayerPos = *PlayerPos;
 	cbPerObj.Time = MarchCubeSettings::get()->Time;
 
-	
 	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 	d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-	//
-	//d3d11DevCon->PSSetShaderResources(0, 1, &TextureTester.m_TextureView);
-	//d3d11DevCon->PSSetSamplers(0, 1, &TextureTester.m_SamplerState);
-
-	//d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[0].m_TextureView);
-	//d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[0].m_SamplerState);
+	d3d11DevCon->UpdateSubresource(LightBuffer, 0, NULL, &Lights, 0, 0);
+	d3d11DevCon->PSSetConstantBuffers(1, 1, &LightBuffer);
 
 	d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[3]->m_TextureView);
 	d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[3]->m_SamplerState);
@@ -758,8 +754,8 @@ void Renderer::Draw()
 	d3d11DevCon->PSSetShaderResources(1, 1, &WorldTextures[4]->m_TextureView);
 	d3d11DevCon->PSSetSamplers(1, 1, &WorldTextures[4]->m_SamplerState);
 
-	//d3d11DevCon->GSSetShaderResources(0, 1, &WorldTextures[5].m_TextureView);
-	//d3d11DevCon->GSSetSamplers(0, 1, &WorldTextures[5].m_SamplerState);
+	d3d11DevCon->GSSetShaderResources(2, 1, &WorldTextures[5]->m_TextureView);
+	d3d11DevCon->GSSetSamplers(2, 1, &WorldTextures[5]->m_SamplerState);
 
 
 	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));

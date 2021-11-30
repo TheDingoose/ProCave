@@ -32,6 +32,7 @@ public:
 	float NormalSampleDistance = 1.0f;
 	float TextureBlendOffset = 0.25f;
 	float TextureBlendExponent = 2;
+	float TextureBlendHeightStrength = 0.5f;
 
 
 private:
