@@ -688,8 +688,8 @@ void Renderer::Draw()
 
 #endif
 	//Clear the screen before drawing anything new
-	float bgColor[4] = { 0.f, 0.f, 0.f, 1.f };
-	//float bgColor[4] = { 0.37f, 0.18f, 0.56f, 1.f };
+	//float bgColor[4] = { 0.f, 0.f, 0.f, 1.f };
+	float bgColor[4] = { cbPerObj.FogColor.x, cbPerObj.FogColor.y, cbPerObj.FogColor.z, cbPerObj.FogColor.w} ;
 
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 	d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

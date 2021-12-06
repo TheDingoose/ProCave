@@ -4,14 +4,25 @@ cbuffer cbPerObject
     float4 PlayerPos;
     float4 SampleMod;
     float4 SampleOffset;
+    
     float CubeSize;
+    float PlayerLightStrength;
     float LightStrength;
     float Time;
+    
+    float4 PlayerLightColor;
+    float4 LightColor;
+    float4 FogColor;
+    
+    float FogDistanceNear;
+    float FogDistance;
     float DensityLimit;
     float NormalSampleDistance;
+    
     float TextureBlendOffset;
     float TextureBlendExponent;
     float TextureBlendHeightStrength;
+    float Pad; //Three More Slots Here!
 };
 
 cbuffer TableBuffer

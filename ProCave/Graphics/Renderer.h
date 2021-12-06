@@ -40,14 +40,25 @@ struct cbPerObject
 	XMFLOAT4 PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 	XMFLOAT4 SampleMod = MarchCubeSettings::get()->SampleMod;
 	XMFLOAT4 SampleOffset = MarchCubeSettings::get()->SampleOffset;
+
 	float CubeSize = MarchCubeSettings::get()->CubeSize;
+	float PlayerLightStrength = MarchCubeSettings::get()->PlayerLightStrength;
 	float LightStrength = MarchCubeSettings::get()->LightStrength;
 	float Time = MarchCubeSettings::get()->Time;
+
+	XMFLOAT4 PlayerLightColor = MarchCubeSettings::get()->PlayerLightColor;
+	XMFLOAT4 LightColor = MarchCubeSettings::get()->LightColor;
+	XMFLOAT4 FogColor = MarchCubeSettings::get()->FogColor;
+
+	float FogDistanceNear = MarchCubeSettings::get()->FogDistanceNear;
+	float FogDistance = MarchCubeSettings::get()->FogDistance;
 	float DensityLimit = MarchCubeSettings::get()->DensityLimit;
 	float NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+
 	float TextureBlendOffset = MarchCubeSettings::get()->TextureBlendOffset;
 	float TextureBlendExponent = MarchCubeSettings::get()->TextureBlendExponent;
 	float TextureBlendHeightStrength = MarchCubeSettings::get()->TextureBlendHeightStrength;
+	float Pad;             //Three More Slots Here!
 };
 
 struct LightingCollection {

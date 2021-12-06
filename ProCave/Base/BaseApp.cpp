@@ -234,7 +234,7 @@ void BaseApp::Tick(float Deltatime)
 
 	if (Input::get()->GetKeyDown(Key_Light)) {
 
-		Lights.push_back(new ThrowLight(world, &physicsCommon));
+		Lights.push_back(new ThrowLight(world, &physicsCommon, XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
 
 		EnvCollision->Colliders.push_back(EnvironmentCollider(Lights[Lights.size() - 1]->CollisionBody, 0.5f));
 

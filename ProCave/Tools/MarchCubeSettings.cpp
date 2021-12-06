@@ -41,9 +41,6 @@ void MarchCubeSettings::Draw() {
 			}
 		}
 	};
-	if (ImGui::DragFloat("LightStrength", &LightStrength)) { //Move this later
-		Renderer::get()->cbPerObj.LightStrength = LightStrength;
-	}; 
 	if (ImGui::DragFloat4("SampleMod", &SampleMod.x, 0.005f)) {
 		Renderer::get()->cbPerObj.SampleMod = SampleMod;
 	};
@@ -56,6 +53,31 @@ void MarchCubeSettings::Draw() {
 	if (ImGui::DragFloat("NormalSampleDistance", &NormalSampleDistance, 0.001f, 0.f, 100.f)) {
 		Renderer::get()->cbPerObj.NormalSampleDistance = NormalSampleDistance;
 	};
+
+	if (ImGui::DragFloat("LightStrength", &LightStrength)) { //Move this later
+		Renderer::get()->cbPerObj.LightStrength = LightStrength;
+	};
+	if (ImGui::DragFloat("PlayerLightStrength", &PlayerLightStrength)) { //Move this later
+		Renderer::get()->cbPerObj.PlayerLightStrength = PlayerLightStrength;
+	
+	};
+	if (ImGui::ColorEdit4("PlayerLightColor", &PlayerLightColor.x)) {
+		Renderer::get()->cbPerObj.PlayerLightColor = PlayerLightColor;
+	};
+	if (ImGui::ColorEdit4("LightColor", &LightColor.x)) {
+		Renderer::get()->cbPerObj.LightColor = LightColor;
+	};
+
+	if (ImGui::DragFloat("FogDistanceNear", &FogDistanceNear)) {
+		Renderer::get()->cbPerObj.FogDistanceNear = FogDistanceNear;
+	};
+	if (ImGui::DragFloat("FogDistanceFar", &FogDistance)) {
+		Renderer::get()->cbPerObj.FogDistance = FogDistance;
+	};
+	if (ImGui::ColorEdit4("FogColor", &FogColor.x)) {
+		Renderer::get()->cbPerObj.FogColor = FogColor;
+	};
+
 	if (ImGui::DragFloat("BlendOffset", &TextureBlendOffset, 0.01f, 0.f, 0.5f)) {
 		Renderer::get()->cbPerObj.TextureBlendOffset = TextureBlendOffset;
 	};
