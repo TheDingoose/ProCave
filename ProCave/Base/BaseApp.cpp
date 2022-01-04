@@ -11,7 +11,11 @@
 #include "EnvironmentCollisionHandler.h"
 #include "Collision/EnvironmentCollider.h"
 
+#define TINYGLTF_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 
+#include "tinygltf/tiny_gltf.h"
 
 BaseApp::BaseApp()
 {
@@ -96,7 +100,31 @@ void BaseApp::Load()
 	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
 
 
+	tinygltf::Model model;
+	tinygltf::TinyGLTF loader;
+	std::string err;
+	std::string warn;
+	std::string name = "../Assets/Model/box01.glb";
+
+	//bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, name);
+	bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, name);
+
+	if (!warn.empty()) {
+		printf("Warn: %s\n", warn.c_str());
+	}
+
+	if (!err.empty()) {
+		printf("Err: %s\n", err.c_str());
+	}
+
+	if (!ret) {
+		printf("Failed to parse glTF\n");
+	}
 	
+	//? Indices where?
+	//model.meshes[0].
+	//model.meshes[0].primitives
+
 	//! THIS IS THE MARCHING CUBES
 	//float sizee = 10.f;
 	//sizee *= MarchCubeSettings::get()->CubeSize;
@@ -138,9 +166,9 @@ void BaseApp::Load()
 	//}
 
 	// Initial position and orientation of the rigid body 
-	Vector3 position(0.0, 0.0, 0.0);
-	Quaternion orientation = Quaternion::identity();
-	Transform transform(position, orientation);
+	//Vector3 position(0.0, 0.0, 0.0);
+	//Quaternion orientation = Quaternion::identity();
+	//Transform transform(position, orientation);
 //	// Create a rigid body in the world 
 //	Testbody = world->createRigidBody(transform);
 //	// Create the sphere shape with a radius of 2m 
