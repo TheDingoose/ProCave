@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "EnvironmentCollisionHandler.h"
 
 #include "Tools/MarchCubeSettings.h"
@@ -18,10 +17,9 @@ EnvironmentCollisionHandler::EnvironmentCollisionHandler()
 void EnvironmentCollisionHandler::GenerateEnvironmentConcave(EnvironmentCollider Collider)
 {
 	Vector3 ColPos = Collider.CollisionBody->getTransform().getPosition();
-
-	ColPos.x = round(ColPos.x);
-	ColPos.y = round(ColPos.y);
-	ColPos.z = round(ColPos.z);
+	ColPos.x = round(ColPos.x / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	ColPos.y = round(ColPos.y / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	ColPos.z = round(ColPos.z / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
 
 	//! Still gotta filter same coordinates
 	int Bodynum = 0;

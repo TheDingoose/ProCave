@@ -6,14 +6,14 @@
 
 #include "Rendering/Vertex.h"
 using namespace std;
-struct Model {
+struct Mesh {
 
-	Model() {};
-	Model(vector<DWORD>& aIndices, vector<Vertex>& aVertices) {
+	Mesh() {};
+	Mesh(vector<unsigned short>& aIndices, vector<Vertex>& aVertices) {
 		copy(aIndices.begin(), aIndices.end(), back_inserter(Indices));
 		copy(aVertices.begin(), aVertices.end(), back_inserter(Vertices));
 	};
 
 	vector<Vertex>Vertices;
-	vector<DWORD> Indices;
+	vector<unsigned short> Indices;
 };

@@ -467,7 +467,7 @@ void MarchCube::Sample(XMVECTOR aPos)
 
 
 		Vertices.push_back(Vertex(edgeposTable[triTable[Case][i]][0], edgeposTable[triTable[Case][i]][1], edgeposTable[triTable[Case][i]][2],
-			(fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), 1.f
+			(fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f), (fmod((float)rand(), 100.f) / 100.f)
 		));
 
 

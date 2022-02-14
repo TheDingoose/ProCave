@@ -2,17 +2,16 @@
 struct Vertex    //Overloaded Vertex Structure
 {
 	Vertex() {
-		x = 0.f; y = 0.f; z = 0.f;  r = 0.f; g = 0.f; b = 0.f; a = 0.f;
+		x = 0.f; y = 0.f; z = 0.f;  nx = 0.f; ny = 0.f; nz = 0.f;
 	}
-	Vertex(float sx, float sy, float sz, float sr, float sg, float sb, float sa) {
+	Vertex(float sx, float sy, float sz, float snx, float sny, float snz) {
 		x = sx;
 		y = sy;
 		z = sz;
 
-		r = sr;
-		g = sg;
-		b = sb;
-		a = sa;
+		nx = snx;
+		ny = sny;
+		nz = snz;
 	}
 
 	union {
@@ -25,13 +24,12 @@ struct Vertex    //Overloaded Vertex Structure
 		};
 	};
 	union {
-		float colour[4];
+		float normal[3];
 		struct
 		{
-			float r;
-			float g;
-			float b;
-			float a;
+			float nx;
+			float ny;
+			float nz;
 		};
 	};
 };

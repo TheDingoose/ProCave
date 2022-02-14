@@ -8,6 +8,7 @@
 #include "Graphics/RenderHelper.h"
 
 #include "Tools/DebugSettings.h"
+#include "Tools/MarchCubeSettings.h"
 
 #include "reactphysics3d/reactphysics3d.h"
 using namespace reactphysics3d;
@@ -15,7 +16,7 @@ using namespace reactphysics3d;
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },  
-    { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
 UINT numElements = ARRAYSIZE(layout);
 
@@ -33,8 +34,32 @@ D3D11_INPUT_ELEMENT_DESC Debuglayout[] =
 };
 UINT DebugnumElements = ARRAYSIZE(Debuglayout);
 
+cbPerObject::cbPerObject()
+{
+	WVP = XMMatrixIdentity();
+	PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
+	SampleMod = MarchCubeSettings::get()->SampleMod;
+	SampleOffset = MarchCubeSettings::get()->SampleOffset;
 
+	CubeSize = MarchCubeSettings::get()->CubeSize;
+	PlayerLightStrength = MarchCubeSettings::get()->PlayerLightStrength;
+	LightStrength = MarchCubeSettings::get()->LightStrength;
+	Time = MarchCubeSettings::get()->Time;
 
+	PlayerLightColor = MarchCubeSettings::get()->PlayerLightColor;
+	LightColor = MarchCubeSettings::get()->LightColor;
+	FogColor = MarchCubeSettings::get()->FogColor;
+
+	FogDistanceNear = MarchCubeSettings::get()->FogDistanceNear;
+	FogDistance = MarchCubeSettings::get()->FogDistance;
+	DensityLimit = MarchCubeSettings::get()->DensityLimit;
+	NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+
+	TextureBlendOffset = MarchCubeSettings::get()->TextureBlendOffset;
+	TextureBlendExponent = MarchCubeSettings::get()->TextureBlendExponent;
+	TextureBlendHeightStrength = MarchCubeSettings::get()->TextureBlendHeightStrength;
+	Pad;             //Three More Slots Here!
+};
 
 bool Renderer::InitializeDirect3d11App(HINSTANCE hInstance, HWND hwnd)
 {
@@ -504,7 +529,6 @@ bool Renderer::InitializeCubeRenderer()
 
 	}
 
-
 	D3D11_SUBRESOURCE_DATA Deets;
 	Deets.pSysMem = PaddedtriTable;
 	Deets.SysMemPitch = 0;
@@ -571,7 +595,7 @@ bool Renderer::InitializeDebugRenderer()
 	return true;
 }
 
-bool Renderer::InitializeModel(Model aModel)
+bool Renderer::InitializeMesh(Mesh mesh)
 {
 	ModelBuffers Buffers;
 
@@ -580,7 +604,7 @@ bool Renderer::InitializeModel(Model aModel)
 	ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
 
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(DWORD) * aModel.Indices.size() * 3;
+	indexBufferDesc.ByteWidth = sizeof(unsigned short) * mesh.Indices.size();
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
@@ -590,25 +614,25 @@ bool Renderer::InitializeModel(Model aModel)
 	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
 
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * aModel.Vertices.size();
+	vertexBufferDesc.ByteWidth = sizeof(Vertex) * mesh.Vertices.size();
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA iinitData;
 
-	iinitData.pSysMem = &aModel.Indices[0];
+	iinitData.pSysMem = &mesh.Indices[0];
 	iinitData.SysMemPitch = 0;
 
 
 	hr = d3d11Device->CreateBuffer(&indexBufferDesc, &iinitData, &Buffers.IndexBuffer);
 	CheckError(hr, "Error creating Index Buffer!");
-	Buffers.IndexSize = aModel.Indices.size();
+	Buffers.IndexSize = mesh.Indices.size();
 
 	D3D11_SUBRESOURCE_DATA vertexBufferData;
 
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-	vertexBufferData.pSysMem = &aModel.Vertices[0];
+	vertexBufferData.pSysMem = &mesh.Vertices[0];
 	hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffers.VertexBuffer);
 	CheckError(hr, "Error creating Vertex Buffer!");
 
@@ -707,7 +731,7 @@ void Renderer::Draw()
 
 	for (auto& Mesh : Models) {
 		//Set the index buffer
-		d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 		//Set the vertex buffer
 		UINT stride = sizeof(Vertex);
@@ -759,6 +783,10 @@ void Renderer::Draw()
 
 
 	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
+	//We have to round the player position to a multiple of the cubesize
+	Player = GridRound(Player);
+
+
 	XMVECTOR Worker = XMVectorZero();
 	unsigned int Numb = 0;
 	unsigned int BuffNumb = 0;
@@ -774,17 +802,25 @@ void Renderer::Draw()
 	float CHalfHeight = /* 2.f * */ tan((0.4f * 3.14f) / 2.f) * (((float)MarchCubeSettings::get()->GridSize + 1.f) * cbPerObj.CubeSize); //Is this height or width?
 	float CHalfWidth = CHalfHeight * ((float)Width / (float)Height);
 
-	XMVECTOR FrontPoint	= XMLoadFloat4(&cbPerObj.PlayerPos) + (float)MarchCubeSettings::get()->GridSize * PlayerZAngle;
+	XMVECTOR FrontPoint	= Player + (float)MarchCubeSettings::get()->GridSize * PlayerZAngle;
 
 	XMVECTOR RightUpPoint	= FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
 	XMVECTOR RightDownPoint = FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
 	XMVECTOR LeftUpPoint	= FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
 	XMVECTOR LeftDownPoint	= FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
 
+	RightUpPoint = GridRound(RightUpPoint);
+	RightDownPoint = GridRound(RightDownPoint);
+	LeftUpPoint = GridRound(LeftUpPoint);
+	LeftDownPoint = GridRound(LeftDownPoint);
+
+
+
+
 	XMVECTOR MinCube = XMVectorMin(BehindCam, XMVectorMin(RightUpPoint, XMVectorMin(RightDownPoint, XMVectorMin(LeftUpPoint, XMVectorMin(LeftDownPoint, XMVectorSplatInfinity())))));
 	XMVECTOR MaxCube = XMVectorMax(BehindCam, XMVectorMax(RightUpPoint, XMVectorMax(RightDownPoint, XMVectorMax(LeftUpPoint, XMVectorMax(LeftDownPoint, -XMVectorSplatInfinity())))));
-	MinCube = XMVectorFloor(MinCube);
-	MaxCube = XMVectorCeiling(MaxCube);
+	MinCube = GridFloor(MinCube);
+	MaxCube = GridCeil(MaxCube);
 	//PlayerYAngle = PlayerYAngle * (cbPerObj.CubeSize / fabs(PlayerYAngle.m128_f32[1]));
 	//float SizeX = PlayerXAngle.m128_f32[0] * cbPerObj.CubeSize;
 	//float SizeY = PlayerXAngle.m128_f32[1] * cbPerObj.CubeSize;
@@ -876,4 +912,3 @@ void Renderer::Draw()
 
 	SwapChain->Present(0, 0);
 }
-

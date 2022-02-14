@@ -11,8 +11,10 @@
 #include "EnvironmentCollisionHandler.h"
 #include "Collision/EnvironmentCollider.h"
 
+#include "Tools/Loader.h"
+#include "Tools/MarchCubeSettings.h"
 
-
+#include "tinygltf/tiny_gltf.h"
 BaseApp::BaseApp()
 {
 }
@@ -48,8 +50,10 @@ void BaseApp::Load()
 	//Quaternion orientation = Quaternion::identity();
 	//Transform transformm(position, orientation);
 	//RigidBody* body = world->createRigidBody(transformm);
-	
 
+	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
+
+	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(2.f, -10.f, 8.f, 0.f);
 
 	//std::vector<Vertex> v =
 	//{
@@ -96,7 +100,32 @@ void BaseApp::Load()
 	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
 
 
-	
+	//tinygltf::Model model;
+	//tinygltf::TinyGLTF loader;
+	//std::string err;
+	//std::string warn;
+	//std::string name = "../Assets/Model/box01.glb";
+	//
+	////bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, name);
+	//bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, name);
+	//
+	//if (!warn.empty()) {
+	//	spdlog::warn("%s\n", warn.c_str());
+	//}
+	//
+	//if (!err.empty()) {
+	//	spdlog::error("%s\n", err.c_str());
+	//}
+	//
+	//if (!ret) {
+	//	spdlog::error("Failed to parse glTF\n");
+	//}
+	//
+	////? Indices where?
+	////model.meshes[0].
+	//model.meshes[0].primitives[0].indices;
+	//spdlog::info(model.accessors[0].name);
+
 	//! THIS IS THE MARCHING CUBES
 	//float sizee = 10.f;
 	//sizee *= MarchCubeSettings::get()->CubeSize;

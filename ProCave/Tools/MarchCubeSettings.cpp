@@ -91,3 +91,24 @@ void MarchCubeSettings::Draw() {
 	ImGui::End();
 	return;
 }
+
+XMVECTOR GridRound(XMVECTOR Pos) {
+	Pos.m128_f32[0] = round(Pos.m128_f32[0] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[1] = round(Pos.m128_f32[1] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[2] = round(Pos.m128_f32[2] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	return Pos;
+}
+
+XMVECTOR GridFloor(XMVECTOR Pos) {
+	Pos.m128_f32[0] = floor(Pos.m128_f32[0] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[1] = floor(Pos.m128_f32[1] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[2] = floor(Pos.m128_f32[2] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	return Pos;
+}
+
+XMVECTOR GridCeil(XMVECTOR Pos) {
+	Pos.m128_f32[0] = ceil(Pos.m128_f32[0] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[1] = ceil(Pos.m128_f32[1] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	Pos.m128_f32[2] = ceil(Pos.m128_f32[2] / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
+	return Pos;
+}

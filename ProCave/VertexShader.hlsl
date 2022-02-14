@@ -10,12 +10,13 @@ struct VS_OUTPUT
 	float4 Color : COLOR;
 };
 
-VS_OUTPUT main(float4 inPos : POSITION, float4 inColor : COLOR)
+VS_OUTPUT main(float4 inPos : POSITION, float4 inNormal : NORMAL)
 {
 	VS_OUTPUT output;
 
     output.Pos = mul(inPos, WVP);
-	output.Color = inColor;
+    //output.Pos.z = 0.1f;
+    output.Color = abs(float4(inNormal.xyz, 1));
 
 	return output;
 }

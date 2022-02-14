@@ -11,11 +11,11 @@
 
 #include "General/Transform.h"
 #include "Rendering/Vertex.h"
-#include "Rendering/Model.h"
+#include "Rendering/Mesh.h"
 #include "Rendering/Texture.h"
 
 #include "Rendering/DevUIDriver.h"
-#include "Tools/MarchCubeSettings.h"
+
 
 
 using namespace DirectX;
@@ -34,31 +34,31 @@ namespace reactphysics3d {
 class DebugRenderer;
 }
 
-struct cbPerObject
-{
-	XMMATRIX WVP = XMMatrixIdentity();
-	XMFLOAT4 PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	XMFLOAT4 SampleMod = MarchCubeSettings::get()->SampleMod;
-	XMFLOAT4 SampleOffset = MarchCubeSettings::get()->SampleOffset;
+struct cbPerObject {
+cbPerObject();
+	XMMATRIX WVP;
+	XMFLOAT4 PlayerPos;
+	XMFLOAT4 SampleMod;
+	XMFLOAT4 SampleOffset;
 
-	float CubeSize = MarchCubeSettings::get()->CubeSize;
-	float PlayerLightStrength = MarchCubeSettings::get()->PlayerLightStrength;
-	float LightStrength = MarchCubeSettings::get()->LightStrength;
-	float Time = MarchCubeSettings::get()->Time;
+	float CubeSize;
+	float PlayerLightStrength;
+	float LightStrength;
+	float Time;
 
-	XMFLOAT4 PlayerLightColor = MarchCubeSettings::get()->PlayerLightColor;
-	XMFLOAT4 LightColor = MarchCubeSettings::get()->LightColor;
-	XMFLOAT4 FogColor = MarchCubeSettings::get()->FogColor;
+	XMFLOAT4 PlayerLightColor;
+	XMFLOAT4 LightColor;
+	XMFLOAT4 FogColor;
 
-	float FogDistanceNear = MarchCubeSettings::get()->FogDistanceNear;
-	float FogDistance = MarchCubeSettings::get()->FogDistance;
-	float DensityLimit = MarchCubeSettings::get()->DensityLimit;
-	float NormalSampleDistance = MarchCubeSettings::get()->NormalSampleDistance;
+	float FogDistanceNear;
+	float FogDistance;
+	float DensityLimit;
+	float NormalSampleDistance;
 
-	float TextureBlendOffset = MarchCubeSettings::get()->TextureBlendOffset;
-	float TextureBlendExponent = MarchCubeSettings::get()->TextureBlendExponent;
-	float TextureBlendHeightStrength = MarchCubeSettings::get()->TextureBlendHeightStrength;
-	float Pad;             //Three More Slots Here!
+	float TextureBlendOffset;
+	float TextureBlendExponent;
+	float TextureBlendHeightStrength;
+	float Pad;
 };
 
 struct LightingCollection {
@@ -107,7 +107,7 @@ public:
 		}
 	}
 	
-	std::vector<Model> ModelData;
+	std::vector<Mesh> ModelData;
 	std::vector<ModelBuffers> Models;
 
 	ID3D11Device* d3d11Device;
@@ -181,11 +181,11 @@ public:
 	Renderer(Renderer const&) = delete;
 	void operator=(Renderer const&) = delete;
 
-	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND HandleWindow);
+	bool InitializeDirect3d11App(HINSTANCE hInstance, HWND handleWindow);
 	bool InitializeRenderer();
 	bool InitializeCubeRenderer();
 	bool InitializeDebugRenderer();
-	bool InitializeModel(Model aModel);
+	bool InitializeMesh(Mesh mesh);
 	void Resize();
 
 	void ReleaseObjects() {

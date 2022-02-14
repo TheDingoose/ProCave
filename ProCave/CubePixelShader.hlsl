@@ -113,7 +113,7 @@ float4 main(GS_OUTPUT input) : SV_TARGET
     
     
     oClr = oClr + (FogColor - oClr) * smoothstep(FogDistanceNear, FogDistance, Distance);
-    
+    //oClr = max(oClr, FogColor.xyz * smoothstep(FogDistanceNear, FogDistance, Distance));
     
    // Clr = min(Clr, max(float3(150.f / 255.f, 50.f / 255.f, 30.f / 255.f) * (LightAngleStrength * Distance), float3(255.f / 255.f, 200.f / 255.f, 6.f / 255.f) * (LightAngleStrength * 0.3f * Distance)));
    //Clr = (Clr * Distance);
