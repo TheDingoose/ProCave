@@ -167,9 +167,9 @@ void BaseApp::Load()
 	//}
 
 	// Initial position and orientation of the rigid body 
-	Vector3 position(0.0, 0.0, 0.0);
-	Quaternion orientation = Quaternion::identity();
-	Transform transform(position, orientation);
+	//Vector3 position(0.0, 0.0, 0.0);
+	//Quaternion orientation = Quaternion::identity();
+	//Transform transform(position, orientation);
 //	// Create a rigid body in the world 
 //	Testbody = world->createRigidBody(transform);
 //	// Create the sphere shape with a radius of 2m 
