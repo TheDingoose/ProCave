@@ -1,7 +1,7 @@
 #include "Loader.h"
 
 #include <memory>
-
+#include <DirectXMath.h>
 
 #include "spdlog/spdlog.h"
 
@@ -13,16 +13,26 @@
 
 #include "Rendering/Mesh.h"
 
+using namespace DirectX;
+
 struct Offset {
-	Offset(float asx, float asy, float asz, float atx, float aty, float atz) {
+	Offset(float asx, float asy, float asz, float atx, float aty, float atz, float arx, float ary, float arz, float arw) {
 		sx = asx;
 		sy = asy;
 		sz = asz;
 		tx = atx;
 		ty = aty;
 		tz = atz;
+
+		rx = arx;
+		ry = ary;
+		rz = arz;
+		rw = arw;
 	}
 	Offset() {};
+	float osx = 1.f;
+	float osy = 1.f;
+	float osz = 1.f;
 
 	float sx = 1.f;
 	float sy = 1.f;
@@ -31,6 +41,11 @@ struct Offset {
 	float tx = 0.f;
 	float ty = 0.f;
 	float tz = 0.f;
+
+	float rx = 0.f;
+	float ry = 0.f;
+	float rz = 0.f;
+	float rw = 1.f;
 };
 
 tinygltf::Model TinyLoad(std::string name) {
@@ -105,16 +120,80 @@ std::vector<Offset> Offsets;
 		for (auto& primitive : mesh.primitives) {
 			if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
 				
+				//Scale
 				if (data.nodes[Index].scale.size() != 0) {
-					Offsets[Index].sx = data.nodes[Index].scale[0];
-					Offsets[Index].sy = data.nodes[Index].scale[1];
-					Offsets[Index].sz = data.nodes[Index].scale[2];
+					Offsets[Index].sx *= data.nodes[Index].scale[0];
+					Offsets[Index].sy *= data.nodes[Index].scale[1];
+					Offsets[Index].sz *= data.nodes[Index].scale[2];
+					for (auto c : data.nodes[Index].children) {
+
+						Offsets[c].tx *= Offsets[Index].sx;
+						Offsets[c].ty *= Offsets[Index].sy;
+						Offsets[c].tz *= Offsets[Index].sz;
+
+					}
 				}
+
+				//Rotations
+				if (data.nodes[Index].rotation.size() != 0) {
+					XMVECTOR IndR = XMVectorSet(data.nodes[Index].rotation[0], data.nodes[Index].rotation[1], data.nodes[Index].rotation[2], data.nodes[Index].rotation[3]);
+					XMVECTOR SourceR = XMQuaternionMultiply(
+						XMVectorSet(Offsets[Index].rx, Offsets[Index].ry, Offsets[Index].rz, Offsets[Index].rw), IndR
+						);
+						
+					Offsets[Index].rx = SourceR.m128_f32[0];
+					Offsets[Index].ry = SourceR.m128_f32[1];
+					Offsets[Index].rz = SourceR.m128_f32[2];
+					Offsets[Index].rw = SourceR.m128_f32[3];
+
+					//XMVECTOR LScale = XMVector3Rotate(XMVectorSet(Offsets[Index].sx, Offsets[Index].sy, Offsets[Index].sz, 0), XMQuaternionInverse(IndR));
+					//
+					//Offsets[Index].sx = LScale.m128_f32[0];
+					//Offsets[Index].sy = LScale.m128_f32[1];
+					//Offsets[Index].sz = LScale.m128_f32[2];
+
+					for (auto& c : data.nodes[Index].children) {
+						XMVECTOR TTransform = XMVector3Rotate(XMVectorSet(Offsets[c].tx, Offsets[c].ty, Offsets[c].tz, 0), SourceR);
+
+						Offsets[c].tx = TTransform.m128_f32[0];
+						Offsets[c].ty = TTransform.m128_f32[1];
+						Offsets[c].tz = TTransform.m128_f32[2];
+
+						SourceR = XMQuaternionMultiply(
+							XMVectorSet(Offsets[c].rx, Offsets[c].ry, Offsets[c].rz, Offsets[c].rw),
+							IndR);
+
+						Offsets[c].rx = SourceR.m128_f32[0];
+						Offsets[c].ry = SourceR.m128_f32[1];
+						Offsets[c].rz = SourceR.m128_f32[2];
+						Offsets[c].rw = SourceR.m128_f32[3];
+
+						Offsets[c].osx *= Offsets[Index].sx;
+						Offsets[c].osy *= Offsets[Index].sy;
+						Offsets[c].osz *= Offsets[Index].sz;
+
+						XMVECTOR TScale = XMVector3Rotate(XMVectorSet(Offsets[c].osx, Offsets[c].osy, Offsets[c].osz, 0), IndR); //, XMVectorSet(Offsets[c].rx, Offsets[c].ry, Offsets[c].rz, Offsets[c].rw));
+						
+						Offsets[c].osx = TScale.m128_f32[0];
+						Offsets[c].osy = TScale.m128_f32[1];
+						Offsets[c].osz = TScale.m128_f32[2];
+
+						
+					}
+				}
+
+				//Translation
 				if (data.nodes[Index].translation.size() != 0) {
-					Offsets[Index].tx = data.nodes[Index].translation[0];
-					Offsets[Index].ty = data.nodes[Index].translation[1];
-					Offsets[Index].tz = data.nodes[Index].translation[2];
+					Offsets[Index].tx += data.nodes[Index].translation[0];
+					Offsets[Index].ty += data.nodes[Index].translation[1];
+					Offsets[Index].tz += data.nodes[Index].translation[2];
+					for (auto c : data.nodes[Index].children) {
+						Offsets[c].tx += Offsets[Index].tx;
+						Offsets[c].ty += Offsets[Index].ty;
+						Offsets[c].tz += Offsets[Index].tz;
+					}
 				}
+
 
 
 				//ret.Indices = data.buffers[data.bufferViews[data.accessors[primitive.indices].bufferView].buffer].data;
@@ -172,8 +251,6 @@ std::vector<Offset> Offsets;
 		TotalSize += i.size();
 	}
 
-	//? INDICES NEED TO BE UPPED PER MESH, NOW EVERYTHING IS ONLY POINTING TO THE FIRST MESH!
-
 	ret.Indices.resize(TotalSize);
 	Index = 0;
 	unsigned int Part = 0;
@@ -198,13 +275,26 @@ std::vector<Offset> Offsets;
 	}
 	ret.Vertices.resize(TotalSize);
 
+
+	//for (auto& s : Offsets) {
+	//	s.sx *= 0.1f;
+	//	s.sy *= 0.1f;
+	//	s.sz *= 0.1f;
+	//}
+
+
 	Index = 0;
 	for(int j = 0; j < Positions.size(); j++) {
 		spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
 		for (int i = 0; i < Positions[j].size() / 3; i++) {	
-			ret.Vertices[Index].x = (Positions[j][i * 3]	 * Offsets[j].sx) + Offsets[j].tx;
-			ret.Vertices[Index].y = (Positions[j][i * 3 + 1] * Offsets[j].sy) + Offsets[j].ty;
-			ret.Vertices[Index].z = (Positions[j][i * 3 + 2] * Offsets[j].sz) + Offsets[j].tz;
+
+			XMVECTOR Pos = XMVectorSet(Positions[j][i * 3] * Offsets[j].sx, Positions[j][i * 3 + 1] * Offsets[j].sy, Positions[j][i * 3 + 2] * Offsets[j].sz, 0);
+			Pos = XMVector3Rotate(Pos, XMVectorSet(Offsets[j].rx, Offsets[j].ry, Offsets[j].rz, Offsets[j].rw));
+			Pos = XMVectorSet(Pos.m128_f32[0] * Offsets[j].osx, Pos.m128_f32[1] * Offsets[j].osy, Pos.m128_f32[2] * Offsets[j].osz, 0);
+
+			ret.Vertices[Index].x = (Pos.m128_f32[0] + Offsets[j].tx);
+			ret.Vertices[Index].y = (Pos.m128_f32[1] + Offsets[j].ty);
+			ret.Vertices[Index].z = (Pos.m128_f32[2] + Offsets[j].tz);
 
 			ret.Vertices[Index].nx = Normals[j][i * 3];
 			ret.Vertices[Index].ny = Normals[j][i * 3 + 1];

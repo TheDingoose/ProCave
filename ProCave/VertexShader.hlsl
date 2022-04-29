@@ -15,7 +15,7 @@ VS_OUTPUT main(float4 inPos : POSITION, float4 inNormal : NORMAL)
 	VS_OUTPUT output;
 
     output.Pos = mul(inPos, WVP);
-    //output.Pos.z = 0.1f;
+    output.Pos.z *= 0.01f;
     output.Color = abs(float4(inNormal.xyz, 1));
 
 	return output;

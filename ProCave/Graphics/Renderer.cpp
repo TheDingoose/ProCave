@@ -750,109 +750,109 @@ void Renderer::Draw()
 	}
 
 	//! NOW MARCHING CUBES :)
+	if (MarchCubeSettings::get()->GridSize != 0) {
+		//Set Shaders
+		d3d11DevCon->VSSetShader(CubeVS, 0, 0);
+		d3d11DevCon->PSSetShader(CubePS, 0, 0);
+		d3d11DevCon->GSSetShader(CubeGS, 0, 0);
 
-	//Set Shaders
-	d3d11DevCon->VSSetShader(CubeVS, 0, 0);
-	d3d11DevCon->PSSetShader(CubePS, 0, 0);
-	d3d11DevCon->GSSetShader(CubeGS, 0, 0);
+		//Set Primitive Topology
+		d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-	//Set Primitive Topology
-	d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+		//Set the Input Layouts
+		d3d11DevCon->IASetInputLayout(CubepointLayout);
 
-	//Set the Input Layouts
-	d3d11DevCon->IASetInputLayout(CubepointLayout);
-	
-	cbPerObj.WVP = XMMatrixTranspose(*VP);
-	cbPerObj.PlayerPos = *PlayerPos;
-	cbPerObj.Time = MarchCubeSettings::get()->Time;
+		cbPerObj.WVP = XMMatrixTranspose(*VP);
+		cbPerObj.PlayerPos = *PlayerPos;
+		cbPerObj.Time = MarchCubeSettings::get()->Time;
 
-	d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
-	d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-	d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
-	d3d11DevCon->UpdateSubresource(LightBuffer, 0, NULL, &Lights, 0, 0);
-	d3d11DevCon->PSSetConstantBuffers(1, 1, &LightBuffer);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+		d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
+		d3d11DevCon->UpdateSubresource(LightBuffer, 0, NULL, &Lights, 0, 0);
+		d3d11DevCon->PSSetConstantBuffers(1, 1, &LightBuffer);
 
-	d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[3]->m_TextureView);
-	d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[3]->m_SamplerState);
+		d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[3]->m_TextureView);
+		d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[3]->m_SamplerState);
 
-	d3d11DevCon->PSSetShaderResources(1, 1, &WorldTextures[4]->m_TextureView);
-	d3d11DevCon->PSSetSamplers(1, 1, &WorldTextures[4]->m_SamplerState);
+		d3d11DevCon->PSSetShaderResources(1, 1, &WorldTextures[4]->m_TextureView);
+		d3d11DevCon->PSSetSamplers(1, 1, &WorldTextures[4]->m_SamplerState);
 
-	d3d11DevCon->GSSetShaderResources(2, 1, &WorldTextures[5]->m_TextureView);
-	d3d11DevCon->GSSetSamplers(2, 1, &WorldTextures[5]->m_SamplerState);
-
-
-	XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
-	//We have to round the player position to a multiple of the cubesize
-	Player = GridRound(Player);
+		d3d11DevCon->GSSetShaderResources(2, 1, &WorldTextures[5]->m_TextureView);
+		d3d11DevCon->GSSetSamplers(2, 1, &WorldTextures[5]->m_SamplerState);
 
 
-	XMVECTOR Worker = XMVectorZero();
-	unsigned int Numb = 0;
-	unsigned int BuffNumb = 0;
-	//int GridSize = MarchCubeSettings::get()->GridSize;
-
-	//XMVECTOR DepthPos = XMVectorZero();
-	XMVECTOR PlayerXAngle = (XMVector4Transform(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), *PlayerTransform));
-	XMVECTOR PlayerYAngle = (XMVector4Transform(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), *PlayerTransform));
-	XMVECTOR PlayerZAngle = (XMVector4Transform(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), *PlayerTransform));
-	
-	XMVECTOR BehindCam = XMLoadFloat4(&cbPerObj.PlayerPos) - PlayerZAngle;
-
-	float CHalfHeight = /* 2.f * */ tan((0.4f * 3.14f) / 2.f) * (((float)MarchCubeSettings::get()->GridSize + 1.f) * cbPerObj.CubeSize); //Is this height or width?
-	float CHalfWidth = CHalfHeight * ((float)Width / (float)Height);
-
-	XMVECTOR FrontPoint	= Player + (float)MarchCubeSettings::get()->GridSize * PlayerZAngle;
-
-	XMVECTOR RightUpPoint	= FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
-	XMVECTOR RightDownPoint = FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
-	XMVECTOR LeftUpPoint	= FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
-	XMVECTOR LeftDownPoint	= FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
-
-	RightUpPoint = GridRound(RightUpPoint);
-	RightDownPoint = GridRound(RightDownPoint);
-	LeftUpPoint = GridRound(LeftUpPoint);
-	LeftDownPoint = GridRound(LeftDownPoint);
+		XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
+		//We have to round the player position to a multiple of the cubesize
+		Player = GridRound(Player);
 
 
+		XMVECTOR Worker = XMVectorZero();
+		unsigned int Numb = 0;
+		unsigned int BuffNumb = 0;
+		//int GridSize = MarchCubeSettings::get()->GridSize;
+
+		//XMVECTOR DepthPos = XMVectorZero();
+		XMVECTOR PlayerXAngle = (XMVector4Transform(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), *PlayerTransform));
+		XMVECTOR PlayerYAngle = (XMVector4Transform(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), *PlayerTransform));
+		XMVECTOR PlayerZAngle = (XMVector4Transform(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), *PlayerTransform));
+
+		XMVECTOR BehindCam = XMLoadFloat4(&cbPerObj.PlayerPos) - PlayerZAngle;
+
+		float CHalfHeight = /* 2.f * */ tan((0.4f * 3.14f) / 2.f) * (((float)MarchCubeSettings::get()->GridSize + 1.f) * cbPerObj.CubeSize); //Is this height or width?
+		float CHalfWidth = CHalfHeight * ((float)Width / (float)Height);
+
+		XMVECTOR FrontPoint = Player + (float)MarchCubeSettings::get()->GridSize * PlayerZAngle;
+
+		XMVECTOR RightUpPoint = FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
+		XMVECTOR RightDownPoint = FrontPoint + PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
+		XMVECTOR LeftUpPoint = FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * CHalfHeight;
+		XMVECTOR LeftDownPoint = FrontPoint + -PlayerXAngle * CHalfWidth + PlayerYAngle * -CHalfHeight;
+
+		RightUpPoint = GridRound(RightUpPoint);
+		RightDownPoint = GridRound(RightDownPoint);
+		LeftUpPoint = GridRound(LeftUpPoint);
+		LeftDownPoint = GridRound(LeftDownPoint);
 
 
-	XMVECTOR MinCube = XMVectorMin(BehindCam, XMVectorMin(RightUpPoint, XMVectorMin(RightDownPoint, XMVectorMin(LeftUpPoint, XMVectorMin(LeftDownPoint, XMVectorSplatInfinity())))));
-	XMVECTOR MaxCube = XMVectorMax(BehindCam, XMVectorMax(RightUpPoint, XMVectorMax(RightDownPoint, XMVectorMax(LeftUpPoint, XMVectorMax(LeftDownPoint, -XMVectorSplatInfinity())))));
-	MinCube = GridFloor(MinCube);
-	MaxCube = GridCeil(MaxCube);
-	//PlayerYAngle = PlayerYAngle * (cbPerObj.CubeSize / fabs(PlayerYAngle.m128_f32[1]));
-	//float SizeX = PlayerXAngle.m128_f32[0] * cbPerObj.CubeSize;
-	//float SizeY = PlayerXAngle.m128_f32[1] * cbPerObj.CubeSize;
-	//float SizeZ = PlayerXAngle.m128_f32[2] * cbPerObj.CubeSize;
 
-	std::vector<XMVECTOR> Points;
-	Points.resize(((int)fabs(MinCube.m128_f32[0] - MaxCube.m128_f32[0])) * ((int)fabs(MinCube.m128_f32[1] - MaxCube.m128_f32[1])));
-	for (float z = MinCube.m128_f32[2]; z < MaxCube.m128_f32[2]; z += cbPerObj.CubeSize) {
-	unsigned int NumPoints = 0;
-	for (float y = MinCube.m128_f32[1]; y < MaxCube.m128_f32[1]; y += cbPerObj.CubeSize) {
-		for (float x = MinCube.m128_f32[0]; x < MaxCube.m128_f32[0]; x += cbPerObj.CubeSize) {
-			
-			Points[NumPoints] = XMVectorSet(x, y, z, 0);
-			NumPoints++;
+
+		XMVECTOR MinCube = XMVectorMin(BehindCam, XMVectorMin(RightUpPoint, XMVectorMin(RightDownPoint, XMVectorMin(LeftUpPoint, XMVectorMin(LeftDownPoint, XMVectorSplatInfinity())))));
+		XMVECTOR MaxCube = XMVectorMax(BehindCam, XMVectorMax(RightUpPoint, XMVectorMax(RightDownPoint, XMVectorMax(LeftUpPoint, XMVectorMax(LeftDownPoint, -XMVectorSplatInfinity())))));
+		MinCube = GridFloor(MinCube);
+		MaxCube = GridCeil(MaxCube);
+		//PlayerYAngle = PlayerYAngle * (cbPerObj.CubeSize / fabs(PlayerYAngle.m128_f32[1]));
+		//float SizeX = PlayerXAngle.m128_f32[0] * cbPerObj.CubeSize;
+		//float SizeY = PlayerXAngle.m128_f32[1] * cbPerObj.CubeSize;
+		//float SizeZ = PlayerXAngle.m128_f32[2] * cbPerObj.CubeSize;
+
+		std::vector<XMVECTOR> Points;
+		Points.resize(((int)fabs(MinCube.m128_f32[0] - MaxCube.m128_f32[0])) * ((int)fabs(MinCube.m128_f32[1] - MaxCube.m128_f32[1])));
+		for (float z = MinCube.m128_f32[2]; z < MaxCube.m128_f32[2]; z += cbPerObj.CubeSize) {
+			unsigned int NumPoints = 0;
+			for (float y = MinCube.m128_f32[1]; y < MaxCube.m128_f32[1]; y += cbPerObj.CubeSize) {
+				for (float x = MinCube.m128_f32[0]; x < MaxCube.m128_f32[0]; x += cbPerObj.CubeSize) {
+
+					Points[NumPoints] = XMVectorSet(x, y, z, 0);
+					NumPoints++;
+				}
+			}
+
+			//Send them!
+			D3D11_MAPPED_SUBRESOURCE BufferData;
+			ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+			HRESULT hr = d3d11DevCon->Map(CubePosiBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
+			//CheckError(hr, "Swap texture on noise regenerate");
+
+			memcpy(BufferData.pData, &Points[0], sizeof(XMVECTOR) * NumPoints);
+
+			Renderer::get()->d3d11DevCon->Unmap(CubePosiBuffer, 0);
+
+			d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosiBuffer, &CubeStride, &CubeOffset);
+
+			d3d11DevCon->Draw(NumPoints, 0);
 		}
 	}
-
-	//Send them!
-	D3D11_MAPPED_SUBRESOURCE BufferData;
-	ZeroMemory(&BufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
-	HRESULT hr = d3d11DevCon->Map(CubePosiBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &BufferData);
-	//CheckError(hr, "Swap texture on noise regenerate");
-
-	memcpy(BufferData.pData, &Points[0], sizeof(XMVECTOR) * NumPoints);
-
-	Renderer::get()->d3d11DevCon->Unmap(CubePosiBuffer, 0);
-
-	d3d11DevCon->IASetVertexBuffers(0, 1, &CubePosiBuffer, &CubeStride, &CubeOffset);
-
-	d3d11DevCon->Draw(NumPoints, 0);
-	}
-
 
 	//! Collision Debug Draw!	
 	

@@ -88,12 +88,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     //#LOADRESOURCES 
     Game.Load();
     
-    float LastTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    float Calcer;
+    long long LastTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    long long Calcer;
     //#TICK
     while (!Game.Shutdown) {
         Calcer = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-        Deltatime = fmin((Calcer - LastTime) / 1000.f, 0.016f);
+        Deltatime = fmin(float(Calcer - LastTime) / 1000.f, 0.016f);
         LastTime = Calcer;
 
         GaInput->Update();

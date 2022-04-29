@@ -46,14 +46,16 @@ RigidBody* Testbody;
 void BaseApp::Load()
 {
 
-	//Vector3 position(0, 20, 0);
-	//Quaternion orientation = Quaternion::identity();
-	//Transform transformm(position, orientation);
+	Vector3 position(0, 20, 0);
+	Quaternion orientation = Quaternion::identity();
+	Transform transform(position, orientation);
 	//RigidBody* body = world->createRigidBody(transformm);
 
-	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
-
+	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Oblongs.glb"));
 	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(2.f, -10.f, 8.f, 0.f);
+
+	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
+	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(5.f, -10.f, 8.f, 0.f);
 
 	//std::vector<Vertex> v =
 	//{

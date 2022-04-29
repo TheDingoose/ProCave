@@ -92,6 +92,13 @@ float permute(float x)
     );
 }
 
+float3 permute(float3 x)
+{
+    return mod289(
+		x * x * 34.0 + x
+	);
+}
+
 float4 permute(float4 x)
 {
     return mod289(
@@ -125,6 +132,170 @@ float4 grad4(float j, float4 ip)
 	
     return p;
 }
+
+// ----------------------------------- 2D -------------------------------------
+
+float snoise(float2 v)
+{
+    const float4 C = float4(
+		0.211324865405187, // (3.0-sqrt(3.0))/6.0
+		0.366025403784439, // 0.5*(sqrt(3.0)-1.0)
+	 -0.577350269189626, // -1.0 + 2.0 * C.x
+		0.024390243902439 // 1.0 / 41.0
+	);
+	
+// First corner
+    float2 i = floor(v + dot(v, C.yy));
+    float2 x0 = v - i + dot(i, C.xx);
+	
+// Other corners
+	// float2 i1 = (x0.x > x0.y) ? float2(1.0, 0.0) : float2(0.0, 1.0);
+	// Lex-DRL: afaik, step() in GPU is faster than if(), so:
+	// step(x, y) = x <= y
+	
+	// Actually, a simple conditional without branching is faster than that madness :)
+    int2 i1 = (x0.x > x0.y) ? float2(1.0, 0.0) : float2(0.0, 1.0);
+    float4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+	
+// Permutations
+    i = mod289(i); // Avoid truncation effects in permutation
+    float3 p = permute(
+		permute(
+				i.y + float3(0.0, i1.y, 1.0)
+		) + i.x + float3(0.0, i1.x, 1.0)
+	);
+	
+    float3 m = max(
+		0.5 - float3(
+			dot(x0, x0),
+			dot(x12.xy, x12.xy),
+			dot(x12.zw, x12.zw)
+		),
+		0.0
+	);
+    m = m * m;
+    m = m * m;
+	
+// Gradients: 41 points uniformly over a line, mapped onto a diamond.
+// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
+	
+    float3 x = 2.0 * frac(p * C.www) - 1.0;
+    float3 h = abs(x) - 0.5;
+    float3 ox = floor(x + 0.5);
+    float3 a0 = x - ox;
+
+// Normalise gradients implicitly by scaling m
+// Approximation of: m *= inversesqrt( a0*a0 + h*h );
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+
+// Compute final noise value at P
+    float3 g;
+    g.x = a0.x * x0.x + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
+
+// ----------------------------------- 3D -------------------------------------
+
+float snoise(float3 v)
+{
+    const float2 C = float2(
+		0.166666666666666667, // 1/6
+		0.333333333333333333 // 1/3
+	);
+    const float4 D = float4(0.0, 0.5, 1.0, 2.0);
+	
+// First corner
+    float3 i = floor(v + dot(v, C.yyy));
+    float3 x0 = v - i + dot(i, C.xxx);
+	
+// Other corners
+    float3 g = step(x0.yzx, x0.xyz);
+    float3 l = 1 - g;
+    float3 i1 = min(g.xyz, l.zxy);
+    float3 i2 = max(g.xyz, l.zxy);
+	
+    float3 x1 = x0 - i1 + C.xxx;
+    float3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y
+    float3 x3 = x0 - D.yyy; // -1.0+3.0*C.x = -0.5 = -D.y
+	
+// Permutations
+    i = mod289(i);
+    float4 p = permute(
+		permute(
+			permute(
+					i.z + float4(0.0, i1.z, i2.z, 1.0)
+			) + i.y + float4(0.0, i1.y, i2.y, 1.0)
+		) + i.x + float4(0.0, i1.x, i2.x, 1.0)
+	);
+	
+// Gradients: 7x7 points over a square, mapped onto an octahedron.
+// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+    float n_ = 0.142857142857; // 1/7
+    float3 ns = n_ * D.wyz - D.xzx;
+	
+    float4 j = p - 49.0 * floor(p * ns.z * ns.z); // mod(p,7*7)
+	
+    float4 x_ = floor(j * ns.z);
+    float4 y_ = floor(j - 7.0 * x_); // mod(j,N)
+	
+    float4 x = x_ * ns.x + ns.yyyy;
+    float4 y = y_ * ns.x + ns.yyyy;
+    float4 h = 1.0 - abs(x) - abs(y);
+	
+    float4 b0 = float4(x.xy, y.xy);
+    float4 b1 = float4(x.zw, y.zw);
+	
+	//float4 s0 = float4(lessThan(b0,0.0))*2.0 - 1.0;
+	//float4 s1 = float4(lessThan(b1,0.0))*2.0 - 1.0;
+    float4 s0 = floor(b0) * 2.0 + 1.0;
+    float4 s1 = floor(b1) * 2.0 + 1.0;
+    float4 sh = -step(h, 0.0);
+	
+    float4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+    float4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+	
+    float3 p0 = float3(a0.xy, h.x);
+    float3 p1 = float3(a0.zw, h.y);
+    float3 p2 = float3(a1.xy, h.z);
+    float3 p3 = float3(a1.zw, h.w);
+	
+//Normalise gradients
+    float4 norm = rsqrt(float4(
+		dot(p0, p0),
+		dot(p1, p1),
+		dot(p2, p2),
+		dot(p3, p3)
+	));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
+	
+// Mix final noise value
+    float4 m = max(
+		0.6 - float4(
+			dot(x0, x0),
+			dot(x1, x1),
+			dot(x2, x2),
+			dot(x3, x3)
+		),
+		0.0
+	);
+    m = m * m;
+    return 42.0 * dot(
+		m * m,
+		float4(
+			dot(p0, x0),
+			dot(p1, x1),
+			dot(p2, x2),
+			dot(p3, x3)
+		)
+	);
+}
+
+// ----------------------------------- 4D -------------------------------------
 
 float snoise(float4 v)
 {
@@ -278,94 +449,122 @@ float lerp(float min, float max, float t)
 }
 //------------------------------------------------------------------------------------------
 
-Texture2D shaderTexture;
-SamplerState SampleType;
+float Sample4(float4 pos)
+{
+    
+    //float3 warp = 0; 
+    //
+    //warp.x = snoise(pos.xyz * 0.01);
+    //warp.y = snoise(pos.xyz * 0.01);
+    //warp.z = snoise(pos.xyz * 0.01);
+    //pos.xyz += warp * 8;
+    
+    return snoise(pos);
+    
+   // return (snoise(pos) + snoise(float4(pos.xyz * 10, pos.w)) * 0.1 + snoise(pos * 0.1) * 0.5);
+};
+
+    Texture2D shaderTexture;
+    SamplerState SampleType;
 
 [maxvertexcount(15)]
-void main(
-	point float4 input[1] : SV_POSITION, 
-	inout TriangleStream< GS_Output > output
+
+    void main
+    (
+	point
+    float4 input[1] : SV_POSITION,
+	inout
+    TriangleStream<GS_Output> output
 )
 {
     
     
     
 
-    GS_Output element;
-    element.Normal = 1.f;
+        GS_Output element;
+        element.Normal = 1.f;
     //PERLIN TIME
-    float MCSized2 = CubeSize / 2.f;
+        float MCSized2 = CubeSize / 2.f;
     
-    element.Color = float4(0.37f, 0.18f, 0.56f, 1.f);
+        element.Color = float4(0.37f, 0.18f, 0.56f, 1.f);
     
-    float Distance = distance(PlayerPos, input[0]); 
-    if (Distance < LightStrength)
-    {
-        Distance = (LightStrength - Distance) / LightStrength;
+        float Distance = distance(PlayerPos, input[0]);
+        if (Distance < LightStrength)
+        {
+            Distance = (LightStrength - Distance) / LightStrength;
 
-        element.Color = max(float4(0.92f * Distance, 0.45f * Distance, 0.15f * Distance, 1.f), element.Color);
-    }
-    float Samples[8];
+            element.Color = max(float4(0.92f * Distance, 0.45f * Distance, 0.15f * Distance, 1.f), element.Color);
+        }
+        float Samples[8];
     
-    Samples[0] = snoise(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[1] = snoise(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[2] = snoise(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[3] = snoise(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[4] = snoise(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[5] = snoise(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[6] = snoise(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-    Samples[7] = snoise(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[0] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[1] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[2] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[3] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[4] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[5] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[6] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[7] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
     
         unsigned int CubeIndex = 0;
-    if (Samples[0] < DensityLimit)
-        CubeIndex |= 1;           
-    if (Samples[1] < DensityLimit)
-        CubeIndex |= 2;           
-    if (Samples[2] < DensityLimit)
-        CubeIndex |= 4;           
-    if (Samples[3] < DensityLimit)
-        CubeIndex |= 8;           
-    if (Samples[4] < DensityLimit)
-        CubeIndex |= 16;          
-    if (Samples[5] < DensityLimit)
-        CubeIndex |= 32;          
-    if (Samples[6] < DensityLimit)
-        CubeIndex |= 64;          
-    if (Samples[7] < DensityLimit)
-        CubeIndex |= 128;
+        if (Samples[0] < DensityLimit)
+            CubeIndex |= 1;
+        if (Samples[1] < DensityLimit)
+            CubeIndex |= 2;
+        if (Samples[2] < DensityLimit)
+            CubeIndex |= 4;
+        if (Samples[3] < DensityLimit)
+            CubeIndex |= 8;
+        if (Samples[4] < DensityLimit)
+            CubeIndex |= 16;
+        if (Samples[5] < DensityLimit)
+            CubeIndex |= 32;
+        if (Samples[6] < DensityLimit)
+            CubeIndex |= 64;
+        if (Samples[7] < DensityLimit)
+            CubeIndex |= 128;
     
-    if (CubeIndex == 0 || CubeIndex == 255)
-        return;
+        if (CubeIndex == 0 || CubeIndex == 255)
+            return;
     
-   int ntriang = 0;
-   float Adapt = 0.f;
-    for (int i = 0; round(triTable[CubeIndex * 16 + i].x) != -1 && !(i >= 16); i++)
-   {
-        int Corners[2] = EdgeCornerTable[triTable[CubeIndex * 16 + i]];
+        int ntriang = 0;
+        float Adapt = 0.f;
+        for (int i = 0; round(triTable[CubeIndex * 16 + i].x) != -1 && !(i >= 16); i++)
+        {
+            int Corners[2] = EdgeCornerTable[triTable[CubeIndex * 16 + i]];
 
-        float t = (0 - Samples[Corners[0]]) / (Samples[Corners[1]] - Samples[Corners[0]]);
+            float t = (0 - Samples[Corners[0]]) / (Samples[Corners[1]] - Samples[Corners[0]]);
         //float t = 0.5f;
-        element.pos = input[0] + float4(((CornerPosTable[Corners[0]] * MCSized2) + (t * ((CornerPosTable[Corners[1]] - CornerPosTable[Corners[0]]) * MCSized2))), 0.f);
+            element.pos = input[0] + float4(((CornerPosTable[Corners[0]] * MCSized2) + (t * ((CornerPosTable[Corners[1]] - CornerPosTable[Corners[0]]) * MCSized2))), 0.f);
       
        //Normal calculation!
-        element.Normal.x = snoise(float4(((element.pos.x - NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
-        - snoise(float4(((element.pos.x + NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        element.Normal.y = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
-        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y + NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        element.Normal.z = snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
-        - snoise(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        element.Normal.w = 0.f;
-        element.Normal.xyz = normalize(-element.Normal.xyz);
-        element.Color = element.pos;
-            
+            element.Normal.x = Sample4(float4(((element.pos.x - NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - Sample4(float4(((element.pos.x + NormalSampleDistance - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.y = Sample4(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - Sample4(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y + NormalSampleDistance - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        element.Normal.z = Sample4(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z - NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w))
+        - Sample4(float4(((element.pos.x - MCSized2) + SampleOffset.x) * SampleMod.x, ((element.pos.y - MCSized2) + SampleOffset.y) * SampleMod.y, ((element.pos.z + NormalSampleDistance + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+            element.Normal.w = 0.f;
+            element.Normal.xyz = normalize(-element.Normal.xyz);
+            element.Color = element.pos;
+         
+        // Further perturb normal vector by a few octaves of procedural noise. 
+       //float3 v = 0; 
+       //v += snoise(element.pos.xyz * 3.97) * 1.00;
+       //v += snoise(element.pos.xyz * 8.06) * 0.50;
+       //v += snoise(element.pos.xyz * 15.96) * 0.25;
+       //element.Normal.xyz = normalize(element.Normal.xyz + v);
+       //element.Normal.w = 0.f;
+        
+        
         //element.pos.x += element.pos.x * element.Normal.x * shaderTexture.Sample(SampleType, element.pos.yz * 0.05) * Weights.x;
         //element.pos.y += element.pos.y * element.Normal.y * shaderTexture.Sample(SampleType, element.pos.zx * 0.05) * Weights.y;
         //element.pos.z += element.pos.z * element.Normal.z * shaderTexture.Sample(SampleType, element.pos.xy * 0.05) * Weights.z;
         
        // element.pos += element.pos * element.Normal * shaderTexture.Sample(SampleType, input.Color.yz * 0.05) * Weights.x)
         
-       element.pos = mul(element.pos, WVP);
-       output.Append(element);
+            element.pos = mul(element.pos, WVP);
+            output.Append(element);
      //  output.RestartStrip();
-   }
-}
+        }
+    }
