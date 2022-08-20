@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="Collision\EnvironmentCollider.h" />
     <ClInclude Include="Raccoon\Raccoon.h" />
+    <ClInclude Include="Collision\ReactHelper.h" />
     <ClInclude Include="Rendering\Camera.h" />
     <ClInclude Include="General\Transform.h" />
     <ClInclude Include="Rendering\DevUI.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Collision\EnvironmentCollider.cpp" />
     <ClCompile Include="General\Transform.cpp" />
     <ClCompile Include="Raccoon\Raccoon.cpp" />
+    <ClCompile Include="Collision\ReactHelper.cpp" />
     <ClCompile Include="Rendering\Camera.cpp" />
     <ClCompile Include="Tools\Loader.cpp" />
     <ClCompile Include="Rendering\Texture.cpp" />

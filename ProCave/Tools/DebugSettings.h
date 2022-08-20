@@ -14,7 +14,7 @@ public:
 
 	void Draw() override;
 
-	bool DrawPhysicsDebug = false;
+	bool DrawPhysicsDebug = true;
 
 private:
 	DebugSettings() { Name = "DebugSettings"; };

@@ -103,6 +103,191 @@ std::vector<DWORD> ReadDataAsDWORD(std::vector<unsigned char>& data) {
 };
 
 
+
+
+Mesh Loader::LoadStatic(std::string name) {
+	Mesh ret;
+	std::vector<std::vector<unsigned short>> Indices;
+	std::vector<std::vector<float>> Positions;
+	std::vector<std::vector<float>> Normals;
+	//std::vector<Offset> Offsets;
+	std::vector<XMMATRIX> TransformMatrix;
+
+	tinygltf::Model data = TinyLoad(name);
+	//now that we have the file loaded we need to stitch all the data together into only what we need for a static mesh;
+
+
+
+	Indices.resize(data.nodes.size());
+	Positions.resize(data.nodes.size());
+	Normals.resize(data.nodes.size());
+	TransformMatrix.resize(data.nodes.size());
+
+
+
+	for(auto& i: TransformMatrix) {
+		i = XMMatrixIdentity();
+	}
+
+
+	XMMATRIX SizeMatrix = XMMatrixIdentity();
+	XMMATRIX RotationMatrix = XMMatrixIdentity();
+	XMMATRIX TranslationMatrix = XMMatrixIdentity();
+
+
+	unsigned int Index = 0;
+	for (auto& node : data.nodes) {
+		SizeMatrix = XMMatrixIdentity();
+		RotationMatrix = XMMatrixIdentity();
+		TranslationMatrix = XMMatrixIdentity();
+
+		
+		//Scale
+		if (data.nodes[Index].scale.size() != 0) {
+			SizeMatrix = XMMatrixScaling(data.nodes[Index].scale[0], data.nodes[Index].scale[1], data.nodes[Index].scale[2]);
+
+		}
+
+		//Rotations
+		if (data.nodes[Index].rotation.size() != 0) {
+			//RotationMatrix = XMMatrixRotationRollPitchYaw(data.nodes[Index].rotation[0], data.nodes[Index].rotation[1], data.nodes[Index].rotation[2]);
+			RotationMatrix = XMMatrixRotationQuaternion(XMVectorSet(data.nodes[Index].rotation[0], data.nodes[Index].rotation[1], data.nodes[Index].rotation[2], data.nodes[Index].rotation[3]));
+
+		}
+
+		//Translation
+		if (data.nodes[Index].translation.size() != 0) {
+			TranslationMatrix = XMMatrixTranslation(data.nodes[Index].translation[0], data.nodes[Index].translation[1], data.nodes[Index].translation[2]);
+		}
+
+		TransformMatrix[Index] = (SizeMatrix * RotationMatrix * TranslationMatrix) * TransformMatrix[Index];
+
+		for (auto i : data.nodes[Index].children) {
+			TransformMatrix[i] = TransformMatrix[i] * TransformMatrix[Index];
+		}
+
+		if (node.mesh != - 1) {
+			for (auto& primitive : data.meshes[node.mesh].primitives) {
+				if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
+
+
+
+
+					//ret.Indices = data.buffers[data.bufferViews[data.accessors[primitive.indices].bufferView].buffer].data;
+					Indices[Index] = (ReadDataAsUnsignedShort(data.buffers[data.bufferViews[data.accessors[primitive.indices].bufferView].buffer].data
+						, data.bufferViews[data.accessors[primitive.indices].bufferView].byteOffset,
+						data.accessors[primitive.indices].count
+					));
+					//ret.Indices.assign(Ind.begin(), Ind.end());
+					//ret.Indices.assign()
+					for (auto& attribute : primitive.attributes) {
+						if (attribute.first == "POSITION") {//is this a position buffer?
+							//add this buffer to the Model
+
+							spdlog::info("Load Positions");
+
+							//? Make into a function that receives only data and the relevant accessor.
+							Positions[Index] = (ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
+								, data.bufferViews[data.accessors[attribute.second].bufferView].byteOffset,
+								data.accessors[attribute.second].count * 3
+							));
+
+
+							data.accessors[attribute.second];
+						}
+						else if (attribute.first == "NORMAL") {//is this a normal buffer?
+
+							spdlog::info("Load Normals");
+							//? Make into a function that receives only data and the relevant accessor.
+							Normals[Index] = (ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
+								, data.bufferViews[data.accessors[attribute.second].bufferView].byteOffset,
+								data.accessors[attribute.second].count * 3
+							));
+
+						}
+
+					}
+				}
+				else {
+					spdlog::error("This model is not in simple triangles!: %s", name.c_str());
+				}
+			}
+		}
+		Index++;
+	}
+
+	for (auto i : ret.Indices) {
+		spdlog::info("Index?: {0:d}", i);
+	}
+
+	//spdlog::info("Now Vertices");
+	//ret.Vertices.reserve(Positions.size() / 3);
+
+	//What is the total size?
+	unsigned int TotalSize = 0;
+	for (auto& i : Indices) {
+		TotalSize += i.size();
+	}
+
+	ret.Indices.resize(TotalSize);
+	Index = 0;
+	unsigned int Part = 0;
+	for (int j = 0; j < Indices.size(); j++) {
+		spdlog::info("Loaded mesh Indices {0:d} of size: {1:d}", j, Indices[j].size());
+		for (int i = 0; i < Indices[j].size(); i++) {
+			ret.Indices[Index] = (Indices[j][i]) + Part;
+			Index++;
+		}
+		Part += (Positions[j].size() / 3);
+		spdlog::info("Posses: {0:d}", Part);
+	}
+
+
+	for (int i = 0; i < ret.Indices.size(); i += 100) {
+		spdlog::info("Indss: {0:d}", ret.Indices[i]);
+	}
+
+	TotalSize = 0;
+	for (auto& i : Positions) {
+		TotalSize += i.size();
+	}
+	ret.Vertices.resize(TotalSize);
+
+
+	//for (auto& s : Offsets) {
+	//	s.sx *= 0.1f;
+	//	s.sy *= 0.1f;
+	//	s.sz *= 0.1f;
+	//}
+
+
+	Index = 0;
+	for (int j = 0; j < Positions.size(); j++) {
+		spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
+		for (int i = 0; i < Positions[j].size() / 3; i++) {
+
+			XMVECTOR Pos = XMVectorSet(Positions[j][i * 3], Positions[j][i * 3 + 1], Positions[j][i * 3 + 2], 0);
+			Pos = XMVector3Transform(Pos, TransformMatrix[j]);
+
+			ret.Vertices[Index].x = (Pos.m128_f32[0]);
+			ret.Vertices[Index].y = (Pos.m128_f32[1]);
+			ret.Vertices[Index].z = (Pos.m128_f32[2]);
+
+			ret.Vertices[Index].nx = Normals[j][i * 3];
+			ret.Vertices[Index].ny = Normals[j][i * 3 + 1];
+			ret.Vertices[Index].nz = Normals[j][i * 3 + 2];
+			Index++;
+		}
+	}
+
+	//for (auto i : ret.Vertices) {
+	//	spdlog::info("Positions: {:03.2f}, {:03.2f}, {:03.2f} ||| Normals: {:03.2f}, {:03.2f}, {:03.2f}", i.x, i.y, i.z, i.nx, i.ny, i.nz);
+	//}
+	spdlog::info("FinalVertices {0:d}", ret.Vertices.size());
+
+	return ret;
+}
+/*
 Mesh Loader::LoadStatic(std::string name) {
 Mesh ret;
 std::vector<std::vector<unsigned short>> Indices;
@@ -310,3 +495,4 @@ std::vector<Offset> Offsets;
 
 	return ret;
 }
+*/

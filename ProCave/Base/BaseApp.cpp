@@ -15,6 +15,9 @@
 #include "Tools/MarchCubeSettings.h"
 
 #include "tinygltf/tiny_gltf.h"
+
+#include "Collision/ReactHelper.h"
+
 BaseApp::BaseApp()
 {
 }
@@ -51,10 +54,10 @@ void BaseApp::Load()
 	Transform transform(position, orientation);
 	//RigidBody* body = world->createRigidBody(transformm);
 
-	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Oblongs.glb"));
+	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
 	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(2.f, -10.f, 8.f, 0.f);
 
-	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
+	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Creeper.glb"));
 	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(5.f, -10.f, 8.f, 0.f);
 
 	//std::vector<Vertex> v =
@@ -269,6 +272,8 @@ void BaseApp::Tick(float Deltatime)
 
 		EnvCollision->Colliders.push_back(EnvironmentCollider(Lights[Lights.size() - 1]->CollisionBody, 0.5f));
 
+		//Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
+
 	}
 
 	EnvCollision->MakeCollide();
@@ -299,11 +304,11 @@ void BaseApp::Tick(float Deltatime)
 
 	std::vector<XMVECTOR> LightPosses;
 	for (int i = 0; i < Lights.size(); i++) {
-		LightPosses.push_back(XMVectorSet(
-			Lights[i]->CollisionBody->getTransform().getPosition().x,
-			Lights[i]->CollisionBody->getTransform().getPosition().y,
-			Lights[i]->CollisionBody->getTransform().getPosition().z,
-			0.f));
+		LightPosses.push_back(GetRePhyTranslation(Lights[i]->CollisionBody->getTransform()));
+		
+		//XMStoreFloat4(&Renderer::get()->Models[i].Transform.Translation, GetRePhyTranslation(Lights[i]->CollisionBody->getTransform()));
+		//XMStoreFloat4(&Renderer::get()->Models[i].Transform.Rotation, GetRePhyRotation(Lights[i]->CollisionBody->getTransform()));
+		//Renderer::get()->Models[i].Transform.UpdateMatrix();
 	}
 
 	Renderer::get()->SetLights(LightPosses);

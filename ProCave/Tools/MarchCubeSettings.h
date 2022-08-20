@@ -20,7 +20,7 @@ public:
 	void Draw() override;
 
 	float CubeSize = 2.f;
-	unsigned int GridSize = 18;
+	unsigned int GridSize = 18; //18
 	float LightStrength = 28.f;
 	float PlayerLightStrength = 5.f;
 	XMFLOAT4 SampleMod = XMFLOAT4(0.05f, 0.05f, 0.05f, 0.01f);
@@ -33,10 +33,11 @@ public:
 	float TextureBlendHeightStrength = 0.5f;
 	float FogDistanceNear = 29.f;
 	float FogDistance = 35.f;
-	XMFLOAT4 FogColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.f);;
+	//XMFLOAT4 FogColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.f);
+	XMFLOAT4 FogColor = XMFLOAT4(.430f, .440f, .420f, 1.f);
 	XMFLOAT4 PlayerLightColor = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
-	XMFLOAT4 LightColor = XMFLOAT4(1.f, 1.f, 1.f, 1.f);;
-	
+	XMFLOAT4 LightColor = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+
 
 private:
 	MarchCubeSettings();

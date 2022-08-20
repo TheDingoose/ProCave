@@ -477,10 +477,6 @@ float Sample4(float4 pos)
     TriangleStream<GS_Output> output
 )
 {
-    
-    
-    
-
         GS_Output element;
         element.Normal = 1.f;
     //PERLIN TIME
