@@ -197,6 +197,7 @@
     <ClInclude Include="Tools\Loader.h" />
     <ClInclude Include="Rendering\Mesh.h" />
     <ClInclude Include="Rendering\Texture.h" />
+    <ClInclude Include="General\UpdateObject.h" />
     <ClInclude Include="User\Input.h" />
     <ClInclude Include="Rendering\Vertex.h" />
   </ItemGroup>

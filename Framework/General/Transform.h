@@ -1,13 +1,11 @@
 #pragma once
 #include <DirectXMath.h>
 
-//#include "flecs/flecs.h"
-
 using namespace DirectX;
 
 struct cTransform {
 	XMFLOAT4 Translation = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
-	XMFLOAT4 Size = XMFLOAT4(1.f, 1.f, 1.f, 0.f);
+	XMFLOAT4 Scale = XMFLOAT4(1.f, 1.f, 1.f, 0.f);
 	XMFLOAT4 Rotation = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
 
 	XMMATRIX Transform;
@@ -17,17 +15,22 @@ struct cTransform {
 		//s*r*t
 		
 		//XMMATRIX SizeMat(
-		//	XMVectorGetX(Size), 0.f, 0.f, 0.f,
-		//	0.f, XMVectorGetY(Size), 0.f, 0.f,
-		//	0.f, 0.f, XMVectorGetZ(Size), 0.f,
+		//	XMVectorGetX(Scale), 0.f, 0.f, 0.f,
+		//	0.f, XMVectorGetY(Scale), 0.f, 0.f,
+		//	0.f, 0.f, XMVectorGetZ(Scale), 0.f,
 		//	0.f, 0.f, 0.f, 0.f);
 		//
 		//XMMATRIX RotMat = XMMatrixRotationRollPitchYawFromVector(Rotation);
 		
 		Transform = 
-			XMMatrixScalingFromVector(XMLoadFloat4(&Size)) * 
+			XMMatrixScalingFromVector(XMLoadFloat4(&Scale)) * 
 			XMMatrixRotationRollPitchYawFromVector(XMLoadFloat4(&Rotation)) *
 			XMMatrixTranslationFromVector(XMLoadFloat4(&Translation));
+
+		//Transform =
+		//	XMMatrixTranslationFromVector(XMLoadFloat4(&Translation)) *
+		//	XMMatrixRotationRollPitchYawFromVector(XMLoadFloat4(&Rotation)) *
+		//	XMMatrixScalingFromVector(XMLoadFloat4(&Scale));
 	}
 };
 

@@ -39,10 +39,10 @@ DirectX::XMVECTOR GetRePhyRotation(reactphysics3d::Transform transform)
 	//
 	//XmmatrixRotationXMMatrixRotationQuaternion()
 	
-	//float heading;
-	//float attitude;
-	//float bank;
-	//
+	float heading;
+	float attitude;
+	float bank;
+	
 	//float t = Quat.m128_f32[0] * Quat.m128_f32[1] + Quat.m128_f32[2] * Quat.m128_f32[3];
 	//if (t > 0.4999f) {
 	//	heading = 2 * atan2(Quat.m128_f32[0], Quat.m128_f32[3]);
@@ -67,9 +67,9 @@ DirectX::XMVECTOR GetRePhyRotation(reactphysics3d::Transform transform)
 	//return XMVectorSet(attitude, heading, bank,  0.f);
 	
 	
-	const auto x = Quat.m128_f32[1];
-	const auto y = Quat.m128_f32[2];
-	const auto z = Quat.m128_f32[0];
+	const auto x = Quat.m128_f32[0];
+	const auto y = Quat.m128_f32[1];
+	const auto z = Quat.m128_f32[2];
 	const auto w = Quat.m128_f32[3];
 
 
@@ -89,8 +89,8 @@ DirectX::XMVECTOR GetRePhyRotation(reactphysics3d::Transform transform)
 		float m22 = 1.f - 2.f * xx - 2.f * zz;
 
 		return XMVectorSet(cx, atan2f(m31, m33), atan2f(m12, m22), 0.f);
-		
-		
+
+
 	}
 	else
 	{
@@ -98,8 +98,8 @@ DirectX::XMVECTOR GetRePhyRotation(reactphysics3d::Transform transform)
 		float m21 = 2.f * x * y - 2.f * z * w;
 
 		return XMVectorSet(cx, 0.f, atan2f(-m21, m11), 0.f);
-		
-		
+
+
 	}
 
 

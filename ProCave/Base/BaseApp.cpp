@@ -54,82 +54,12 @@ void BaseApp::Load()
 	Transform transform(position, orientation);
 	//RigidBody* body = world->createRigidBody(transformm);
 
-	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
-	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(2.f, -10.f, 8.f, 0.f);
+	//Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/BadCrymstalTest.glb"));
+	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(2.f, -10.f, 8.f, 0.f);
+	//
+	//Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Creeper.glb"));
+	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(5.f, -10.f, 8.f, 0.f);
 
-	Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Creeper.glb"));
-	Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(5.f, -10.f, 8.f, 0.f);
-
-	//std::vector<Vertex> v =
-	//{
-	//	Vertex(-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-	//	Vertex(-1.0f, +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f),
-	//	Vertex(+1.0f, +1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-	//	Vertex(+1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f),
-	//	Vertex(-1.0f, -1.0f, +1.0f, 0.0f, 1.0f, 1.0f, 1.0f),
-	//	Vertex(-1.0f, +1.0f, +1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-	//	Vertex(+1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 1.0f, 1.0f),
-	//	Vertex(+1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 1.0f),
-	//};
-	//
-	//std::vector<DWORD> indices = {
-	//	// front face
-	//	0, 1, 2,
-	//	0, 2, 3,
-	//
-	//	// back face
-	//	4, 6, 5,
-	//	4, 7, 6,
-	//
-	//	// left face
-	//	4, 5, 1,
-	//	4, 1, 0,
-	//
-	//	// right face
-	//	3, 2, 6,
-	//	3, 6, 7,
-	//
-	//	// top face
-	//	1, 5, 6,
-	//	1, 6, 2,
-	//
-	//	// bottom face
-	//	4, 0, 3,
-	//	4, 3, 7
-	//};
-	//
-	//Model Coob(indices, v);
-	//
-	//Renderer::get()->InitializeModel(Coob);
-	//
-	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(0.f, 0.f, 5.f, 0.f);
-
-
-	//tinygltf::Model model;
-	//tinygltf::TinyGLTF loader;
-	//std::string err;
-	//std::string warn;
-	//std::string name = "../Assets/Model/box01.glb";
-	//
-	////bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, name);
-	//bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, name);
-	//
-	//if (!warn.empty()) {
-	//	spdlog::warn("%s\n", warn.c_str());
-	//}
-	//
-	//if (!err.empty()) {
-	//	spdlog::error("%s\n", err.c_str());
-	//}
-	//
-	//if (!ret) {
-	//	spdlog::error("Failed to parse glTF\n");
-	//}
-	//
-	////? Indices where?
-	////model.meshes[0].
-	//model.meshes[0].primitives[0].indices;
-	//spdlog::info(model.accessors[0].name);
 
 	//! THIS IS THE MARCHING CUBES
 	//float sizee = 10.f;
@@ -162,7 +92,7 @@ void BaseApp::Load()
 	//
 	//
 	//
-	//			Renderer::get()->InitializeModel(Model(Dud.Indices, Dud.Vertices));
+	//			Renderer::get()->InitializeMesh(Mesh(Dud.Indices, Dud.Vertices));
 	//
 	//			XMStoreFloat4(&Pos, Worker);
 	//
@@ -170,26 +100,6 @@ void BaseApp::Load()
 	//		}
 	//	}
 	//}
-
-	// Initial position and orientation of the rigid body 
-	//Vector3 position(0.0, 0.0, 0.0);
-	//Quaternion orientation = Quaternion::identity();
-	//Transform transform(position, orientation);
-//	// Create a rigid body in the world 
-//	Testbody = world->createRigidBody(transform);
-//	// Create the sphere shape with a radius of 2m 
-//	SphereShape* sphereShape = physicsCommon.createSphereShape(1.0);
-//
-//	// Relative transform of the collider relative to the body origin 
-//	Transform transformm = Transform::identity();
-//	// Add the collider to the rigid body 
-//	Collider* collider;
-//	collider = Testbody->addCollider(sphereShape, transformm);
-//	Testbody->setType(BodyType::DYNAMIC);
-//	Testbody->enableGravity(true);
-//	Testbody->setIsAllowedToSleep(false);
-//
-//	EnvCollision->Colliders.push_back(EnvironmentCollider(Testbody->getEntity().id, 1.f));
 
 
 	position = Vector3(0.0, 0.0, 0.0);
@@ -216,7 +126,7 @@ void BaseApp::Load()
 	ThePlayer->Collisionbody->setAngularDamping(1.f);
 	ThePlayer->Collisionbody->setLinearDamping(0.01f);
 
-	EnvCollision->Colliders.push_back(EnvironmentCollider(ThePlayer->Collisionbody, 1.f));
+	EnvCollision->Colliders.push_back(EnvironmentCollider(&ThePlayer->Collisionbody, 1.f));
 
 	ThePlayer->SyncPos(&Cam->Transform);
 	
@@ -270,10 +180,7 @@ void BaseApp::Tick(float Deltatime)
 
 		Lights.push_back(new ThrowLight(world, &physicsCommon, XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
 
-		EnvCollision->Colliders.push_back(EnvironmentCollider(Lights[Lights.size() - 1]->CollisionBody, 0.5f));
-
-		//Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/GlowLight.glb"));
-
+		EnvCollision->Colliders.push_back(EnvironmentCollider(&Lights[Lights.size() - 1]->CollisionBody, 0.5f));
 	}
 
 	EnvCollision->MakeCollide();
@@ -283,43 +190,31 @@ void BaseApp::Tick(float Deltatime)
 
 	ThePlayer->SyncPos(&Cam->Transform);
 
-	//}
-	//XMStoreFloat4(, PlayerAcc + XMLoadFloat4(&Cam->Transform.Translation));
-	//Cam->Transform.Translation.x += PlayerAcc.m128_f32[0];
-	//Cam->Transform.Translation.y += PlayerAcc.m128_f32[1];
-	//Cam->Transform.Translation.z += PlayerAcc.m128_f32[2];
-
-	//Cam->Update();
 	if (Input::get()->GetKey(Key_MouseUnlock)) {
 		MouseLock = !MouseLock;
 	}
 
-
-	
-
+	std::vector<XMVECTOR> LightPosses;
+	for (int i = 0; i < Lights.size(); i++) {
+		Lights[i]->Update(Deltatime);
+		if (Lights[i]->LifeTime <= 0.f) {
+			delete Lights[i];
+			Lights.erase(Lights.begin() + i);
+			i--;
+			continue;
+		}
+		LightPosses.push_back(GetRePhyTranslation(Lights[i]->CollisionBody->getTransform()));
+		LightPosses.back().m128_f32[3] = Lights[i]->LifeTime;
+	}
+	Renderer::get()->SetLights(LightPosses);
+	EnvCollision->CleanRemoved();
 
 	EnvCollision->BreakCollide();
+	
 
 	Cam->Update();
 
-	std::vector<XMVECTOR> LightPosses;
-	for (int i = 0; i < Lights.size(); i++) {
-		LightPosses.push_back(GetRePhyTranslation(Lights[i]->CollisionBody->getTransform()));
-		
-		//XMStoreFloat4(&Renderer::get()->Models[i].Transform.Translation, GetRePhyTranslation(Lights[i]->CollisionBody->getTransform()));
-		//XMStoreFloat4(&Renderer::get()->Models[i].Transform.Rotation, GetRePhyRotation(Lights[i]->CollisionBody->getTransform()));
-		//Renderer::get()->Models[i].Transform.UpdateMatrix();
-	}
 
-	Renderer::get()->SetLights(LightPosses);
-	//XMStoreFloat4(&Renderer::get()->Models[0].Transform.Translation, NoiseRay::Test(XMLoadFloat4(&Cam->Transform.Translation), Cam->Target));
-	//
-	//
-	//float Rotat = 0.01f;
-	//
-	//Renderer::get()->Models[0].Transform.Rotation.x += Rotat;
-	//Renderer::get()->Models[0].Transform.Rotation.y += Rotat;
-	//Renderer::get()->Models[0].Transform.Rotation.z += Rotat;
 }
 
 //Free all currently claimed resources

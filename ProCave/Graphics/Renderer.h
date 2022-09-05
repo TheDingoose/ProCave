@@ -107,7 +107,8 @@ public:
 		}
 	}
 	
-	std::vector<Mesh> ModelData;
+	//std::vector<Mesh> ModelData;
+	std::vector<unsigned short> MeshPool;
 	std::vector<ModelBuffers> Models;
 
 	ID3D11Device* d3d11Device;
@@ -185,7 +186,8 @@ public:
 	bool InitializeRenderer();
 	bool InitializeCubeRenderer();
 	bool InitializeDebugRenderer();
-	bool InitializeMesh(Mesh mesh);
+	unsigned short InitializeMesh(Mesh mesh);
+	bool RemoveMesh(unsigned short);
 	void Resize();
 
 	void ReleaseObjects() {
@@ -205,7 +207,7 @@ public:
 			PS_Buffer->Release();
 			vertLayout->Release();
 
-			ModelData.clear();
+			//ModelData.clear();
 
 			for (auto& i : Models) {
 				i.IndexBuffer->Release();

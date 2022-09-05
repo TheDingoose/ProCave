@@ -482,42 +482,42 @@ float Sample4(float4 pos)
     //PERLIN TIME
         float MCSized2 = CubeSize / 2.f;
     
-        element.Color = float4(0.37f, 0.18f, 0.56f, 1.f);
+        //element.Color = float4(0.37f, 0.18f, 0.56f, 1.f);
     
-        float Distance = distance(PlayerPos, input[0]);
-        if (Distance < LightStrength)
-        {
-            Distance = (LightStrength - Distance) / LightStrength;
-
-            element.Color = max(float4(0.92f * Distance, 0.45f * Distance, 0.15f * Distance, 1.f), element.Color);
-        }
+        //float Distance = distance(PlayerPos, input[0]);
+        //if (Distance < LightStrength)
+        //{
+        //    Distance = (LightStrength - Distance) / LightStrength;
+        //
+        //    element.Color = max(float4(0.92f * Distance, 0.45f * Distance, 0.15f * Distance, 1.f), element.Color);
+        //}
         float Samples[8];
     
-        Samples[0] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[1] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[2] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[3] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[4] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[5] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[6] = Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
-        Samples[7] = Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[0] = -DensityLimit + Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[1] = -DensityLimit + Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[2] = -DensityLimit + Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[3] = -DensityLimit + Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y - MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[4] = -DensityLimit + Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[5] = -DensityLimit + Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z + MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[6] = -DensityLimit + Sample4(float4(((input[0].x + MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
+        Samples[7] = -DensityLimit + Sample4(float4(((input[0].x - MCSized2) + SampleOffset.x) * SampleMod.x, ((input[0].y + MCSized2) + SampleOffset.y) * SampleMod.y, ((input[0].z - MCSized2) + SampleOffset.z) * SampleMod.z, (Time + SampleOffset.w) * SampleMod.w));
     
         unsigned int CubeIndex = 0;
-        if (Samples[0] < DensityLimit)
+        if (Samples[0] < 0)
             CubeIndex |= 1;
-        if (Samples[1] < DensityLimit)
+        if (Samples[1] < 0)
             CubeIndex |= 2;
-        if (Samples[2] < DensityLimit)
+        if (Samples[2] < 0)
             CubeIndex |= 4;
-        if (Samples[3] < DensityLimit)
+        if (Samples[3] < 0)
             CubeIndex |= 8;
-        if (Samples[4] < DensityLimit)
+        if (Samples[4] < 0)
             CubeIndex |= 16;
-        if (Samples[5] < DensityLimit)
+        if (Samples[5] < 0)
             CubeIndex |= 32;
-        if (Samples[6] < DensityLimit)
+        if (Samples[6] < 0)
             CubeIndex |= 64;
-        if (Samples[7] < DensityLimit)
+        if (Samples[7] < 0)
             CubeIndex |= 128;
     
         if (CubeIndex == 0 || CubeIndex == 255)

@@ -150,7 +150,7 @@ float4 main(GS_OUTPUT input) : SV_TARGET
         float tLightAngleStrength = clamp(dot(normalize((LightPositions[i] - input.Color).xyz).xyz, normalize(norm.xyz)), 0.f, 1.f);
         float tDistance =((LightStrength - abs(distance(LightPositions[i], input.Color))) / LightStrength);
         
-        oClr = max(min(Clr, LightColor.xyz) * tLightAngleStrength * tDistance, oClr);
+        oClr = max(min(Clr, LightColor.xyz) * tLightAngleStrength * tDistance * (LightPositions[i].w / 3), oClr);
         
     }
     //Distance = min(Distance, 1.f);

@@ -595,7 +595,7 @@ bool Renderer::InitializeDebugRenderer()
 	return true;
 }
 
-bool Renderer::InitializeMesh(Mesh mesh)
+unsigned short Renderer::InitializeMesh(Mesh mesh)
 {
 	ModelBuffers Buffers;
 
@@ -635,8 +635,30 @@ bool Renderer::InitializeMesh(Mesh mesh)
 	vertexBufferData.pSysMem = &mesh.Vertices[0];
 	hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffers.VertexBuffer);
 	CheckError(hr, "Error creating Vertex Buffer!");
+	if (MeshPool.empty()) {
+		Models.push_back(Buffers);
+		return Models.size() - 1;
+	}
+	else {
+		unsigned short p = MeshPool.back();
+		Models[p] = Buffers;
+		MeshPool.pop_back();
+		return p;
+	}
+	
+}
 
-	Models.push_back(Buffers);
+bool Renderer::RemoveMesh(unsigned short index)
+{
+	Models[index].IndexBuffer->Release();
+	Models[index].IndexBuffer = nullptr;
+	Models[index].VertexBuffer->Release();
+	Models[index].VertexBuffer = nullptr;
+	Models[index].IndexSize = 0;
+	Models[index].Transform.Translation = XMFLOAT4(0,0,0,0);
+	Models[index].Transform.Rotation = XMFLOAT4(0,0,0,0);
+	Models[index].Transform.Scale = XMFLOAT4(1,1,1,0);
+	Models[index].Transform.UpdateMatrix();
 	return true;
 }
 
@@ -731,6 +753,8 @@ void Renderer::Draw()
 
 	for (auto& Mesh : Models) {
 		//Set the index buffer
+		if(Mesh.IndexSize == 0) {continue;}
+
 		d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 		//Set the vertex buffer

@@ -28,5 +28,5 @@ public:
 	unsigned char Case;
 	std::vector<Vertex> Vertices;
 	std::vector<XMVECTOR> LooseVertices;
-	std::vector<unsigned long> Indices;
+	std::vector<unsigned short> Indices;
 };

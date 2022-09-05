@@ -184,7 +184,7 @@ Mesh Loader::LoadStatic(std::string name) {
 						if (attribute.first == "POSITION") {//is this a position buffer?
 							//add this buffer to the Model
 
-							spdlog::info("Load Positions");
+							//spdlog::info("Load Positions");
 
 							//? Make into a function that receives only data and the relevant accessor.
 							Positions[Index] = (ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
@@ -216,9 +216,9 @@ Mesh Loader::LoadStatic(std::string name) {
 		Index++;
 	}
 
-	for (auto i : ret.Indices) {
-		spdlog::info("Index?: {0:d}", i);
-	}
+	//for (auto i : ret.Indices) {
+	//	spdlog::info("Index?: {0:d}", i);
+	//}
 
 	//spdlog::info("Now Vertices");
 	//ret.Vertices.reserve(Positions.size() / 3);
@@ -233,18 +233,18 @@ Mesh Loader::LoadStatic(std::string name) {
 	Index = 0;
 	unsigned int Part = 0;
 	for (int j = 0; j < Indices.size(); j++) {
-		spdlog::info("Loaded mesh Indices {0:d} of size: {1:d}", j, Indices[j].size());
+		//spdlog::info("Loaded mesh Indices {0:d} of size: {1:d}", j, Indices[j].size());
 		for (int i = 0; i < Indices[j].size(); i++) {
 			ret.Indices[Index] = (Indices[j][i]) + Part;
 			Index++;
 		}
 		Part += (Positions[j].size() / 3);
-		spdlog::info("Posses: {0:d}", Part);
+		//spdlog::info("Posses: {0:d}", Part);
 	}
 
 
 	for (int i = 0; i < ret.Indices.size(); i += 100) {
-		spdlog::info("Indss: {0:d}", ret.Indices[i]);
+		//spdlog::info("Indss: {0:d}", ret.Indices[i]);
 	}
 
 	TotalSize = 0;
@@ -263,7 +263,7 @@ Mesh Loader::LoadStatic(std::string name) {
 
 	Index = 0;
 	for (int j = 0; j < Positions.size(); j++) {
-		spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
+		//spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
 		for (int i = 0; i < Positions[j].size() / 3; i++) {
 
 			XMVECTOR Pos = XMVectorSet(Positions[j][i * 3], Positions[j][i * 3 + 1], Positions[j][i * 3 + 2], 0);
@@ -283,7 +283,7 @@ Mesh Loader::LoadStatic(std::string name) {
 	//for (auto i : ret.Vertices) {
 	//	spdlog::info("Positions: {:03.2f}, {:03.2f}, {:03.2f} ||| Normals: {:03.2f}, {:03.2f}, {:03.2f}", i.x, i.y, i.z, i.nx, i.ny, i.nz);
 	//}
-	spdlog::info("FinalVertices {0:d}", ret.Vertices.size());
+	//spdlog::info("FinalVertices {0:d}", ret.Vertices.size());
 
 	return ret;
 }

@@ -51,6 +51,9 @@
     <ClInclude Include="Collision\ReactHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="General\UpdateObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="User\Input.cpp">

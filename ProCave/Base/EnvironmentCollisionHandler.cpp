@@ -16,7 +16,7 @@ EnvironmentCollisionHandler::EnvironmentCollisionHandler()
 
 void EnvironmentCollisionHandler::GenerateEnvironmentConcave(EnvironmentCollider Collider)
 {
-	Vector3 ColPos = Collider.CollisionBody->getTransform().getPosition();
+	Vector3 ColPos = (*Collider.CollisionBody)->getTransform().getPosition();
 	ColPos.x = round(ColPos.x / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
 	ColPos.y = round(ColPos.y / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
 	ColPos.z = round(ColPos.z / MarchCubeSettings::get()->CubeSize) * MarchCubeSettings::get()->CubeSize;
@@ -60,7 +60,7 @@ void EnvironmentCollisionHandler::GenerateEnvironmentConcave(EnvironmentCollider
 void EnvironmentCollisionHandler::CleanRemoved()
 {
 	for (int i = 0; i < Colliders.size(); i++) {
-		if (Colliders[i].CollisionBody == nullptr) 
+		if (*Colliders[i].CollisionBody == nullptr) 
 		{
 			Colliders.erase(Colliders.begin() + i);
 		};
