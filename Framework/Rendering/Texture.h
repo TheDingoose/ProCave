@@ -6,7 +6,7 @@
 #include <string>
 #include "spdlog/spdlog.h"
 
-static int counter = 0;
+static unsigned int counter = 0;
 
 class Texture
 {
@@ -20,6 +20,8 @@ public:
 			spdlog::warn(stbi_failure_reason());
 			return;
 		}
+
+		Name = FileName;
 		
 		//GetPixelFormat();
 
@@ -76,7 +78,7 @@ public:
 	};
 
 	int count = counter++;
-
+	std::string Name;
 	ID3D11Texture2D* m_Texture;
 	ID3D11SamplerState* m_SamplerState;
 	ID3D11ShaderResourceView* m_TextureView;

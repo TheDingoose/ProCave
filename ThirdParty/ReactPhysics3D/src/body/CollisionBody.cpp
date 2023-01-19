@@ -214,7 +214,7 @@ void CollisionBody::removeAllColliders() {
  */
 const Transform& CollisionBody::getTransform() const {
 
-    return mWorld.mTransformComponents.getTransform(mEntity);
+  return mWorld.mTransformComponents.getTransform(mEntity);
 }
 
 // Update the broad-phase state for this body (because it has moved for instance)

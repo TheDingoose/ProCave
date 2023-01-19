@@ -15,7 +15,7 @@ void MarchCubeSettings::Draw() {
 	ImGui::SetWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
 	
 	if (ImGui::DragFloat("CubeSize", &CubeSize, 0.1f)) {
-		Renderer::get()->cbPerObj.CubeSize = MarchCubeSettings::get()->CubeSize;
+		Renderer::get()->GlobalConsts.CubeSize = MarchCubeSettings::get()->CubeSize;
 	};
 	if (ImGui::DragInt("GridSize", (int*)&GridSize, 2.f, 0)) {
 
@@ -42,50 +42,50 @@ void MarchCubeSettings::Draw() {
 		}
 	};
 	if (ImGui::DragFloat4("SampleMod", &SampleMod.x, 0.005f)) {
-		Renderer::get()->cbPerObj.SampleMod = SampleMod;
+		Renderer::get()->GlobalConsts.SampleMod = SampleMod;
 	};
 	if (ImGui::DragFloat4("SampleOffset", &SampleOffset.x, 0.5f)) {
-		Renderer::get()->cbPerObj.SampleOffset = SampleOffset;
+		Renderer::get()->GlobalConsts.SampleOffset = SampleOffset;
 	};
 	if (ImGui::DragFloat("DensityLimit", &DensityLimit, 0.01f, -1.f, 1.f)) {
-		Renderer::get()->cbPerObj.DensityLimit = DensityLimit;
+		Renderer::get()->GlobalConsts.DensityLimit = DensityLimit;
 	};
 	if (ImGui::DragFloat("NormalSampleDistance", &NormalSampleDistance, 0.001f, 0.f, 100.f)) {
-		Renderer::get()->cbPerObj.NormalSampleDistance = NormalSampleDistance;
+		Renderer::get()->GlobalConsts.NormalSampleDistance = NormalSampleDistance;
 	};
 
 	if (ImGui::DragFloat("LightStrength", &LightStrength)) { //Move this later
-		Renderer::get()->cbPerObj.LightStrength = LightStrength;
+		Renderer::get()->GlobalConsts.LightStrength = LightStrength;
 	};
 	if (ImGui::DragFloat("PlayerLightStrength", &PlayerLightStrength)) { //Move this later
-		Renderer::get()->cbPerObj.PlayerLightStrength = PlayerLightStrength;
+		Renderer::get()->GlobalConsts.PlayerLightStrength = PlayerLightStrength;
 	
 	};
 	if (ImGui::ColorEdit4("PlayerLightColor", &PlayerLightColor.x)) {
-		Renderer::get()->cbPerObj.PlayerLightColor = PlayerLightColor;
+		Renderer::get()->GlobalConsts.PlayerLightColor = PlayerLightColor;
 	};
 	if (ImGui::ColorEdit4("LightColor", &LightColor.x)) {
-		Renderer::get()->cbPerObj.LightColor = LightColor;
+		Renderer::get()->GlobalConsts.LightColor = LightColor;
 	};
 
 	if (ImGui::DragFloat("FogDistanceNear", &FogDistanceNear)) {
-		Renderer::get()->cbPerObj.FogDistanceNear = FogDistanceNear;
+		Renderer::get()->GlobalConsts.FogDistanceNear = FogDistanceNear;
 	};
 	if (ImGui::DragFloat("FogDistanceFar", &FogDistance)) {
-		Renderer::get()->cbPerObj.FogDistance = FogDistance;
+		Renderer::get()->GlobalConsts.FogDistance = FogDistance;
 	};
 	if (ImGui::ColorEdit4("FogColor", &FogColor.x)) {
-		Renderer::get()->cbPerObj.FogColor = FogColor;
+		Renderer::get()->GlobalConsts.FogColor = FogColor;
 	};
 
 	if (ImGui::DragFloat("BlendOffset", &TextureBlendOffset, 0.01f, 0.f, 0.5f)) {
-		Renderer::get()->cbPerObj.TextureBlendOffset = TextureBlendOffset;
+		Renderer::get()->GlobalConsts.TextureBlendOffset = TextureBlendOffset;
 	};
 	if (ImGui::DragFloat("BlendExponent", &TextureBlendExponent, 0.5f, 1.f, 8.f)) {
-		Renderer::get()->cbPerObj.TextureBlendExponent = TextureBlendExponent;
+		Renderer::get()->GlobalConsts.TextureBlendExponent = TextureBlendExponent;
 	};
 	if (ImGui::DragFloat("BlendHeightStrength", &TextureBlendHeightStrength, 0.01f, 0.f, 0.99f)) {
-		Renderer::get()->cbPerObj.TextureBlendHeightStrength = TextureBlendHeightStrength;
+		Renderer::get()->GlobalConsts.TextureBlendHeightStrength = TextureBlendHeightStrength;
 	};
 
 	ImGui::End();

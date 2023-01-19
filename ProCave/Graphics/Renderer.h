@@ -20,22 +20,12 @@
 
 using namespace DirectX;
 
-//constexpr float MCSize = 1.f;
-//constexpr unsigned int MCFieldSize = 76;
-
-//float4x4 WVP;
-//float4 PlayerPos;
-//float CubeSize;
-//float LightStrength;
-//float4 SampleMod;
-//float4 SampleOffset;
-//float Time;
 namespace reactphysics3d {
 class DebugRenderer;
 }
 
-struct cbPerObject {
-cbPerObject();
+struct GlobalConstBuff {
+GlobalConstBuff();
 	XMMATRIX WVP;
 	XMFLOAT4 PlayerPos;
 	XMFLOAT4 SampleMod;
@@ -75,6 +65,7 @@ struct ModelBuffers {
 	ID3D11Buffer* IndexBuffer;
 	UINT IndexSize;
 	ID3D11Buffer* VertexBuffer;
+	unsigned int Tex = 0;
 	cTransform Transform;
 };
 
@@ -88,8 +79,8 @@ public:
 		return &Instance;
 	}
 
-	unsigned int Width = 800;
-	unsigned int Height = 800;
+	unsigned int Width = 960;
+	unsigned int Height = 540;
 
 	void SetVP(XMMATRIX* aVP, XMMATRIX* aPlayerTransform, XMFLOAT4* aPlayerPos, XMVECTOR* aPlayerForward)  {
 		VP = aVP;
@@ -114,7 +105,7 @@ public:
 	ID3D11Device* d3d11Device;
 	ID3D11DeviceContext* d3d11DevCon;
 
-	cbPerObject cbPerObj;
+	GlobalConstBuff GlobalConsts;
 
 	vector<ID3D11Buffer*> CubePosBuffer;
 	std::vector<XMVECTOR> CubePositions;
@@ -126,7 +117,7 @@ private:
 	Renderer() {}
 
 	//Texture TextureTester;
-	std::vector<Texture*> WorldTextures;
+	std::vector<Texture*> Textures;
 
 	LightingCollection Lights;
 	ID3D11Buffer* LightBuffer;
@@ -187,6 +178,7 @@ public:
 	bool InitializeCubeRenderer();
 	bool InitializeDebugRenderer();
 	unsigned short InitializeMesh(Mesh mesh);
+	unsigned short InitializeTexturedMesh(Mesh mesh, std::string textureName);
 	bool RemoveMesh(unsigned short);
 	void Resize();
 

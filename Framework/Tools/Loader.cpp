@@ -178,13 +178,10 @@ Mesh Loader::LoadStatic(std::string name) {
 						, data.bufferViews[data.accessors[primitive.indices].bufferView].byteOffset,
 						data.accessors[primitive.indices].count
 					));
-					//ret.Indices.assign(Ind.begin(), Ind.end());
-					//ret.Indices.assign()
+
 					for (auto& attribute : primitive.attributes) {
 						if (attribute.first == "POSITION") {//is this a position buffer?
 							//add this buffer to the Model
-
-							//spdlog::info("Load Positions");
 
 							//? Make into a function that receives only data and the relevant accessor.
 							Positions[Index] = (ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
@@ -216,13 +213,6 @@ Mesh Loader::LoadStatic(std::string name) {
 		Index++;
 	}
 
-	//for (auto i : ret.Indices) {
-	//	spdlog::info("Index?: {0:d}", i);
-	//}
-
-	//spdlog::info("Now Vertices");
-	//ret.Vertices.reserve(Positions.size() / 3);
-
 	//What is the total size?
 	unsigned int TotalSize = 0;
 	for (auto& i : Indices) {
@@ -253,14 +243,6 @@ Mesh Loader::LoadStatic(std::string name) {
 	}
 	ret.Vertices.resize(TotalSize);
 
-
-	//for (auto& s : Offsets) {
-	//	s.sx *= 0.1f;
-	//	s.sy *= 0.1f;
-	//	s.sz *= 0.1f;
-	//}
-
-
 	Index = 0;
 	for (int j = 0; j < Positions.size(); j++) {
 		//spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
@@ -287,212 +269,3 @@ Mesh Loader::LoadStatic(std::string name) {
 
 	return ret;
 }
-/*
-Mesh Loader::LoadStatic(std::string name) {
-Mesh ret;
-std::vector<std::vector<unsigned short>> Indices;
-std::vector<std::vector<float>> Positions;
-std::vector<std::vector<float>> Normals;
-std::vector<Offset> Offsets;
-
-	tinygltf::Model data = TinyLoad(name);
-	//now that we have the file loaded we need to stitch all the data together into only what we need for a static mesh;
-
-	Offsets.resize(data.nodes.size());
-
-	unsigned int Index = 0;
-	for (auto& mesh: data.meshes) {
-		for (auto& primitive : mesh.primitives) {
-			if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
-				
-				//Scale
-				if (data.nodes[Index].scale.size() != 0) {
-					Offsets[Index].sx *= data.nodes[Index].scale[0];
-					Offsets[Index].sy *= data.nodes[Index].scale[1];
-					Offsets[Index].sz *= data.nodes[Index].scale[2];
-					for (auto c : data.nodes[Index].children) {
-
-						Offsets[c].tx *= Offsets[Index].sx;
-						Offsets[c].ty *= Offsets[Index].sy;
-						Offsets[c].tz *= Offsets[Index].sz;
-
-					}
-				}
-
-				//Rotations
-				if (data.nodes[Index].rotation.size() != 0) {
-					XMVECTOR IndR = XMVectorSet(data.nodes[Index].rotation[0], data.nodes[Index].rotation[1], data.nodes[Index].rotation[2], data.nodes[Index].rotation[3]);
-					XMVECTOR SourceR = XMQuaternionMultiply(
-						XMVectorSet(Offsets[Index].rx, Offsets[Index].ry, Offsets[Index].rz, Offsets[Index].rw), IndR
-						);
-						
-					Offsets[Index].rx = SourceR.m128_f32[0];
-					Offsets[Index].ry = SourceR.m128_f32[1];
-					Offsets[Index].rz = SourceR.m128_f32[2];
-					Offsets[Index].rw = SourceR.m128_f32[3];
-
-					//XMVECTOR LScale = XMVector3Rotate(XMVectorSet(Offsets[Index].sx, Offsets[Index].sy, Offsets[Index].sz, 0), XMQuaternionInverse(IndR));
-					//
-					//Offsets[Index].sx = LScale.m128_f32[0];
-					//Offsets[Index].sy = LScale.m128_f32[1];
-					//Offsets[Index].sz = LScale.m128_f32[2];
-
-					for (auto& c : data.nodes[Index].children) {
-						XMVECTOR TTransform = XMVector3Rotate(XMVectorSet(Offsets[c].tx, Offsets[c].ty, Offsets[c].tz, 0), SourceR);
-
-						Offsets[c].tx = TTransform.m128_f32[0];
-						Offsets[c].ty = TTransform.m128_f32[1];
-						Offsets[c].tz = TTransform.m128_f32[2];
-
-						SourceR = XMQuaternionMultiply(
-							XMVectorSet(Offsets[c].rx, Offsets[c].ry, Offsets[c].rz, Offsets[c].rw),
-							IndR);
-
-						Offsets[c].rx = SourceR.m128_f32[0];
-						Offsets[c].ry = SourceR.m128_f32[1];
-						Offsets[c].rz = SourceR.m128_f32[2];
-						Offsets[c].rw = SourceR.m128_f32[3];
-
-						Offsets[c].osx *= Offsets[Index].sx;
-						Offsets[c].osy *= Offsets[Index].sy;
-						Offsets[c].osz *= Offsets[Index].sz;
-
-						XMVECTOR TScale = XMVector3Rotate(XMVectorSet(Offsets[c].osx, Offsets[c].osy, Offsets[c].osz, 0), IndR); //, XMVectorSet(Offsets[c].rx, Offsets[c].ry, Offsets[c].rz, Offsets[c].rw));
-						
-						Offsets[c].osx = TScale.m128_f32[0];
-						Offsets[c].osy = TScale.m128_f32[1];
-						Offsets[c].osz = TScale.m128_f32[2];
-
-						
-					}
-				}
-
-				//Translation
-				if (data.nodes[Index].translation.size() != 0) {
-					Offsets[Index].tx += data.nodes[Index].translation[0];
-					Offsets[Index].ty += data.nodes[Index].translation[1];
-					Offsets[Index].tz += data.nodes[Index].translation[2];
-					for (auto c : data.nodes[Index].children) {
-						Offsets[c].tx += Offsets[Index].tx;
-						Offsets[c].ty += Offsets[Index].ty;
-						Offsets[c].tz += Offsets[Index].tz;
-					}
-				}
-
-
-
-				//ret.Indices = data.buffers[data.bufferViews[data.accessors[primitive.indices].bufferView].buffer].data;
-				Indices.push_back(ReadDataAsUnsignedShort(data.buffers[data.bufferViews[data.accessors[primitive.indices].bufferView].buffer].data
-				,data.bufferViews[data.accessors[primitive.indices].bufferView].byteOffset, 
-				data.accessors[primitive.indices].count
-				));
-				//ret.Indices.assign(Ind.begin(), Ind.end());
-				//ret.Indices.assign()
-				for (auto& attribute : primitive.attributes) {
-					if (attribute.first == "POSITION") {//is this a position buffer?
-						//add this buffer to the Model
-
-						spdlog::info("Load Positions");
-
-						//? Make into a function that receives only data and the relevant accessor.
-						Positions.push_back(ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
-							, data.bufferViews[data.accessors[attribute.second].bufferView].byteOffset,
-							  data.accessors[attribute.second].count * 3
-						));
-
-
-						data.accessors[attribute.second];
-					}
-					else if (attribute.first == "NORMAL") {//is this a normal buffer?
-						
-						spdlog::info("Load Normals");
-						//? Make into a function that receives only data and the relevant accessor.
-						Normals.push_back(ReadDataAsFloat(data.buffers[data.bufferViews[data.accessors[attribute.second].bufferView].buffer].data
-							, data.bufferViews[data.accessors[attribute.second].bufferView].byteOffset,
-							data.accessors[attribute.second].count * 3
-						));
-
-					}
-
-				}
-			}
-			else {
-				spdlog::error("This model is not in simple triangles!: %s", name.c_str());
-			}
-		}
-		Index++;
-	}
-
-	//for (auto i : ret.Indices) {
-	//	spdlog::info("Index?: {0:d}", i);
-	//}
-
-	//spdlog::info("Now Vertices");
-	//ret.Vertices.reserve(Positions.size() / 3);
-	
-	//What is the total size?
-	unsigned int TotalSize = 0;
-	for (auto& i : Indices) {
-		TotalSize += i.size();
-	}
-
-	ret.Indices.resize(TotalSize);
-	Index = 0;
-	unsigned int Part = 0;
-	for (int j = 0; j < Indices.size(); j++) {
-		spdlog::info("Loaded mesh Indices {0:d} of size: {1:d}", j, Indices[j].size());
-		for (int i = 0; i < Indices[j].size(); i++) {
-			ret.Indices[Index] = (Indices[j][i]) + Part;
-			Index++;
-		}
-		Part += (Positions[j].size() / 3);
-		spdlog::info("Posses: {0:d}", Part);
-	}
-
-
-	for (int i = 0; i < ret.Indices.size(); i+= 100) {
-		spdlog::info("Indss: {0:d}", ret.Indices[i]);
-	}
-
-	TotalSize = 0;
-	for (auto& i : Positions) {
-		TotalSize += i.size();
-	}
-	ret.Vertices.resize(TotalSize);
-
-
-	//for (auto& s : Offsets) {
-	//	s.sx *= 0.1f;
-	//	s.sy *= 0.1f;
-	//	s.sz *= 0.1f;
-	//}
-
-
-	Index = 0;
-	for(int j = 0; j < Positions.size(); j++) {
-		spdlog::info("Loaded mesh Positions {0:d} of size: {1:d}", j, Positions[j].size() / 3);
-		for (int i = 0; i < Positions[j].size() / 3; i++) {	
-
-			XMVECTOR Pos = XMVectorSet(Positions[j][i * 3] * Offsets[j].sx, Positions[j][i * 3 + 1] * Offsets[j].sy, Positions[j][i * 3 + 2] * Offsets[j].sz, 0);
-			Pos = XMVector3Rotate(Pos, XMVectorSet(Offsets[j].rx, Offsets[j].ry, Offsets[j].rz, Offsets[j].rw));
-			Pos = XMVectorSet(Pos.m128_f32[0] * Offsets[j].osx, Pos.m128_f32[1] * Offsets[j].osy, Pos.m128_f32[2] * Offsets[j].osz, 0);
-
-			ret.Vertices[Index].x = (Pos.m128_f32[0] + Offsets[j].tx);
-			ret.Vertices[Index].y = (Pos.m128_f32[1] + Offsets[j].ty);
-			ret.Vertices[Index].z = (Pos.m128_f32[2] + Offsets[j].tz);
-
-			ret.Vertices[Index].nx = Normals[j][i * 3];
-			ret.Vertices[Index].ny = Normals[j][i * 3 + 1];
-			ret.Vertices[Index].nz = Normals[j][i * 3 + 2];
-			Index++;
-		}
-	}
-
-	//for (auto i : ret.Vertices) {
-	//	spdlog::info("Positions: {:03.2f}, {:03.2f}, {:03.2f} ||| Normals: {:03.2f}, {:03.2f}, {:03.2f}", i.x, i.y, i.z, i.nx, i.ny, i.nz);
-	//}
-
-
-	return ret;
-}
-*/

@@ -36,7 +36,7 @@ public:
 	//XMFLOAT4 FogColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.f);
 	XMFLOAT4 FogColor = XMFLOAT4(.430f, .440f, .420f, 1.f);
 	XMFLOAT4 PlayerLightColor = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
-	XMFLOAT4 LightColor = XMFLOAT4(0.f, 1.f, 0.f, 1.f);
+	XMFLOAT4 LightColor = XMFLOAT4(0.1f, 1.f, 0.1f, 1.f);
 
 
 private:

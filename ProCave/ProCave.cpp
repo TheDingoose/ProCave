@@ -69,7 +69,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Game.HandleWindow = hWnd;
     Graphics->InitializeDirect3d11App(hInstance, hWnd);
     Graphics->InitializeRenderer();
- 
 
     gainput::InputManager* GaInput = Input::get()->GetManager();
     GaInput->SetDisplaySize(Graphics->Width, Graphics->Height);
@@ -84,10 +83,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     DevUIDriver::get()->Windows.push_back(MarchCubeSettings::get());
     DevUIDriver::get()->Windows.push_back(DebugSettings::get());
 
+    spdlog::info("Window is {0:d} by {1:d}", Graphics->Width, Graphics->Height);
 
     //#LOADRESOURCES 
     Game.Load();
     
+
     long long LastTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     long long Calcer;
     //#TICK
@@ -168,7 +169,7 @@ BOOL InitWindow(HINSTANCE hInstance, int nCmdShow)
    MultiByteToWideChar(CP_UTF8, 0, "ProCave", -1, wstr, wchars_num);
 
    hWnd = CreateWindowW(szWindowClass, wstr, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, /*CW_USEDEFAULT*/ Graphics->Width, Graphics->Height + 30, nullptr, nullptr, hInstance, nullptr);
 
 
    delete[] wstr;

@@ -34,7 +34,7 @@ D3D11_INPUT_ELEMENT_DESC Debuglayout[] =
 };
 UINT DebugnumElements = ARRAYSIZE(Debuglayout);
 
-cbPerObject::cbPerObject()
+GlobalConstBuff::GlobalConstBuff()
 {
 	WVP = XMMatrixIdentity();
 	PlayerPos = XMFLOAT4(0.f, 0.f, 0.f, 0.f);
@@ -164,7 +164,7 @@ bool Renderer::InitializeRenderer()
 	ZeroMemory(&cbbd, sizeof(D3D11_BUFFER_DESC));
 
 	cbbd.Usage = D3D11_USAGE_DEFAULT;
-	cbbd.ByteWidth = sizeof(cbPerObject);
+	cbbd.ByteWidth = sizeof(GlobalConstBuff);
 	cbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cbbd.CPUAccessFlags = 0;
 	cbbd.MiscFlags = 0;
@@ -546,13 +546,13 @@ bool Renderer::InitializeCubeRenderer()
 	cbbd.ByteWidth = sizeof(LightingCollection);
 	hr = d3d11Device->CreateBuffer(&cbbd, &Deets, &LightBuffer);
 
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/sandstone.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/roughstone.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/crackedstone.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockalb.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrocknor.jpg"));
-	//WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/normaal.jpg"));
-	WorldTextures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockbmp.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/bluestone.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/roughstone.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/crackedstone.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockalb.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrocknor.jpg"));
+	//Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/normaal.jpg"));
+	Textures.push_back(new Texture(d3d11Device, "../Assets/Texture/bigrock/bigrockbmp.jpg"));
 
 	return true;
 }
@@ -648,6 +648,75 @@ unsigned short Renderer::InitializeMesh(Mesh mesh)
 	
 }
 
+//? Wrap these two functions into one!
+
+unsigned short Renderer::InitializeTexturedMesh(Mesh mesh, std::string textureName)
+{
+	ModelBuffers Buffers;
+
+	unsigned int TexIndex = 0;
+	bool MakeNewTex = true;
+	//This could be done better, link the texture
+	for (int i = 0; i < Textures.size(); i++) {
+		if (Textures[i]->Name == textureName) {
+			Buffers.Tex = i;
+			MakeNewTex = false;
+			break;
+		}
+	}
+	if (MakeNewTex) {
+		Buffers.Tex = Textures.size();
+		Textures.push_back(new Texture(d3d11Device, textureName));
+	}
+
+	//Describe the index buffer
+	D3D11_BUFFER_DESC indexBufferDesc;
+	ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
+
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(unsigned short) * mesh.Indices.size();
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+
+	//Describe the vertex buffer
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(Vertex) * mesh.Vertices.size();
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA iinitData;
+
+	iinitData.pSysMem = &mesh.Indices[0];
+	iinitData.SysMemPitch = 0;
+
+
+	hr = d3d11Device->CreateBuffer(&indexBufferDesc, &iinitData, &Buffers.IndexBuffer);
+	CheckError(hr, "Error creating Index Buffer!");
+	Buffers.IndexSize = mesh.Indices.size();
+
+	D3D11_SUBRESOURCE_DATA vertexBufferData;
+
+	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
+	vertexBufferData.pSysMem = &mesh.Vertices[0];
+	hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &Buffers.VertexBuffer);
+	CheckError(hr, "Error creating Vertex Buffer!");
+	if (MeshPool.empty()) {
+		Models.push_back(Buffers);
+		return Models.size() - 1;
+	}
+	else {
+		unsigned short p = MeshPool.back();
+		Models[p] = Buffers;
+		MeshPool.pop_back();
+		return p;
+	}
+}
+
 bool Renderer::RemoveMesh(unsigned short index)
 {
 	Models[index].IndexBuffer->Release();
@@ -724,6 +793,8 @@ void Renderer::Resize()
 		d3d11Device->CreateDepthStencilView(depthStencilBuffer, NULL, &depthStencilView);
 
 		d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, depthStencilView);
+
+		spdlog::info("Window is {0:d} by {1:d}", Width, Height);
 	}
 }
 
@@ -735,7 +806,7 @@ void Renderer::Draw()
 #endif
 	//Clear the screen before drawing anything new
 	float bgColor[4] = { 0.f, 0.f, 0.f, 1.f };
-	//float bgColor[4] = { cbPerObj.FogColor.x, cbPerObj.FogColor.y, cbPerObj.FogColor.z, cbPerObj.FogColor.w} ;
+	//float bgColor[4] = { GlobalConsts.FogColor.x, GlobalConsts.FogColor.y, GlobalConsts.FogColor.z, GlobalConsts.FogColor.w} ;
 
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 	d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -757,16 +828,19 @@ void Renderer::Draw()
 
 		d3d11DevCon->IASetIndexBuffer(Mesh.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
+
+
 		//Set the vertex buffer
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		d3d11DevCon->IASetVertexBuffers(0, 1, &Mesh.VertexBuffer, &stride, &offset);
 
-
+		d3d11DevCon->PSSetShaderResources(0, 1, &Textures[Mesh.Tex]->m_TextureView);
+		d3d11DevCon->PSSetSamplers(0, 1, &Textures[Mesh.Tex]->m_SamplerState);
 
 		Mesh.Transform.UpdateMatrix();
-		cbPerObj.WVP = XMMatrixTranspose(Mesh.Transform.Transform * *VP);
-		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		GlobalConsts.WVP = XMMatrixTranspose(Mesh.Transform.Transform * *VP);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &GlobalConsts, 0, 0);
 		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
 		//Draw!
@@ -786,24 +860,24 @@ void Renderer::Draw()
 		//Set the Input Layouts
 		d3d11DevCon->IASetInputLayout(CubepointLayout);
 
-		cbPerObj.WVP = XMMatrixTranspose(*VP);
-		cbPerObj.PlayerPos = *PlayerPos;
-		cbPerObj.Time = MarchCubeSettings::get()->Time;
+		GlobalConsts.WVP = XMMatrixTranspose(*VP);
+		GlobalConsts.PlayerPos = *PlayerPos;
+		GlobalConsts.Time = MarchCubeSettings::get()->Time;
 
-		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &GlobalConsts, 0, 0);
 		d3d11DevCon->GSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 		d3d11DevCon->PSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 		d3d11DevCon->UpdateSubresource(LightBuffer, 0, NULL, &Lights, 0, 0);
 		d3d11DevCon->PSSetConstantBuffers(1, 1, &LightBuffer);
 
-		d3d11DevCon->PSSetShaderResources(0, 1, &WorldTextures[3]->m_TextureView);
-		d3d11DevCon->PSSetSamplers(0, 1, &WorldTextures[3]->m_SamplerState);
+		d3d11DevCon->PSSetShaderResources(0, 1, &Textures[3]->m_TextureView);
+		d3d11DevCon->PSSetSamplers(0, 1, &Textures[3]->m_SamplerState);
 
-		d3d11DevCon->PSSetShaderResources(1, 1, &WorldTextures[4]->m_TextureView);
-		d3d11DevCon->PSSetSamplers(1, 1, &WorldTextures[4]->m_SamplerState);
+		d3d11DevCon->PSSetShaderResources(1, 1, &Textures[4]->m_TextureView);
+		d3d11DevCon->PSSetSamplers(1, 1, &Textures[4]->m_SamplerState);
 
-		d3d11DevCon->GSSetShaderResources(2, 1, &WorldTextures[5]->m_TextureView);
-		d3d11DevCon->GSSetSamplers(2, 1, &WorldTextures[5]->m_SamplerState);
+		d3d11DevCon->GSSetShaderResources(2, 1, &Textures[5]->m_TextureView);
+		d3d11DevCon->GSSetSamplers(2, 1, &Textures[5]->m_SamplerState);
 
 
 		XMVECTOR Player = XMVectorRound(XMLoadFloat4(PlayerPos));
@@ -821,9 +895,9 @@ void Renderer::Draw()
 		XMVECTOR PlayerYAngle = (XMVector4Transform(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), *PlayerTransform));
 		XMVECTOR PlayerZAngle = (XMVector4Transform(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), *PlayerTransform));
 
-		XMVECTOR BehindCam = XMLoadFloat4(&cbPerObj.PlayerPos) - PlayerZAngle;
+		XMVECTOR BehindCam = XMLoadFloat4(&GlobalConsts.PlayerPos) - PlayerZAngle;
 
-		float CHalfHeight = /* 2.f * */ tan((0.4f * 3.14f) / 2.f) * (((float)MarchCubeSettings::get()->GridSize + 1.f) * cbPerObj.CubeSize); //Is this height or width?
+		float CHalfHeight = /* 2.f * */ tan((0.4f * 3.14f) / 2.f) * (((float)MarchCubeSettings::get()->GridSize + 1.f) * GlobalConsts.CubeSize); //Is this height or width?
 		float CHalfWidth = CHalfHeight * ((float)Width / (float)Height);
 
 		XMVECTOR FrontPoint = Player + (float)MarchCubeSettings::get()->GridSize * PlayerZAngle;
@@ -845,17 +919,17 @@ void Renderer::Draw()
 		XMVECTOR MaxCube = XMVectorMax(BehindCam, XMVectorMax(RightUpPoint, XMVectorMax(RightDownPoint, XMVectorMax(LeftUpPoint, XMVectorMax(LeftDownPoint, -XMVectorSplatInfinity())))));
 		MinCube = GridFloor(MinCube);
 		MaxCube = GridCeil(MaxCube);
-		//PlayerYAngle = PlayerYAngle * (cbPerObj.CubeSize / fabs(PlayerYAngle.m128_f32[1]));
-		//float SizeX = PlayerXAngle.m128_f32[0] * cbPerObj.CubeSize;
-		//float SizeY = PlayerXAngle.m128_f32[1] * cbPerObj.CubeSize;
-		//float SizeZ = PlayerXAngle.m128_f32[2] * cbPerObj.CubeSize;
+		//PlayerYAngle = PlayerYAngle * (GlobalConsts.CubeSize / fabs(PlayerYAngle.m128_f32[1]));
+		//float SizeX = PlayerXAngle.m128_f32[0] * GlobalConsts.CubeSize;
+		//float SizeY = PlayerXAngle.m128_f32[1] * GlobalConsts.CubeSize;
+		//float SizeZ = PlayerXAngle.m128_f32[2] * GlobalConsts.CubeSize;
 
 		std::vector<XMVECTOR> Points;
 		Points.resize(((int)fabs(MinCube.m128_f32[0] - MaxCube.m128_f32[0])) * ((int)fabs(MinCube.m128_f32[1] - MaxCube.m128_f32[1])));
-		for (float z = MinCube.m128_f32[2]; z < MaxCube.m128_f32[2]; z += cbPerObj.CubeSize) {
+		for (float z = MinCube.m128_f32[2]; z < MaxCube.m128_f32[2]; z += GlobalConsts.CubeSize) {
 			unsigned int NumPoints = 0;
-			for (float y = MinCube.m128_f32[1]; y < MaxCube.m128_f32[1]; y += cbPerObj.CubeSize) {
-				for (float x = MinCube.m128_f32[0]; x < MaxCube.m128_f32[0]; x += cbPerObj.CubeSize) {
+			for (float y = MinCube.m128_f32[1]; y < MaxCube.m128_f32[1]; y += GlobalConsts.CubeSize) {
+				for (float x = MinCube.m128_f32[0]; x < MaxCube.m128_f32[0]; x += GlobalConsts.CubeSize) {
 
 					Points[NumPoints] = XMVectorSet(x, y, z, 0);
 					NumPoints++;
@@ -920,8 +994,8 @@ void Renderer::Draw()
 		d3d11DevCon->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
 
 		//Mesh.Transform.UpdateMatrix();
-		cbPerObj.WVP = XMMatrixTranspose(*VP);
-		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
+		GlobalConsts.WVP = XMMatrixTranspose(*VP);
+		d3d11DevCon->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &GlobalConsts, 0, 0);
 		d3d11DevCon->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 
 		//Draw!
@@ -929,7 +1003,6 @@ void Renderer::Draw()
 
 		Buffer->Release();
 		d3d11DevCon->RSSetState(RasterizerState);
-
 	}
 	
 	DevUIDriver::get()->Draw();

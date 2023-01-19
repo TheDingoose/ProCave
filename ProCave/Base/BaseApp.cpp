@@ -60,48 +60,6 @@ void BaseApp::Load()
 	//Renderer::get()->InitializeMesh(Loader::LoadStatic("../Assets/Model/Creeper.glb"));
 	//Renderer::get()->Models[0].Transform.Translation = XMFLOAT4(5.f, -10.f, 8.f, 0.f);
 
-
-	//! THIS IS THE MARCHING CUBES
-	//float sizee = 10.f;
-	//sizee *= MarchCubeSettings::get()->CubeSize;
-	//XMVECTOR Worker = XMVectorZero();
-	//int ModelNum = 0;
-	//XMFLOAT4 Pos;
-	//for (float x = -sizee; x < sizee; x += MarchCubeSettings::get()->CubeSize) {
-	//	Worker.m128_f32[0] = x;
-	//	for (float y = -sizee; y < sizee; y += MarchCubeSettings::get()->CubeSize) {
-	//		Worker.m128_f32[1] = y;
-	//		for (float z = -sizee; z < sizee; z += MarchCubeSettings::get()->CubeSize) {
-	//			Worker.m128_f32[2] = z;
-	//
-	//			MarchCube Dud(Worker);
-	//
-	//			if (Dud.Vertices.size() == 0) {
-	//				continue;
-	//			}
-	//			//spdlog::info("------------------------------------");
-	//			//spdlog::info("Case: {0:d} , {0:b}", Dud.Case);
-	//			spdlog::info(ModelNum);
-	//			//std::vector<DWORD> ind;
-	//			int j = 0;
-	//			//for (int i = 0; i < Dud.Vertices.size(); i += 3) {
-	//			//	spdlog::info(j);
-	//			//	ind.push_back(j++);
-	//			//}
-	//			//spdlog::info("------------------------------------");
-	//
-	//
-	//
-	//			Renderer::get()->InitializeMesh(Mesh(Dud.Indices, Dud.Vertices));
-	//
-	//			XMStoreFloat4(&Pos, Worker);
-	//
-	//			Renderer::get()->Models[ModelNum++].Transform.Translation = Pos;
-	//		}
-	//	}
-	//}
-
-
 	position = Vector3(0.0, 0.0, 0.0);
 	transform = Transform(position, orientation);
 
@@ -109,7 +67,6 @@ void BaseApp::Load()
 	ThePlayer = new Player(world->createRigidBody(transform));
 
 	// Create the sphere shape with a radius of 2m 
-	//CapsuleShape* Cappy = physicsCommon.createCapsuleShape(1.0, 1.0);
 	SphereShape* sphereShape = physicsCommon.createSphereShape(1.0);
 	// Relative transform of the collider relative to the body origin 
 	position = Vector3(0.0, 0.0, 0.0);

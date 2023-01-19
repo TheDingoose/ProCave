@@ -56,11 +56,11 @@ void EnvironmentCollisionHandler::GenerateEnvironmentConcave(EnvironmentCollider
 		}
 	}
 }
-
+//CollisionBody = 0x00000233eff36770 { {...}}
 void EnvironmentCollisionHandler::CleanRemoved()
 {
 	for (int i = 0; i < Colliders.size(); i++) {
-		if (*Colliders[i].CollisionBody == nullptr) 
+		if (*Colliders[i].CollisionBody == nullptr || (int)(*Colliders[i].CollisionBody) == 0xdddddddd)
 		{
 			Colliders.erase(Colliders.begin() + i);
 		};
@@ -112,7 +112,6 @@ void EnvironmentCollisionHandler::MakeCollide()
 		EnvironmentBody->getCollider(0)->getMaterial().setBounciness(0.f);
 		EnvironmentBody->getCollider(0)->getMaterial().setFrictionCoefficient(0.5f);
 	}
-
 }
 
 void EnvironmentCollisionHandler::BreakCollide()
